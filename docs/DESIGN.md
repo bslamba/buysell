@@ -9,14 +9,16 @@ imagery, not copy, not branding:
 
 - a slim translucent global bar, 44px tall
 - full-bleed sections stacked vertically, alternating white / near-white grey,
-  with the occasional dark band for contrast
+  with the occasional tinted band for contrast
 - enormous headlines whose letter-spacing tightens as the size grows
 - paired actions: one filled pill, one chevron link
 - horizontal scroll-snap shelves for browsing product tiles
 
-Apple's palette is neutral. Ours substitutes deep purple everywhere they use
-blue, and biases every grey a few degrees toward violet so the neutrals read as
-chosen rather than inherited.
+Apple's palette is neutral. Ours substitutes purple everywhere they use blue,
+and biases every grey a few degrees toward violet so the neutrals read as chosen
+rather than inherited. The page stays light throughout: the feature band is a
+lavender wash rather than a near-black slab, which keeps the particle field
+visible across the whole page instead of dying against a dark section.
 
 ## Typography
 
@@ -49,7 +51,7 @@ and their intro paragraphs look airy. Headlines are 600, never 700.
 |---|---|---|
 | `--color-canvas` | `#FFFFFF` | default band |
 | `--color-surface` | `#F4F1F7` | alternating band, cards on white |
-| `--color-deep` | `#1C1030` | dark contrast bands (`.band-deep`) |
+| `--color-deep` | `#EFE9FB` | lavender feature bands (`.band-deep`) |
 | `--color-ink` | `#1A1220` | body text |
 | `--color-ink-2` | `#6B6076` | secondary text |
 | `--color-ink-3` | `#928A9C` | captions, disabled |
@@ -71,7 +73,8 @@ and their intro paragraphs look airy. Headlines are 600, never 700.
   disappearing — a control that vanishes shifts the layout.
 - **`.band` / `.band-grey` / `.band-deep`** — section grounds. Apple changes
   section colour with a hard edge and no border; so do we.
-- **`.on-deep`** — put this on a dark band and every button and link inverts.
+- **`.on-deep`** — put this on a lavender band and buttons and links deepen to
+  `--color-brand-700` so they hold their weight against the tint.
 
 ## Layout
 

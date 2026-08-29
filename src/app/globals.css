@@ -25,10 +25,12 @@
   --color-surface-2: #FAF8FC;
   --color-hairline:  #E3DDEA;
 
-  /* Dark bands. Apple alternates black sections into a light page; ours are
-     deep purple, which is where the brand colour gets to be loud. */
-  --color-deep:      #1C1030;
-  --color-deep-2:    #2A1A45;
+  /* Feature bands. Apple alternates a contrasting section into a light page.
+     Ours used to be near-black purple; it now reads as a soft lavender wash —
+     clearly violet against the near-neutral surface, but light enough to carry
+     ink text and to let the particle field show through it. */
+  --color-deep:      #EFE9FB;
+  --color-deep-2:    #E4DAF6;
 
   /* Ink — Apple's #1d1d1f and #6e6e73, pulled toward violet */
   --color-ink:       #1A1220;
@@ -145,12 +147,13 @@ body {
   .a-btn-ghost:hover { background: var(--color-brand); color: #fff; }
   .a-btn-sm { padding: 8px 16px; font-size: 14px; }
 
-  /* On dark bands the same buttons invert. */
-  .on-deep .a-btn-fill  { background: #fff; color: var(--color-deep); }
-  .on-deep .a-btn-fill:hover  { background: #EDE7FB; }
-  .on-deep .a-btn-ghost { border-color: #fff; color: #fff; }
-  .on-deep .a-btn-ghost:hover { background: #fff; color: var(--color-deep); }
-  .on-deep .a-link { color: var(--color-brand-300); }
+  /* On the lavender band the buttons keep the brand treatment; only the
+     ghost outline needs deepening so it does not dissolve into the wash. */
+  .on-deep .a-btn-fill  { background: var(--color-brand-700); color: #fff; }
+  .on-deep .a-btn-fill:hover  { background: var(--color-brand); }
+  .on-deep .a-btn-ghost { border-color: var(--color-brand-700); color: var(--color-brand-700); }
+  .on-deep .a-btn-ghost:hover { background: var(--color-brand-700); color: #fff; }
+  .on-deep .a-link { color: var(--color-brand-700); }
 
   /* ── The store tile ─────────────────────────────────────────────────── */
   .tile {
@@ -268,7 +271,7 @@ body {
   /* Section bands. Apple's rhythm is a hard colour change with no border. */
   .band       { background: var(--color-canvas); }
   .band-grey  { background: var(--color-surface); }
-  .band-deep  { background: var(--color-deep); color: #fff; }
+  .band-deep  { background: var(--color-deep); color: var(--color-ink); }
 
   .container-a { max-width: 1240px; margin-inline: auto; padding-inline: 24px; }
 }

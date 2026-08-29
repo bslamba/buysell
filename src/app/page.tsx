@@ -40,8 +40,10 @@ export default function HomePage() {
     <>
       <JsonLd data={[breadcrumbLd([{ name: "Home", path: "/" }]), faqLd(FAQS)]} />
 
-      {/* ── Hero: the mark sits above the name, over a live particle field ── */}
+      {/* ── The whole page lives inside the live particle field ───────── */}
       <HeroBanner>
+
+      {/* ── Hero: the mark sits above the name ──────────────────────────── */}
       <section>
         <div className="container-a py-20 text-center sm:py-28">
           <h1 className="t-hero flex justify-center leading-none">
@@ -59,19 +61,18 @@ export default function HomePage() {
             <Button href="/browse">Shop the store</Button>
             <Button href="/sell" variant="link">Sell an item</Button>
           </Actions>
-          <p className="t-caption mt-14 text-ink-3">Move your cursor across the banner.</p>
+          <p className="t-caption mt-14 text-ink-3">Move your cursor anywhere on the page.</p>
         </div>
       </section>
-      </HeroBanner>
 
       {/* ── Full-bleed dark band: the proposition ────────────────────────── */}
       <section className="band-deep on-deep">
         <div className="container-a py-24 text-center sm:py-32">
-          <Eyebrow className="!text-brand-300">Verified before it appears</Eyebrow>
+          <Eyebrow>Verified before it appears</Eyebrow>
           <h2 className="t-headline mx-auto mt-4 max-w-[15ch] text-balance">
             Eleven checks. Before anyone sees it.
           </h2>
-          <p className="t-subhead mx-auto mt-5 max-w-[600px] text-balance text-white/70">
+          <p className="t-subhead mx-auto mt-5 max-w-[600px] text-balance text-ink-2">
             Other marketplaces moderate what gets reported. We check everything up front —
             and what reaches a human is only what the machine genuinely could not decide.
           </p>
@@ -88,7 +89,7 @@ export default function HomePage() {
             ].map((s) => (
               <div key={s.k}>
                 <dt className="t-hero !text-[52px] leading-none tabular">{s.v}</dt>
-                <dd className="t-small mt-3 text-white/60">{s.k}</dd>
+                <dd className="t-small mt-3 text-ink-2">{s.k}</dd>
               </div>
             ))}
           </dl>
@@ -268,6 +269,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      </HeroBanner>
     </>
   );
 }

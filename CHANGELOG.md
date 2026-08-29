@@ -244,6 +244,28 @@ Listing pages
 Verified: the banner's vertices are byte-identical to the logo path under the
 documented transform, and the asymmetry is preserved.
 
+## 2026-08-29 — Page-wide particle field, lighter bands
+
+- The particle canvas is now `fixed` to the viewport rather than absolute inside
+  the hero, so the whole page reacts to the cursor — including the feature band
+  and the shelves. It sits at z-1: above the opaque section grounds, below the
+  z-50 nav.
+- Letter W halved, 210px -> 105px.
+- Dot field roughly quadrupled, 340 -> 1500, with idle radius down from 0.7-2.6
+  to 0.5-1.6 and letter radius from a flat 3.1 to a jittered ~1.0-2.3.
+- The W is now suggested rather than traced. Sampling along the polyline is
+  unevenly spaced, and every dot carries a fixed offset from the stroke drawn
+  from a sum-of-two-uniforms distribution, so most hug the letter and a few
+  stray. Per-dot pull rates vary too, so the letter assembles raggedly instead
+  of snapping into place.
+- The dark purple band is now a lavender wash (`#1C1030` -> `#EFE9FB`) with ink
+  text; `.on-deep` deepens buttons to brand-700 instead of inverting to white.
+- The ~1400 idle dots are batched into one path per frame, so a frame is two
+  fill calls rather than 1500.
+
+Verified: 60fps at 1440x900, no console errors, no horizontal overflow, and
+links under the canvas still receive clicks (it is `pointer-events-none`).
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
