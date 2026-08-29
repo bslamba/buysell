@@ -22,7 +22,8 @@ function die(message) {
 }
 
 async function main() {
-  const url = process.env.DATABASE_URL;
+  // Check the endpoint the migration will actually use (see drizzle.config.ts).
+  const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
   if (!url) {
     die('DATABASE_URL is not set. Put it in .env.local:\n' +
         '    DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"');

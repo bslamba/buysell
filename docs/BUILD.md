@@ -70,10 +70,18 @@ number, and an admin can see an empty queue.
    npm run dev
    ```
 2. **Database.** Create the Neon project and copy the pooled connection string
-   into `DATABASE_URL` in **`.env.local`**, quoted:
+   into `DATABASE_URL` in **`.env.local`**, quoted, and the direct (non-pooled)
+   one into `DATABASE_URL_UNPOOLED` — the same URL with `-pooler` removed from
+   the host:
    ```
-   DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
+   DATABASE_URL="postgresql://…@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require"
+   DATABASE_URL_UNPOOLED="postgresql://…@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
    ```
+   The app uses the pooled endpoint; **migrations use the direct one**, because
+   the pooled host is PgBouncer in transaction mode and a migration's
+   multi-statement transactions and advisory locks are exactly what that breaks.
+   `drizzle.config.ts` prefers `DATABASE_URL_UNPOOLED` and falls back to
+   `DATABASE_URL` when it is absent.
    Then:
    ```bash
    npm run db:migrate      # runs db:check first, then applies the migrations
