@@ -9,6 +9,29 @@
 - Moderation engine with 11 check groups, blocker/score/priority model, unit tests
 - Docs: BUILD, MODERATION, ARCHITECTURE, NAMING
 
+## 2026-08-29 — Phase 1 complete: authentication, roles, app shell
+
+- Zod-validated environment with dev-friendly defaults and a strict production assertion
+- Drizzle Postgres client tuned for serverless (max: 1, prepare: false)
+- Rate limiter: Upstash when configured, bounded in-memory window for local dev
+- SMS provider abstraction: MSG91, Twilio, and a console provider that prints the
+  OTP to the dev log so local sign-in needs no vendor account
+- Phone OTP: CSPRNG codes, stored only as sha256(phone:code:secret), 10-minute
+  TTL, 5 attempts per challenge, 3 sends per number per hour, 10 per IP
+- Auth.js v5 with JWT sessions, Google OAuth, and a phone-OTP credentials
+  provider; role refreshed from the database every 5 minutes so bans take effect
+- Role hierarchy extracted to a dependency-free module shared by middleware,
+  server components and tests
+- Middleware routing gate on /admin, /corporate, /sell, /account, with
+  authorisation re-checked in every protected route
+- App shell, home page, sign-in and phone-verification flows, admin overview and
+  review queue, corporate account pages
+- Migration 0000 generated (18 tables) with a post-processor that unquotes the
+  bit(64) custom type and declares the pgvector extension
+- Seed script for five test accounts and two organisations
+- 22 unit tests passing; typecheck and production build clean
+
 ### Next
-- Phase 1: auth (phone OTP + Google), roles, first Vercel deploy
+- Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
+- Run migrations against a real Neon database — not yet verified against live Postgres

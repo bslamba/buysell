@@ -56,9 +56,19 @@ src/
   config/
     brand.ts            brand identity — one file re-brands the app
     categories.ts       category registry; each category carries its own rules
+  env.ts                zod-validated environment contract
+  middleware.ts         coarse routing gate (not the authorisation boundary)
   db/
     schema.ts           full Drizzle schema
   lib/
+    auth/
+      roles.ts          role hierarchy, dependency-free (used by edge middleware)
+      phone.ts          E.164 normalisation for Indian mobile numbers
+      otp.ts            OTP issue and verify, hashed codes, rate limited
+      config.ts         Auth.js v5 config: Google + phone-OTP, JWT sessions
+      guards.ts         requireUser / requireRole / requireOrgMember
+    rate-limit.ts       Upstash with an in-memory dev fallback
+    sms/                MSG91 | Twilio | console providers
     hash/phash.ts       sha256 + pHash (DCT) + dHash, blur and stock-photo heuristics
     moderation/
       engine.ts         the pipeline: run checks, score, decide, prioritise
@@ -74,9 +84,25 @@ docs/                   the documents listed above
 
 ## Status
 
-Phase 1 of 7. Schema, category rules, image fingerprinting and the moderation
-engine are written and unit-tested. Auth, UI, admin portal and auctions are next
-— see `docs/BUILD.md`.
+**Phase 1 complete.** Schema, category rules, image fingerprinting, the moderation
+engine, phone-OTP and Google authentication, role guards, and the app shell with
+an admin review queue are all built. Typecheck, 22 unit tests and the production
+build are green.
+
+Phase 2 (listing creation and image ingest) is next — see `docs/BUILD.md`.
+
+### Test accounts
+
+`npm run db:seed` creates these. In development the OTP is printed to the
+dev-server terminal, so no SMS account is needed to sign in.
+
+| Number | Role |
+|---|---|
+| +91 90000 00001 | superadmin |
+| +91 90000 00002 | moderator |
+| +91 90000 00003 | trusted seller (auto-approve eligible) |
+| +91 90000 00004 | new seller (always human-reviewed) |
+| +91 90000 00005 | corporate owner (1 approved + 1 pending org) |
 
 ## Licence
 

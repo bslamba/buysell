@@ -3,19 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "description": "Pakka - a verification-first marketplace for pre-owned goods in India",
-  "engines": { "node": ">=20.0.0" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:generate": "drizzle-kit generate",
+    "db:generate": "drizzle-kit generate && node scripts/fix-migrations.mjs",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:fix": "node scripts/fix-migrations.mjs"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.0.5",

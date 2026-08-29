@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  /* Pakka palette. Deep green reads as "verified" without the fintech-blue
+     sameness; the neutrals are warmed very slightly toward it so the greys
+     look chosen rather than inherited. */
+  --color-ink-950: #0B1210;
+  --color-ink-900: #121A17;
+  --color-ink-700: #2C3A34;
+  --color-ink-500: #5B6B64;
+  --color-ink-400: #7C8B84;
+  --color-ink-200: #D8DEDB;
+  --color-ink-100: #E9EDEB;
+  --color-ink-50:  #F5F7F6;
+
+  --color-brand-700: #075E45;
+  --color-brand-600: #0B7A5B;
+  --color-brand-500: #129870;
+  --color-brand-100: #D7EFE7;
+  --color-brand-50:  #EDF8F4;
+
+  --color-warn-600: #A9600A;
+  --color-warn-100: #FBEEDA;
+  --color-danger-600: #B3341C;
+  --color-danger-100: #FBE3DD;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+:root { color-scheme: light; }
+
+body {
+  background: var(--color-ink-50);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; }
+  body { background: var(--color-ink-950); color: var(--color-ink-100); }
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
