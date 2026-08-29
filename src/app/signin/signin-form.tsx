@@ -6,6 +6,28 @@ import { Button, Field, inputClass } from "@/components/ui";
 
 type Step = "phone" | "code";
 
+/**
+ * The catch block below means "the request never completed" — a dropped
+ * connection, DNS, offline. It must NOT also mean "the server answered with
+ * something I could not parse", because that is a server fault and telling
+ * someone to check their wifi sends them looking in the wrong place. These two
+ * helpers keep the distinction: a body that will not parse is reported as a
+ * server error, with its status, and the detail is in the server log.
+ */
+async function readJson(res: Response): Promise<{ ok?: boolean; error?: string; devCode?: string } | null> {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function serverFailure(res: Response): string {
+  return `The server could not handle that (error ${res.status}). ${
+    res.status >= 500 ? "The detail is in the server log." : "Please try again."
+  }`;
+}
+
 export function SignInForm({ next, googleEnabled }: { next: string; googleEnabled: boolean }) {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
@@ -34,7 +56,8 @@ export function SignInForm({ next, googleEnabled }: { next: string; googleEnable
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
       });
-      const data = await res.json();
+      const data = await readJson(res);
+      if (!data) { setError(serverFailure(res)); return; }
       if (!data.ok) { setError(data.error ?? "Could not send the code."); return; }
       setStep("code");
       setCooldown(30);
@@ -55,7 +78,8 @@ export function SignInForm({ next, googleEnabled }: { next: string; googleEnable
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, code }),
       });
-      const data = await pre.json();
+      const data = await readJson(pre);
+      if (!data) { setError(serverFailure(pre)); return; }
       if (!data.ok) { setError(data.error ?? "That code is not right."); return; }
 
       const result = await signIn("phone-otp", { phone, code, redirect: false });

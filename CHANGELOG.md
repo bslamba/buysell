@@ -349,7 +349,39 @@ fix, 2 positions leaked (worst 5px); after it, 0. The letter still forms at 153
 of the 384 positions, so the effect is suppressed near content, not disabled.
 53fps, no page errors.
 
+## 2026-08-29 — Sign-in reported the wrong problem
+
+Phone sign-in showed "Network error. Check your connection and try again." The
+connection was fine. `requestOtp` threw because Postgres was not reachable, the
+route had no try/catch, so Next returned an empty 500 — and an empty body makes
+`res.json()` throw, which landed in the client's catch block alongside genuine
+transport failures. Every server-side fault was being reported as the user's
+wifi.
+
+- Both OTP routes now catch, log server-side, and always answer with JSON. A
+  route that can throw must never return an empty body to a client that parses
+  one.
+- `src/db/errors.ts` maps driver failures to one actionable line: ECONNREFUSED
+  to "Postgres is not running at the host in DATABASE_URL", 42P01 to "run
+  npm run db:migrate", 28P01 to bad credentials, 3F000 to the missing `vector`
+  extension. Shown in development only — in production these would tell an
+  attacker which part of the stack is misconfigured. Cause chains are followed
+  to a bounded depth so a cycle cannot hang a request.
+- The client now separates "the request never completed" (offline, DNS) from
+  "the server answered with something unparseable" (a server fault, reported
+  with its status). Only the first is called a network error.
+- 7 tests on the mapping, including the cycle guard.
+
+Verified against a dev server with a dead DATABASE_URL: the sign-in page now
+says "The database refused the connection. Postgres is not running at the host
+in DATABASE_URL, or the port is wrong."
+
+Also, in .env.local (untracked): OTP_PROVIDER was "msg91" with no MSG91_AUTH_KEY,
+so sending would have failed even with a working database. Set to "console",
+which returns the code to the screen in development and needs no SMS vendor.
+
 ### Next
+- Point DATABASE_URL at a Neon database and run `npm run db:migrate`
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
 - Run migrations against a real Neon database — not yet verified against live Postgres

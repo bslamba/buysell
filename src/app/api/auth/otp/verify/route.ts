@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyOtp } from "@/lib/auth/otp";
+import { dbErrorHint } from "@/db/errors";
+import { env } from "@/env";
 
 export const runtime = "nodejs";
 
@@ -22,11 +24,20 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: "Enter the 6-digit code." }, { status: 400 });
   }
-  // Dry run: never consumes the code, so the real sign-in below still works.
-  const result = await verifyOtp(parsed.data.phone, parsed.data.code, { consume: false });
-  // Never return the userId from a dry run.
-  return NextResponse.json(
-    result.ok ? { ok: true, isNewUser: result.isNewUser } : result,
-    { status: result.ok ? 200 : 400 },
-  );
+  try {
+    // Dry run: never consumes the code, so the real sign-in below still works.
+    const result = await verifyOtp(parsed.data.phone, parsed.data.code, { consume: false });
+    // Never return the userId from a dry run.
+    return NextResponse.json(
+      result.ok ? { ok: true, isNewUser: result.isNewUser } : result,
+      { status: result.ok ? 200 : 400 },
+    );
+  } catch (err) {
+    console.error("[auth/otp/verify] failed:", err);
+    const hint = env().NODE_ENV === "development" ? dbErrorHint(err) : null;
+    return NextResponse.json(
+      { ok: false, error: hint ?? "Something went wrong on our side. Please try again." },
+      { status: 500 },
+    );
+  }
 }
