@@ -266,6 +266,35 @@ documented transform, and the asymmetry is preserved.
 Verified: 60fps at 1440x900, no console errors, no horizontal overflow, and
 links under the canvas still receive clicks (it is `pointer-events-none`).
 
+## 2026-08-29 — Complete W, finer and denser field
+
+- **Fixed: the W rendered cropped.** Recruitment filtered candidates by a
+  radius, so wherever the field ran thin — near a screen edge especially — the
+  tail of the polyline never got a dot and the letter came out half-drawn. It
+  now takes the nearest W_POINTS unconditionally, so every target index is
+  filled and the letter is always complete. The radius survives only as a
+  bound on how much of the field gets sorted.
+- W down again, 105px -> 76px.
+- Letter dots up 130 -> 190 and down in size, 1.55 base -> 1.0 (jittered
+  ~0.6-1.9). Scatter widened 0.055 -> 0.07, and the along-stroke sampling is
+  looser, so the letter is grainier and less traced.
+- Idle dots down from 0.5-1.6 to 0.32-1.04, with density now derived from
+  viewport area (one dot per 520px², ~2500 at 1440x900, up from 1500 fixed) so
+  a large display is not sparser than a laptop.
+- The cursor now carries a visible field: idle dots within 300px brighten from
+  0.16 to 0.42 alpha, and the letter splits into a solid core and a fainter
+  spray of the dots whose offset strays furthest from the stroke.
+- Performance: at the new density the naive draw fell to 36fps. The idle field
+  is now drawn as rects rather than arcs (indistinguishable at a sub-pixel
+  radius, and `arc` tessellates where `rect` does not), recruitment sorts a
+  local shortlist instead of the whole field into reused typed arrays, and it
+  runs once per frame rather than once per pointer event.
+
+Verified: 54fps in software rendering at 1440x900 both idle and while the
+pointer sweeps (so comfortably 60 on a GPU), no page errors, and the W renders
+complete at the bottom-left corner and the right edge — the cases that used to
+crop it.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)

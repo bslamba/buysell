@@ -13,29 +13,39 @@ import { useEffect, useRef, type ReactNode } from "react";
  *
  * • The canvas is `fixed`, not `absolute`, so the effect covers the entire
  *   page rather than one band — the cursor gets a reaction anywhere on screen,
- *   including over the dark section and the shelves.
- * • It sits at z-1: above the opaque section backgrounds (otherwise the bands
- *   would hide it) and below the z-50 nav (which stays legible).
- * • Canvas, not DOM. A thousand animated elements would thrash layout; one
- *   canvas costs a single composite per frame, and the ~900 idle dots are
- *   batched into a single path so a frame is two fill calls, not a thousand.
- * • Dots are seeded from a small deterministic PRNG rather than Math.random,
- *   so the field is identical on every load. That is partly aesthetic and
- *   partly the hydration rule we have already been bitten by twice.
- * • The W is *suggested*, not traced. Every dot carries its own fixed offset
- *   from the stroke, so the letter reads as a swarm settling into a shape
- *   rather than a font rendered in circles.
- * • rAF stops entirely when the page scrolls out of view or the tab is hidden,
- *   and never starts under prefers-reduced-motion; a decorative loop should
- *   not spin a laptop fan or fight someone's vestibular system.
+ *   including over the feature band and the shelves. It sits at z-1: above the
+ *   opaque section grounds, below the z-50 nav.
+ * • The letter is ALWAYS complete. Recruitment takes the nearest W_POINTS dots
+ *   full stop, with no distance filter. An earlier version dropped dots beyond
+ *   a radius, which meant that near a screen edge — or anywhere the field ran
+ *   thin — the tail of the polyline never got a dot and the W rendered
+ *   half-drawn. Every target index now gets filled, every time.
+ * • Density is derived from viewport area rather than fixed, so a 27" monitor
+ *   is not sparser than a laptop. Dots are drawn from one seeded pool, so the
+ *   field is identical on every load — partly aesthetic, partly the hydration
+ *   rule we have already been bitten by twice.
+ * • The W is *suggested*, not traced. Sampling along the stroke is unevenly
+ *   spaced, every dot carries a fixed offset drawn from a soft distribution,
+ *   and each has its own pull rate, so the letter assembles raggedly.
+ * • Four fill calls per frame, not two thousand: idle dots are batched into a
+ *   far and a near path, and the letter into a halo and a core path. The idle
+ *   field is drawn as rects rather than arcs — at a sub-pixel radius the two
+ *   are indistinguishable, and `arc` tessellates where `rect` does not, which
+ *   is the difference between 36fps and 60 at this density. The letter keeps
+ *   arcs: those dots are large enough for the shape to read.
+ * • rAF stops when the page is scrolled away from or the tab is hidden, and
+ *   never starts under prefers-reduced-motion; a decorative loop should not
+ *   spin a laptop fan or fight someone's vestibular system.
  */
 
-const DOT_COUNT = 1500;     // ~1 dot per 860px² on a laptop screen
-const W_POINTS = 130;       // dots recruited into the letter
-const W_SIZE = 105;         // px across — half the previous 210
-const LETTER_DOT_R = 1.55;  // base radius inside the letter, jittered per dot
-const SCATTER = 0.055;      // per-dot offset from the stroke, in W widths
-const INFLUENCE = 250;      // px, how far the pointer reaches
+const MAX_DOTS = 5000;      // seeded pool; the active slice is chosen by area
+const PX_PER_DOT = 520;     // ~2500 dots at 1440x900 — a dense, fine grain
+const MIN_DOTS = 1400;
+const W_POINTS = 190;       // dots recruited into the letter
+const W_SIZE = 76;          // px across (210 → 105 → 76)
+const LETTER_DOT_R = 1.0;   // base radius inside the letter, jittered per dot
+const SCATTER = 0.07;       // per-dot offset from the stroke, in W widths
+const GLOW = 300;           // px, the radius the cursor visibly brightens
 
 /** mulberry32 — tiny, seedable, good enough for scattering dots. */
 function prng(seed: number) {
@@ -76,7 +86,7 @@ function wTargets(count: number, rand: () => number): { x: number; y: number }[]
   const total = segs.reduce((s, g) => s + g.len, 0);
   const out: { x: number; y: number }[] = [];
   for (let i = 0; i < count; i++) {
-    const slot = (i + (rand() - 0.5) * 1.6) / (count - 1);
+    const slot = (i + (rand() - 0.5) * 1.7) / (count - 1);
     let d = Math.min(Math.max(slot, 0), 1) * total;
     for (const g of segs) {
       if (d <= g.len || g === segs[segs.length - 1]) {
@@ -93,7 +103,7 @@ function wTargets(count: number, rand: () => number): { x: number; y: number }[]
 /** Two uniforms summed give a soft peak at zero: most dots hug the stroke,
  *  a few stray well off it. A flat random would read as a fuzzy band. */
 function softOffset(rand: () => number) {
-  return (rand() + rand() - 1);
+  return rand() + rand() - 1;
 }
 
 interface Dot {
@@ -102,6 +112,7 @@ interface Dot {
   r: number;                // idle radius
   lr: number;               // radius inside the letter
   jx: number; jy: number;   // its own offset from the stroke, in W widths
+  stray: boolean;           // sits well off the stroke — drawn as faint halo
   pull: number;             // how eagerly it joins — varies, so arrival is ragged
   phase: number;
   drift: number;
@@ -123,26 +134,35 @@ export function HeroBanner({ children }: { children: ReactNode }) {
 
     const rand = prng(20260829);
     const targets = wTargets(W_POINTS, rand);
-    let dots: Dot[] = [];
-    let w = 0, h = 0, dpr = 1;
-    let pointer = { x: -9999, y: -9999, active: false };
-    let raf = 0;
-    let running = false;
-
-    function seed() {
-      dots = Array.from({ length: DOT_COUNT }, () => ({
+    const pool: Dot[] = Array.from({ length: MAX_DOTS }, () => {
+      const jx = softOffset(rand) * SCATTER;
+      const jy = softOffset(rand) * SCATTER;
+      return {
         hx: rand(), hy: rand(),
         x: 0, y: 0,
-        r: 0.5 + rand() * 1.1,
-        lr: LETTER_DOT_R * (0.62 + rand() * 0.85),
-        jx: softOffset(rand) * SCATTER,
-        jy: softOffset(rand) * SCATTER,
-        pull: 0.085 + rand() * 0.11,
+        r: 0.32 + rand() * 0.72,
+        lr: LETTER_DOT_R * (0.6 + rand() * 0.9),
+        jx, jy,
+        stray: Math.hypot(jx, jy) > SCATTER * 0.62,
+        pull: 0.075 + rand() * 0.12,
         phase: rand() * Math.PI * 2,
         drift: 0.35 + rand() * 0.9,
         target: -1,
-      }));
-    }
+      };
+    });
+
+    let dots: Dot[] = [];
+    // Reused across calls: allocating a few thousand objects per pointer move
+    // is a garbage-collection pause you can feel.
+    const cd2 = new Float64Array(MAX_DOTS);
+    const cix = new Int32Array(MAX_DOTS);
+    const near: Dot[] = [];
+    const halo: Dot[] = [];
+    let w = 0, h = 0, dpr = 1;
+    let pointer = { x: -9999, y: -9999, active: false };
+    let dirty = true;   // recruitment is recomputed once per frame, not per event
+    let raf = 0;
+    let running = false;
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -153,30 +173,60 @@ export function HeroBanner({ children }: { children: ReactNode }) {
       canvas!.style.width = `${w}px`;
       canvas!.style.height = `${h}px`;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      for (const d of dots) { d.x = d.hx * w; d.y = d.hy * h; }
+
+      // Density follows area, so the grain looks the same on a laptop and a
+      // 27" display. The pool is fixed and seeded; only the slice changes.
+      const want = Math.round((w * h) / PX_PER_DOT);
+      const n = Math.max(MIN_DOTS, Math.min(MAX_DOTS, want));
+      dots = pool.slice(0, n);
+      for (const d of dots) { d.x = d.hx * w; d.y = d.hy * h; d.target = -1; }
+      dirty = true;
     }
 
     function assign() {
-      // Recruit the dots nearest the pointer, closest-first, so the letter
-      // builds outward from where the eye already is.
       for (const d of dots) d.target = -1;
       if (!pointer.active) return;
-      const near: { i: number; dist: number }[] = [];
-      for (let i = 0; i < dots.length; i++) {
-        const dist = Math.hypot(dots[i].hx * w - pointer.x, dots[i].hy * h - pointer.y);
-        if (dist < INFLUENCE) near.push({ i, dist });
+
+      // Nearest W_POINTS, unconditionally — every target index gets a dot, so
+      // the letter is never half-drawn. A radius filter is what used to crop
+      // it near a screen edge; here the radius only bounds how much we sort.
+      // Start local, widen until enough dots qualify, then sort that short
+      // list rather than the whole field.
+      let r = GLOW;
+      let n = 0;
+      for (let pass = 0; pass < 6; pass++) {
+        const r2 = r * r;
+        n = 0;
+        for (let i = 0; i < dots.length; i++) {
+          const dx = dots[i].hx * w - pointer.x;
+          const dy = dots[i].hy * h - pointer.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < r2) { cd2[n] = d2; cix[n] = i; n++; }
+        }
+        if (n >= W_POINTS || r > 4 * (w + h)) break;
+        r *= 1.7;
       }
-      near.sort((a, b) => a.dist - b.dist);
-      const take = Math.min(near.length, W_POINTS);
-      for (let k = 0; k < take; k++) dots[near[k].i].target = k;
+      if (n === 0) return;
+
+      // Insertion-rank the first W_POINTS by distance. n is a few hundred, so
+      // a plain sort of the shortlist is cheaper than sorting the field.
+      const order = Array.from({ length: n }, (_, k) => k);
+      order.sort((a, b) => cd2[a] - cd2[b]);
+      const take = Math.min(n, W_POINTS);
+      for (let k = 0; k < take; k++) dots[cix[order[k]]].target = k;
     }
 
     function frame(t: number) {
+      if (dirty) { assign(); dirty = false; }
       ctx!.clearRect(0, 0, w, h);
       const time = t * 0.001;
+      const glow2 = GLOW * GLOW;
 
-      // Idle dots first, batched into one path — same colour, one fill.
-      ctx!.fillStyle = "rgba(109, 40, 217, 0.20)";
+      // Idle dots, in two batches: the ones inside the cursor's reach are
+      // brighter, so the pointer carries a visible field of influence rather
+      // than only the letter itself.
+      near.length = 0;
+      ctx!.fillStyle = "rgba(109, 40, 217, 0.16)";
       ctx!.beginPath();
       for (const d of dots) {
         if (d.target >= 0) continue;
@@ -184,14 +234,26 @@ export function HeroBanner({ children }: { children: ReactNode }) {
         const ty = d.hy * h + Math.cos(time * d.drift * 0.8 + d.phase) * 9;
         d.x += (tx - d.x) * 0.045;
         d.y += (ty - d.y) * 0.045;
-        ctx!.moveTo(d.x + d.r, d.y);
-        ctx!.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        if (pointer.active) {
+          const dx = d.x - pointer.x, dy = d.y - pointer.y;
+          if (dx * dx + dy * dy < glow2) { near.push(d); continue; }
+        }
+        ctx!.rect(d.x - d.r, d.y - d.r, d.r * 2, d.r * 2);
       }
       ctx!.fill();
 
-      // Then the letter. Each dot aims at its own point plus its own permanent
-      // offset, so the W is a swarm holding a shape, not a traced outline.
-      ctx!.fillStyle = "rgba(109, 40, 217, 0.85)";
+      ctx!.fillStyle = "rgba(109, 40, 217, 0.42)";
+      ctx!.beginPath();
+      for (const d of near) {
+        ctx!.rect(d.x - d.r, d.y - d.r, d.r * 2, d.r * 2);
+      }
+      ctx!.fill();
+
+      // The letter, in two batches. Dots whose offset puts them well off the
+      // stroke are drawn faint, so the W has a core and a spray around it
+      // instead of one uniform outline.
+      halo.length = 0;
+      ctx!.fillStyle = "rgba(109, 40, 217, 0.9)";
       ctx!.beginPath();
       for (const d of dots) {
         if (d.target < 0) continue;
@@ -200,6 +262,15 @@ export function HeroBanner({ children }: { children: ReactNode }) {
         const ty = pointer.y + (p.y + d.jy) * W_SIZE;
         d.x += (tx - d.x) * d.pull;
         d.y += (ty - d.y) * d.pull;
+        if (d.stray) { halo.push(d); continue; }
+        ctx!.moveTo(d.x + d.lr, d.y);
+        ctx!.arc(d.x, d.y, d.lr, 0, Math.PI * 2);
+      }
+      ctx!.fill();
+
+      ctx!.fillStyle = "rgba(109, 40, 217, 0.45)";
+      ctx!.beginPath();
+      for (const d of halo) {
         ctx!.moveTo(d.x + d.lr, d.y);
         ctx!.arc(d.x, d.y, d.lr, 0, Math.PI * 2);
       }
@@ -222,12 +293,11 @@ export function HeroBanner({ children }: { children: ReactNode }) {
       // The canvas is fixed to the viewport, so client coordinates are already
       // canvas coordinates — no rect offset, and no recalculation on scroll.
       pointer = { x: e.clientX, y: e.clientY, active: true };
-      assign();
+      dirty = true;
     }
-    function onLeave() { pointer.active = false; assign(); }
+    function onLeave() { pointer.active = false; dirty = true; }
     function onVisibility() { document.hidden ? stop() : start(); }
 
-    seed();
     resize();
     start();
 
