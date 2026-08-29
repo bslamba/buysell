@@ -68,30 +68,30 @@ export default async function CategoryLandingPage({
         categoryCollectionLd(c, rows.map((r) => ({ title: r.title, path: `/listing/${r.publicId}`, pricePaise: r.pricePaise }))),
       ]} />
 
-      <header className="border-b border-white/[0.06] py-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-text-faint">
-            <Link href="/" className="hover:text-text-muted">Home</Link>
+      <header className="border-b border-hairline py-16">
+        <div className="container-a">
+          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-ink-3">
+            <Link href="/" className="hover:text-ink-2">Home</Link>
             <span>/</span>
-            <Link href="/browse" className="hover:text-text-muted">Browse</Link>
+            <Link href="/browse" className="hover:text-ink-2">Browse</Link>
             <span>/</span>
-            <span className="text-text-muted">{c.label}</span>
+            <span className="text-ink-2">{c.label}</span>
           </nav>
 
           <div className="flex items-start gap-4">
-            <span className="glass mt-1 shrink-0 rounded-2xl p-3 text-violet-300">
+            <span className="tile mt-1 shrink-0 rounded-2xl p-3 text-brand">
               <CategoryIcon name={c.icon} size={26} />
             </span>
             <div>
               <h1 className="text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
                 {c.label}
               </h1>
-              <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-text-muted">{c.seo.intro}</p>
+              <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-ink-2">{c.seo.intro}</p>
             </div>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-2">
-            <Badge tone={c.tier === "certified" ? "ok" : c.tier === "assisted" ? "violet" : "plain"}>
+            <Badge tone={c.tier === "certified" ? "ok" : c.tier === "assisted" ? "brand" : "plain"}>
               {c.tier === "certified" ? "Fully certified" : c.tier === "assisted" ? "Assisted checks" : "Standard checks"}
             </Badge>
             {c.requiresImei && <Badge tone="ok">IMEI checked against CEIR</Badge>}
@@ -101,14 +101,14 @@ export default async function CategoryLandingPage({
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div className="container-a py-12">
         {/* Subcategory terms — the long-tail queries, as real internal links */}
         <section aria-label="Popular in this category">
           <Eyebrow>Popular in {c.label}</Eyebrow>
           <div className="mt-4 flex flex-wrap gap-2">
             {c.subcategories.map((s) => (
               <Link key={s} href={`/browse?category=${c.slug}&q=${encodeURIComponent(s)}`}
-                className="glass glass-hover rounded-full px-4 py-2 text-sm text-text-muted">
+                className="tile rounded-full px-4 py-2 text-sm text-ink-2">
                 {s}
               </Link>
             ))}
@@ -134,7 +134,7 @@ export default async function CategoryLandingPage({
                       <h2 className="text-base font-semibold leading-snug tracking-[-0.01em]">{l.title}</h2>
                       <Badge tone="ok">Verified</Badge>
                     </div>
-                    <p className="mt-2 text-xs capitalize text-text-faint">
+                    <p className="mt-2 text-xs capitalize text-ink-3">
                       {l.condition.replace(/_/g, " ")} · {l.city}
                     </p>
                     <p className="mt-auto pt-6 text-2xl font-semibold tracking-[-0.03em] tabular">
@@ -151,7 +151,7 @@ export default async function CategoryLandingPage({
         <section className="mt-16 grid gap-4 md:grid-cols-2">
           <Card>
             <Eyebrow>What we ask sellers for</Eyebrow>
-            <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            <p className="mt-3 text-sm leading-relaxed text-ink-2">
               {c.requiredAttributes.map((a) => a.replace(/_/g, " ")).join(", ")}.
               Between {c.minImages} and {c.maxImages} photographs of the actual item.
             </p>
@@ -161,8 +161,8 @@ export default async function CategoryLandingPage({
               <Eyebrow>Rules for this category</Eyebrow>
               <ul className="mt-3 space-y-2">
                 {c.notes.map((n) => (
-                  <li key={n} className="flex gap-2.5 text-sm leading-relaxed text-text-muted">
-                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />
+                  <li key={n} className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
                     {n}
                   </li>
                 ))}
@@ -177,8 +177,8 @@ export default async function CategoryLandingPage({
             <div className="mt-4 flex flex-wrap gap-2">
               {related.map((r) => (
                 <Link key={r.slug} href={`/browse/${r.slug}`}
-                  className="glass glass-hover flex items-center gap-2.5 rounded-full px-4 py-2.5 text-sm font-medium">
-                  <span className="text-violet-300"><CategoryIcon name={r.icon} size={17} /></span>
+                  className="tile flex items-center gap-2.5 rounded-full px-4 py-2.5 text-sm font-medium">
+                  <span className="text-brand"><CategoryIcon name={r.icon} size={17} /></span>
                   {r.label}
                 </Link>
               ))}

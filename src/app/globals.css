@@ -1,172 +1,209 @@
 @import "tailwindcss";
 
 /*
- * WorthIt — Apple-glass on dark violet.
+ * WorthIt — deep purple on white, built on Apple's typographic system.
  *
- * Deliberately single-theme. The whole surface is one continuous dark ground
- * with light bleeding through translucent panels, which only holds together if
- * the ground stays constant; a light mode would mean designing it twice and
- * getting a worse version of both. Every colour is declared explicitly so the
- * page never borrows the host's theme.
+ * The reference is apple.com: a slim translucent nav, full-bleed stacked
+ * sections alternating between white and a near-white grey, enormous tightly
+ * tracked headlines, and generous vertical rhythm. Apple's palette is neutral;
+ * ours substitutes deep purple wherever they use blue, and biases every grey a
+ * few degrees toward it so the neutrals read as chosen rather than default.
+ *
+ * On the typeface: Apple sets SF Pro, which is licensed for Apple platforms
+ * only and cannot legally be served from a third-party site. Inter is the
+ * closest freely-licensable match — same humanist-grotesque skeleton, same
+ * generous x-height. What actually makes type read as "Apple" is not the face
+ * anyway, it is the metrics: negative tracking that tightens as size increases,
+ * 1.47 body leading, and 600 rather than 700 for headline weight. Those are
+ * reproduced exactly below.
  */
 
 @theme {
-  /* Ground — black with a violet undertone, so the greys read as chosen */
-  --color-void:      #05030A;
-  --color-ink-950:   #0A0713;
-  --color-ink-900:   #120C1F;
-  --color-ink-800:   #1B1230;
-  --color-ink-700:   #26193F;
+  /* Grounds — Apple's #fff / #f5f5f7 pairing, warmed toward purple */
+  --color-canvas:    #FFFFFF;
+  --color-surface:   #F4F1F7;
+  --color-surface-2: #FAF8FC;
+  --color-hairline:  #E3DDEA;
 
-  /* Violet ramp */
-  --color-violet-50:  #F6F2FF;
-  --color-violet-200: #DDCCFF;
-  --color-violet-300: #C4A6FF;
-  --color-violet-400: #A855F7;
-  --color-violet-500: #8B3DF0;
-  --color-violet-600: #7C3AED;
-  --color-violet-700: #6425C9;
-  --color-violet-900: #3B1478;
+  /* Dark bands. Apple alternates black sections into a light page; ours are
+     deep purple, which is where the brand colour gets to be loud. */
+  --color-deep:      #1C1030;
+  --color-deep-2:    #2A1A45;
 
-  /* Text */
-  --color-text:       #F4F0FF;
-  --color-text-muted: #A79ABF;
-  --color-text-faint: #6F6489;
+  /* Ink — Apple's #1d1d1f and #6e6e73, pulled toward violet */
+  --color-ink:       #1A1220;
+  --color-ink-2:     #6B6076;
+  --color-ink-3:     #928A9C;
 
-  /* Semantic — distinct from the violet accent on purpose */
-  --color-ok:    #34D8A0;
-  --color-warn:  #F5A524;
-  --color-bad:   #FB6D5C;
+  /* Brand */
+  --color-brand:     #6D28D9;
+  --color-brand-600: #5B21B6;
+  --color-brand-700: #4C1D95;
+  --color-brand-300: #A78BFA;
+  --color-brand-100: #EDE7FB;
 
-  --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  /* Semantic — kept clear of the brand hue so status never reads as branding */
+  --color-ok:   #0F7A4E;
+  --color-warn: #9A5B06;
+  --color-bad:  #B3261E;
 
-  --radius-glass: 18px;
+  --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
+               "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-:root { color-scheme: dark; }
+:root { color-scheme: light; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Apple's nav is sticky and slim; anchored sections must clear it. */
+  scroll-padding-top: 60px;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
-  background: var(--color-void);
-  color: var(--color-text);
+  background: var(--color-canvas);
+  color: var(--color-ink);
   font-family: var(--font-sans);
-  font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+  font-size: 17px;
+  line-height: 1.47059;
+  letter-spacing: -0.022em;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
 }
 
-/* Ambient light. Three fixed radial pools give the glass something to refract;
-   without them translucent panels just look grey. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background:
-    radial-gradient(1100px 700px at 12% -8%,  rgba(124, 58, 237, 0.30), transparent 62%),
-    radial-gradient(900px  620px at 92% 4%,   rgba(168, 85, 247, 0.20), transparent 60%),
-    radial-gradient(1200px 800px at 50% 108%, rgba(76, 29, 149, 0.26), transparent 66%);
-}
-
-/* Very fine grain stops the large gradients from banding on cheap panels. */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 @layer utilities {
-  /* The core material. Gradient + blur + inner top highlight is what makes it
-     read as a pane of glass rather than a flat translucent box. */
-  .glass {
-    background-image: linear-gradient(158deg, rgba(255,255,255,0.075), rgba(255,255,255,0.022));
-    backdrop-filter: blur(22px) saturate(175%);
-    -webkit-backdrop-filter: blur(22px) saturate(175%);
-    border: 1px solid rgba(255,255,255,0.09);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255,255,255,0.11),
-      inset 0 -1px 0 0 rgba(0,0,0,0.22),
-      0 18px 48px -20px rgba(0,0,0,0.75);
+  /* ── Apple's type scale ─────────────────────────────────────────────────
+     Tracking tightens as size grows — that relationship, more than the face
+     itself, is what makes large type read as Apple. */
+  .t-hero {
+    font-size: clamp(40px, 7.2vw, 80px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    font-weight: 600;
   }
-  .glass-hover {
-    transition: border-color .28s ease, background-image .28s ease, transform .28s ease, box-shadow .28s ease;
+  .t-headline {
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1.0714;
+    letter-spacing: -0.009em;
+    font-weight: 600;
   }
-  .glass-hover:hover {
-    background-image: linear-gradient(158deg, rgba(255,255,255,0.105), rgba(255,255,255,0.035));
-    border-color: rgba(196,166,255,0.30);
-    transform: translateY(-2px);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255,255,255,0.16),
-      0 26px 60px -22px rgba(88,28,180,0.60);
+  .t-title {
+    font-size: clamp(24px, 3.2vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.003em;
+    font-weight: 600;
   }
-  /* Sticky navigation: heavier blur, thinner material. */
-  .glass-bar {
-    background-color: rgba(10, 7, 19, 0.62);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border-bottom: 1px solid rgba(255,255,255,0.075);
+  .t-subhead {
+    font-size: clamp(19px, 2vw, 28px);
+    line-height: 1.1905;
+    letter-spacing: 0.011em;
+    font-weight: 400;
   }
-  .glass-input {
-    background-color: rgba(255,255,255,0.045);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.11);
-    transition: border-color .2s ease, background-color .2s ease;
+  .t-lead {
+    font-size: clamp(17px, 1.4vw, 21px);
+    line-height: 1.381;
+    letter-spacing: 0.011em;
+    font-weight: 400;
   }
-  .glass-input:focus {
-    border-color: rgba(168,85,247,0.65);
-    background-color: rgba(255,255,255,0.07);
-    outline: none;
+  .t-body   { font-size: 17px; line-height: 1.47059; letter-spacing: -0.022em; }
+  .t-small  { font-size: 14px; line-height: 1.4286; letter-spacing: -0.016em; }
+  .t-caption{ font-size: 12px; line-height: 1.3334; letter-spacing: -0.01em; }
+  .t-eyebrow{
+    font-size: 12px; line-height: 1.3334; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 600;
   }
-  .text-gradient {
-    background-image: linear-gradient(135deg, #FFFFFF 8%, #DDCCFF 45%, #A855F7 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-  /* A hairline that fades at both ends — reads as light catching an edge. */
-  .rule-fade {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.13), transparent);
-  }
-  .tabular { font-variant-numeric: tabular-nums; }
 
-  /* The category rail scrolls horizontally on small screens; a visible
-     scrollbar under it reads as a broken layout rather than an affordance. */
+  /* ── Apple's inline text link: label + chevron, underline on hover ────── */
+  .a-link {
+    color: var(--color-brand);
+    font-size: 17px;
+    line-height: 1.23536;
+    letter-spacing: -0.022em;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  .a-link::after { content: "\203A"; font-size: 1.15em; line-height: 0; margin-left: 1px; }
+  .a-link:hover { text-decoration: underline; }
+
+  /* ── Pill buttons, Apple's proportions ──────────────────────────────── */
+  .a-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 980px;
+    padding: 12px 22px;
+    font-size: 17px; line-height: 1.17648; letter-spacing: -0.022em;
+    font-weight: 400;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .a-btn-fill  { background: var(--color-brand); color: #fff; }
+  .a-btn-fill:hover  { background: var(--color-brand-600); }
+  .a-btn-ghost { border: 1px solid var(--color-brand); color: var(--color-brand); }
+  .a-btn-ghost:hover { background: var(--color-brand); color: #fff; }
+  .a-btn-sm { padding: 8px 16px; font-size: 14px; }
+
+  /* On dark bands the same buttons invert. */
+  .on-deep .a-btn-fill  { background: #fff; color: var(--color-deep); }
+  .on-deep .a-btn-fill:hover  { background: #EDE7FB; }
+  .on-deep .a-btn-ghost { border-color: #fff; color: #fff; }
+  .on-deep .a-btn-ghost:hover { background: #fff; color: var(--color-deep); }
+  .on-deep .a-link { color: var(--color-brand-300); }
+
+  /* ── The store tile ─────────────────────────────────────────────────── */
+  .tile {
+    background: var(--color-canvas);
+    border-radius: 18px;
+    box-shadow: 0 4px 14px rgba(28, 16, 48, 0.06);
+    transition: transform .3s cubic-bezier(0.25,0.1,0.25,1), box-shadow .3s ease;
+  }
+  .tile:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(28, 16, 48, 0.12); }
+
+  /* ── The horizontal shelf, exactly the Apple Store grid behaviour ─────
+     Scroll-snap so tiles land squarely, and a right-hand gutter so the last
+     tile never sits flush against the viewport edge. */
+  .shelf {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: max(24px, calc((100vw - 1240px) / 2));
+    padding-bottom: 28px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .shelf::-webkit-scrollbar { display: none; }
+  .shelf > * { scroll-snap-align: start; flex: 0 0 auto; }
+  .shelf::after { content: ""; flex: 0 0 4px; }
+
   .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
   .scrollbar-none::-webkit-scrollbar { display: none; }
+
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* Section bands. Apple's rhythm is a hard colour change with no border. */
+  .band       { background: var(--color-canvas); }
+  .band-grey  { background: var(--color-surface); }
+  .band-deep  { background: var(--color-deep); color: #fff; }
+
+  .container-a { max-width: 1240px; margin-inline: auto; padding-inline: 24px; }
 }
+
+::selection { background: color-mix(in srgb, var(--color-brand) 22%, transparent); }
 
 *:focus-visible {
-  outline: 2px solid var(--color-violet-400);
+  outline: 2px solid var(--color-brand);
   outline-offset: 3px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
-
-::selection { background: rgba(168,85,247,0.35); color: #fff; }
-
-::-webkit-scrollbar { width: 11px; height: 11px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(168,85,247,0.28);
-  border-radius: 99px;
-  border: 3px solid transparent;
-  background-clip: content-box;
-}
-::-webkit-scrollbar-thumb:hover { background: rgba(168,85,247,0.5); background-clip: content-box; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
   }
 }

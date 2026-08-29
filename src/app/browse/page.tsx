@@ -45,30 +45,32 @@ export default async function BrowsePage({
   return (
     <>
       <PageHeader
-        eyebrow="Browse"
-        title={query ? `Results for “${query}”` : active ? categoryBySlug.get(active)!.label : "Everything that passed the checks"}
+        eyebrow="Store"
+        title={query ? `Results for \u201c${query}\u201d` : active ? categoryBySlug.get(active)!.label : "The store"}
         sub="Only listings that cleared verification appear here. Nothing is shown while it is still under review."
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="flex flex-wrap gap-2">
+      <div className="band-grey">
+        <div className="container-a scrollbar-none flex gap-1 overflow-x-auto py-3">
           <Link href="/browse"
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-              !active ? "bg-white/[0.10] text-text" : "glass glass-hover text-text-muted"
+            className={`whitespace-nowrap rounded-full px-4 py-2 t-small transition-colors ${
+              !active ? "bg-brand text-white" : "text-ink-2 hover:text-ink"
             }`}>
             All
           </Link>
           {CATEGORIES.filter((c) => c.slug !== "other").map((c) => (
             <Link key={c.slug} href={`/browse/${c.slug}`}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                active === c.slug ? "bg-white/[0.10] text-text" : "glass glass-hover text-text-muted"
+              className={`whitespace-nowrap rounded-full px-4 py-2 t-small transition-colors ${
+                active === c.slug ? "bg-brand text-white" : "text-ink-2 hover:text-ink"
               }`}>
               {c.label}
             </Link>
           ))}
         </div>
+      </div>
 
-        <div className="mt-10">
+      <div className="band py-14">
+        <div className="container-a">
           {dbError ? (
             <EmptyState
               title="Can't reach the catalogue right now"
@@ -81,21 +83,18 @@ export default async function BrowsePage({
               action={<Button href="/sell">Sell something</Button>}
             />
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {rows.map((l) => (
-                <Link key={l.id} href={`/listing/${l.publicId}`}>
-                  <Card hover className="flex h-full flex-col">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-base font-semibold leading-snug tracking-[-0.01em]">{l.title}</h3>
-                      <Badge tone="ok">Verified</Badge>
-                    </div>
-                    <p className="mt-2 text-xs capitalize text-text-faint">
-                      {categoryBySlug.get(l.categorySlug)?.label ?? l.categorySlug} · {l.condition.replace(/_/g, " ")} · {l.city}
-                    </p>
-                    <p className="mt-auto pt-6 text-2xl font-semibold tracking-[-0.03em] tabular">
-                      ₹{(l.pricePaise / 100).toLocaleString("en-IN")}
-                    </p>
-                  </Card>
+                <Link key={l.id} href={`/listing/${l.publicId}`} className="tile flex flex-col p-7">
+                  <Badge tone="ok">Verified</Badge>
+                  <h2 className="mt-4 text-[19px] font-semibold leading-snug tracking-[-0.015em]">{l.title}</h2>
+                  <p className="t-caption mt-2 capitalize text-ink-3">
+                    {categoryBySlug.get(l.categorySlug)?.label ?? l.categorySlug} · {l.condition.replace(/_/g, " ")} · {l.city}
+                  </p>
+                  <p className="mt-auto pt-8 text-[24px] font-semibold tracking-[-0.02em] tabular">
+                    \u20b9{(l.pricePaise / 100).toLocaleString("en-IN")}
+                  </p>
+                  <span className="a-link mt-3 !text-[14px]">View</span>
                 </Link>
               ))}
             </div>

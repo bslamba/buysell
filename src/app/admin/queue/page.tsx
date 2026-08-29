@@ -60,13 +60,13 @@ export default async function QueuePage() {
           <Eyebrow>Moderation</Eyebrow>
           <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em]">Review queue</h1>
         </div>
-        <p className="text-sm text-text-muted">{rows.length} waiting</p>
+        <p className="text-sm text-ink-2">{rows.length} waiting</p>
       </div>
 
-      <div className="glass mt-8 overflow-x-auto rounded-[18px]">
+      <div className="tile mt-8 overflow-x-auto rounded-[18px]">
         <table className="w-full min-w-[820px] text-sm">
           <thead>
-            <tr className="border-b border-white/[0.08] text-left text-[11px] uppercase tracking-[0.16em] text-text-faint">
+            <tr className="border-b border-hairline text-left text-[11px] uppercase tracking-[0.16em] text-ink-3">
               <th className="px-5 py-4 font-semibold">Listing</th>
               <th className="px-5 py-4 font-semibold">Seller</th>
               <th className="px-5 py-4 font-semibold">Price</th>
@@ -77,19 +77,19 @@ export default async function QueuePage() {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="border-b border-white/[0.05] transition-colors last:border-0 hover:bg-white/[0.04]">
+              <tr key={r.id} className="border-b border-hairline transition-colors last:border-0 hover:bg-surface-2">
                 <td className="px-5 py-4">
-                  <a href={`/admin/listings/${r.id}`} className="font-semibold hover:text-violet-200">{r.title}</a>
-                  <div className="mt-1 text-xs text-text-faint">{r.category} · {r.publicId}</div>
+                  <a href={`/admin/listings/${r.id}`} className="font-semibold hover:text-brand-600">{r.title}</a>
+                  <div className="mt-1 text-xs text-ink-3">{r.category} · {r.publicId}</div>
                 </td>
                 <td className="px-5 py-4">
                   <div>{r.sellerName ?? r.sellerPhone ?? "—"}</div>
-                  <div className="text-xs text-text-faint">trust {r.sellerTrust}</div>
+                  <div className="text-xs text-ink-3">trust {r.sellerTrust}</div>
                 </td>
                 <td className="px-5 py-4 tabular">₹{(r.pricePaise / 100).toLocaleString("en-IN")}</td>
                 <td className="px-5 py-4"><Badge tone={riskTone(r.risk)}>{r.risk}</Badge></td>
                 <td className="px-5 py-4 tabular">{r.priority}</td>
-                <td className="px-5 py-4 text-xs text-text-muted">{slaHours(r.priority)}h target</td>
+                <td className="px-5 py-4 text-xs text-ink-2">{slaHours(r.priority)}h target</td>
               </tr>
             ))}
           </tbody>

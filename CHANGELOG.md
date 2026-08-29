@@ -97,6 +97,35 @@ Also
 
 34 routes build clean, 22 tests passing, verified against a production server.
 
+## 2026-08-29 — Apple-style light theme: deep purple on white
+
+- Replaced the dark-glass system with a light one built on Apple's typographic
+  metrics. What transferred is structure and numbers, not imagery or copy.
+- Type scale reproduces Apple's size/tracking relationship exactly: 17px body at
+  1.47059 line height and -0.022em, hero at -0.015em, sub-headings tracking
+  *positive* at +0.011em. Headlines at 600, never 700. That sign change is why
+  Apple's large type reads tight and their intros read airy.
+- SF Pro cannot be licensed off Apple platforms, so Inter stays — the metrics do
+  the work, not the face.
+- Global bar is now 44px, translucent with a heavy backdrop blur, links at 12px
+  spread across a 1024px rail that is deliberately narrower than the content.
+- New `.shelf`: the Apple Store horizontal grid with x-mandatory scroll snap,
+  container-matched gutters, and paging arrows that disable rather than
+  disappear at the ends.
+- Home page rebuilt as stacked full-bleed bands: logo + one plain description,
+  a deep-purple proposition band, two category shelves running left to right,
+  a two-up checks grid, the business band, the full category directory and FAQ.
+- Browse rebuilt as a store-style product grid with a category pill rail.
+- Seller sub-nav restyled as Apple's product sub-bar, sticking below the global
+  one at top-11.
+- Footer rebuilt in Apple's idiom: 12px throughout, five plain link columns,
+  hairline, legal line, region.
+- All 32 pages migrated off the dark tokens; verified against a running server
+  that no page renders a stale class.
+
+34 routes build clean, 22 tests passing, Apple's exact metrics confirmed present
+in the compiled CSS.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)

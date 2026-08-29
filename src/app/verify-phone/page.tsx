@@ -17,7 +17,7 @@ export default async function VerifyPhonePage({
       <div className="text-center">
         <Eyebrow>One more step</Eyebrow>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Verify your phone to sell</h1>
-        <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-text-muted">
+        <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-ink-2">
           Selling needs a verified Indian mobile number. Buyers never see it.
         </p>
       </div>

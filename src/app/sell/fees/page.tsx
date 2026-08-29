@@ -24,48 +24,48 @@ export default function FeesPage() {
         faqLd(FAQS),
       ]} />
 
-      <header className="border-b border-white/[0.06] py-16">
-        <div className="mx-auto max-w-6xl px-6">
+      <header className="border-b border-hairline py-16">
+        <div className="container-a">
           <Eyebrow>Selling</Eyebrow>
           <h1 className="mt-3 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
             Sellers pay nothing. Here&apos;s the whole picture.
           </h1>
-          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-text-muted">
+          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-ink-2">
             No listing fee, no commission, no subscription. That is not a launch promotion — it is
             how the business is designed, and this page explains why.
           </p>
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <Badge tone="ok">What you pay</Badge>
             <div className="mt-6 space-y-3.5">
               {[["Listing fee", "₹0"], ["Commission on sale", "₹0"], ["Monthly subscription", "₹0"], ["Payout fee", "₹0"]].map(([k, v]) => (
                 <div key={k} className="flex items-baseline justify-between gap-4">
-                  <span className="text-sm text-text-muted">{k}</span>
+                  <span className="text-sm text-ink-2">{k}</span>
                   <span className="tabular text-lg font-semibold text-ok">{v}</span>
                 </div>
               ))}
             </div>
-            <p className="mt-6 border-t border-white/[0.08] pt-4 text-sm leading-relaxed text-text-muted">
+            <p className="mt-6 border-t border-hairline pt-4 text-sm leading-relaxed text-ink-2">
               Optional extras exist — promoted placement, extended certification — and are priced at
               the point you choose them. Nothing is ever deducted automatically.
             </p>
           </Card>
 
           <Card>
-            <Badge tone="violet">What the buyer pays</Badge>
+            <Badge tone="brand">What the buyer pays</Badge>
             <div className="mt-6 space-y-3.5">
               {[["Item price", "set by you"], ["Buyer protection fee", "~4–6% + ₹29"], ["Shipping", "quoted at checkout"]].map(([k, v]) => (
                 <div key={k} className="flex items-baseline justify-between gap-4">
-                  <span className="text-sm text-text-muted">{k}</span>
+                  <span className="text-sm text-ink-2">{k}</span>
                   <span className="tabular text-sm font-semibold">{v}</span>
                 </div>
               ))}
             </div>
-            <p className="mt-6 border-t border-white/[0.08] pt-4 text-sm leading-relaxed text-text-muted">
+            <p className="mt-6 border-t border-hairline pt-4 text-sm leading-relaxed text-ink-2">
               The protection fee funds escrow, the condition guarantee, and someone answering the
               phone when a dispute happens. It is shown in full before payment — never a surprise.
             </p>
@@ -85,10 +85,10 @@ export default function FeesPage() {
                   ["Buyer pays in total", "₹42,279", ""],
                   ["You receive", "₹40,000", "the full asking price"],
                 ].map(([k, v, note], i, arr) => (
-                  <tr key={k} className={i === arr.length - 1 ? "border-t border-white/[0.1]" : "border-b border-white/[0.05]"}>
-                    <td className="py-3 pr-4 text-text-muted">{k}</td>
+                  <tr key={k} className={i === arr.length - 1 ? "border-t border-hairline" : "border-b border-hairline"}>
+                    <td className="py-3 pr-4 text-ink-2">{k}</td>
                     <td className={`py-3 pr-4 text-right tabular font-semibold ${i === arr.length - 1 ? "text-xl text-ok" : ""}`}>{v}</td>
-                    <td className="py-3 text-xs text-text-faint">{note}</td>
+                    <td className="py-3 text-xs text-ink-3">{note}</td>
                   </tr>
                 ))}
               </tbody>
@@ -101,7 +101,7 @@ export default function FeesPage() {
           <h2 className="mt-3 max-w-2xl text-balance text-2xl font-semibold tracking-[-0.03em]">
             Why the fee sits on the buyer&apos;s side
           </h2>
-          <div className="mt-6 max-w-2xl space-y-4 text-[15px] leading-relaxed text-text-muted">
+          <div className="mt-6 max-w-2xl space-y-4 text-[15px] leading-relaxed text-ink-2">
             <p>
               In any resale marketplace, supply is the hard side. Buyers arrive on their own when
               there is something worth buying; sellers have to be persuaded, and their alternative
@@ -124,14 +124,14 @@ export default function FeesPage() {
         <section className="mt-16">
           <div className="space-y-3">
             {FAQS.map((f) => (
-              <details key={f.q} className="glass group rounded-[18px] px-6 py-5">
+              <details key={f.q} className="tile group rounded-[18px] px-6 py-5">
                 <summary className="cursor-pointer list-none text-[15px] font-semibold marker:hidden">
                   <span className="flex items-start justify-between gap-4">
                     <h3 className="font-semibold">{f.q}</h3>
-                    <span className="mt-0.5 shrink-0 text-violet-300 transition-transform group-open:rotate-45">+</span>
+                    <span className="mt-0.5 shrink-0 text-brand transition-transform group-open:rotate-45">+</span>
                   </span>
                 </summary>
-                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted">{f.a}</p>
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-2">{f.a}</p>
               </details>
             ))}
           </div>
@@ -139,7 +139,7 @@ export default function FeesPage() {
 
         <div className="mt-14 flex flex-wrap gap-3">
           <Button href="/sell/new">List an item</Button>
-          <Link href="/sell/how-it-works" className="glass glass-hover rounded-full px-5 py-2.5 text-sm font-semibold">
+          <Link href="/sell/how-it-works" className="tile rounded-full px-5 py-2.5 text-sm font-semibold">
             How selling works
           </Link>
         </div>

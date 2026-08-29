@@ -40,13 +40,13 @@ export default function BusinessSellingPage() {
         faqLd(FAQS),
       ]} />
 
-      <header className="border-b border-white/[0.06] py-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <Badge tone="violet">For businesses</Badge>
+      <header className="border-b border-hairline py-16">
+        <div className="container-a">
+          <Badge tone="brand">For businesses</Badge>
           <h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
             Your old hardware is worth more than the scrap rate
           </h1>
-          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-text-muted">
+          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-ink-2">
             Most Indian companies dispose of retired laptops and IT equipment through a broker who
             pays by weight. Those machines have years of working life and buyers who want them.
             India&apos;s IT asset disposition market is worth around $817 million and growing about
@@ -54,18 +54,18 @@ export default function BusinessSellingPage() {
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <Button href="/corporate/register">Register your company</Button>
-            <Button href="/auctions" variant="glass">See live auctions</Button>
+            <Button href="/auctions" variant="ghost">See live auctions</Button>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <SectionTitle eyebrow="What you get" title="Built for volume, not for one-off listings" />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (
             <Card key={f.t} hover className="flex h-full flex-col">
               <h2 className="text-base font-semibold tracking-[-0.01em]">{f.t}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-text-muted">{f.b}</p>
+              <p className="mt-3 text-sm leading-relaxed text-ink-2">{f.b}</p>
             </Card>
           ))}
         </div>
@@ -80,9 +80,9 @@ export default function BusinessSellingPage() {
               { n: "04", t: "Run it", b: "Bidders compete, anti-sniping protects the close, you pick collection." },
             ].map((s) => (
               <Card key={s.n} hover>
-                <span className="font-mono text-xs text-violet-300">{s.n}</span>
+                <span className="font-mono text-xs text-brand">{s.n}</span>
                 <h3 className="mt-3 text-base font-semibold tracking-[-0.01em]">{s.t}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-muted">{s.b}</p>
+                <p className="mt-2 text-sm leading-relaxed text-ink-2">{s.b}</p>
               </Card>
             ))}
           </div>
@@ -92,14 +92,14 @@ export default function BusinessSellingPage() {
           <Eyebrow>Common questions</Eyebrow>
           <div className="mt-6 space-y-3">
             {FAQS.map((f) => (
-              <details key={f.q} className="glass group rounded-[18px] px-6 py-5">
+              <details key={f.q} className="tile group rounded-[18px] px-6 py-5">
                 <summary className="cursor-pointer list-none text-[15px] font-semibold marker:hidden">
                   <span className="flex items-start justify-between gap-4">
                     <h3 className="font-semibold">{f.q}</h3>
-                    <span className="mt-0.5 shrink-0 text-violet-300 transition-transform group-open:rotate-45">+</span>
+                    <span className="mt-0.5 shrink-0 text-brand transition-transform group-open:rotate-45">+</span>
                   </span>
                 </summary>
-                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted">{f.a}</p>
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-2">{f.a}</p>
               </details>
             ))}
           </div>
@@ -108,12 +108,12 @@ export default function BusinessSellingPage() {
         <Card className="mt-16">
           <Eyebrow>Sustainability</Eyebrow>
           <h2 className="mt-3 text-xl font-semibold tracking-[-0.02em]">It counts toward your disclosures</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-muted">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-2">
             Reuse sits above recycling in the waste hierarchy, and the E-Waste Management Rules
             place responsibility on the producer. Every lot sold here comes with a record of what
             was disposed of, to whom, and with what data destruction — which is what your ESG
             reporting actually needs.{" "}
-            <Link href="/contact" className="text-violet-300 hover:text-violet-200">Talk to us about a first lot →</Link>
+            <Link href="/contact" className="text-brand hover:text-brand-600">Talk to us about a first lot →</Link>
           </p>
         </Card>
       </div>

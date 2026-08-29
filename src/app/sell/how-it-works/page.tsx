@@ -27,29 +27,29 @@ export default function HowItWorksPage() {
         { name: "How it works", path: "/sell/how-it-works" },
       ])} />
 
-      <header className="border-b border-white/[0.06] py-16">
-        <div className="mx-auto max-w-6xl px-6">
+      <header className="border-b border-hairline py-16">
+        <div className="container-a">
           <Eyebrow>Selling</Eyebrow>
           <h1 className="mt-3 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
             From your drawer to their desk
           </h1>
-          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-text-muted">
+          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-ink-2">
             Six steps, and the only one that takes real effort is the photographs. Here is exactly
             what happens at each, and what the automated checks are looking for.
           </p>
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <div className="space-y-4">
           {STEPS.map((s) => (
             <Card key={s.n} hover>
               <div className="grid gap-6 md:grid-cols-[60px_1fr]">
-                <span className="font-mono text-sm text-violet-300">{s.n}</span>
+                <span className="font-mono text-sm text-brand">{s.n}</span>
                 <div>
                   <h2 className="text-xl font-semibold tracking-[-0.02em]">{s.t}</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-muted">{s.b}</p>
-                  <p className="mt-4 rounded-xl bg-violet-400/[0.08] px-4 py-3 text-[13px] leading-relaxed text-violet-200 ring-1 ring-violet-400/15">
+                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-2">{s.b}</p>
+                  <p className="mt-4 rounded-xl bg-brand-100 px-4 py-3 text-[13px] leading-relaxed text-brand-600 ring-1 ring-brand/15">
                     <strong className="font-semibold">Tip.</strong> {s.tip}
                   </p>
                 </div>
@@ -72,7 +72,7 @@ export default function HowItWorksPage() {
             ].map((r) => (
               <Card key={r.t}>
                 <h3 className="text-base font-semibold tracking-[-0.01em]">{r.t}</h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{r.b}</p>
+                <p className="mt-2.5 text-sm leading-relaxed text-ink-2">{r.b}</p>
               </Card>
             ))}
           </div>
@@ -80,7 +80,7 @@ export default function HowItWorksPage() {
 
         <div className="mt-16 flex flex-wrap gap-3">
           <Button href="/sell/new">List an item</Button>
-          <Link href="/sell/fees" className="glass glass-hover rounded-full px-5 py-2.5 text-sm font-semibold">
+          <Link href="/sell/fees" className="tile rounded-full px-5 py-2.5 text-sm font-semibold">
             What it costs
           </Link>
         </div>

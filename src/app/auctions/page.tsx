@@ -48,7 +48,7 @@ export default async function AuctionsPage() {
         sub="When a company refreshes 500 laptops, those machines usually go to a scrap broker for a fraction of what they're worth. Here they're auctioned with a serial manifest, a published grade mix, and a data-wipe certificate."
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div className="container-a py-12">
         {dbError ? (
           <EmptyState
             title="Can't reach the auction list right now"
@@ -68,16 +68,16 @@ export default async function AuctionsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-lg font-semibold leading-snug tracking-[-0.02em]">{a.title}</h3>
-                      <p className="mt-1.5 text-xs text-text-faint">{a.orgName}</p>
+                      <p className="mt-1.5 text-xs text-ink-3">{a.orgName}</p>
                     </div>
-                    <Badge tone={a.status === "live" ? "ok" : "violet"}>{a.status}</Badge>
+                    <Badge tone={a.status === "live" ? "ok" : "brand"}>{a.status}</Badge>
                   </div>
                   <div className="mt-6 flex flex-wrap gap-2 text-xs">
-                    {a.pickupCity && <span className="glass rounded-full px-3 py-1">{a.pickupCity}</span>}
-                    {a.dataWipeCertified && <span className="glass rounded-full px-3 py-1">Data wipe certified</span>}
-                    <span className="glass rounded-full px-3 py-1 capitalize">{a.categorySlug}</span>
+                    {a.pickupCity && <span className="bg-surface rounded-full px-3 py-1">{a.pickupCity}</span>}
+                    {a.dataWipeCertified && <span className="bg-surface rounded-full px-3 py-1">Data wipe certified</span>}
+                    <span className="bg-surface rounded-full px-3 py-1 capitalize">{a.categorySlug}</span>
                   </div>
-                  <p className="mt-auto pt-6 text-sm text-text-muted">
+                  <p className="mt-auto pt-6 text-sm text-ink-2">
                     Closes {new Date(a.endsAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
                   </p>
                 </Card>
@@ -95,7 +95,7 @@ export default async function AuctionsPage() {
             <Card key={x.t}>
               <Eyebrow>How it works</Eyebrow>
               <h3 className="mt-3 text-base font-semibold tracking-[-0.01em]">{x.t}</h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{x.b}</p>
+              <p className="mt-2.5 text-sm leading-relaxed text-ink-2">{x.b}</p>
             </Card>
           ))}
         </section>

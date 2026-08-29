@@ -24,11 +24,11 @@ export default function TeamPage() {
         sub={`${brand.name} is built inside ${brand.legalName}. The team is deliberately small — the leverage here is software, not headcount.`}
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <Card>
           <Eyebrow>Leadership</Eyebrow>
           <h2 className="mt-4 text-xl font-semibold tracking-[-0.02em]">Harsimran Kaur — Founder</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-muted">
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-2">
             Founder and CEO of {brand.legalName}, which builds software across digital marketing,
             web and app development, and IT consulting. {brand.name} is the company&apos;s first
             consumer marketplace.
@@ -42,7 +42,7 @@ export default function TeamPage() {
             {ROLES.map((r) => (
               <Card key={r.t} hover className="flex h-full flex-col">
                 <h3 className="text-base font-semibold leading-snug tracking-[-0.01em]">{r.t}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{r.b}</p>
+                <p className="mt-3 text-sm leading-relaxed text-ink-2">{r.b}</p>
               </Card>
             ))}
           </div>

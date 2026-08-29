@@ -60,7 +60,7 @@ export default async function AdminHome() {
         {tiles.map((t) => (
           <Card key={t.label} hover>
             <div className="text-4xl font-semibold tracking-[-0.04em] tabular">{t.value}</div>
-            <div className="mt-2 text-sm font-medium text-text-muted">{t.label}</div>
+            <div className="mt-2 text-sm font-medium text-ink-2">{t.label}</div>
           </Card>
         ))}
       </div>
@@ -71,7 +71,7 @@ export default async function AdminHome() {
           <p className="mt-3 text-4xl font-semibold tracking-[-0.04em] tabular">
             {autoApproveRate === null ? "—" : `${autoApproveRate}%`}
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+          <p className="mt-3 text-sm leading-relaxed text-ink-2">
             Share of reviewed listings that went live. Raise this only while the false-positive rate
             on auto-rejects stays under 2%.
           </p>
@@ -79,7 +79,7 @@ export default async function AdminHome() {
         <Card>
           <Eyebrow>Registered users</Eyebrow>
           <p className="mt-3 text-4xl font-semibold tracking-[-0.04em] tabular">{s.users}</p>
-          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+          <p className="mt-3 text-sm leading-relaxed text-ink-2">
             {s.oldest
               ? `Oldest unreviewed listing submitted ${new Date(s.oldest).toLocaleString("en-IN")}.`
               : "No listings waiting."}

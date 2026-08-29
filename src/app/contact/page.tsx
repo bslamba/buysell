@@ -33,11 +33,11 @@ export default function ContactPage() {
             </div>
             <Field label="What's this about?">
               <select className={inputClass} name="topic" defaultValue="support">
-                <option value="support" className="bg-ink-900">A listing, order or my account</option>
-                <option value="corporate" className="bg-ink-900">Corporate hardware / auctions</option>
-                <option value="safety" className="bg-ink-900">Reporting something unsafe</option>
-                <option value="press" className="bg-ink-900">Press</option>
-                <option value="other" className="bg-ink-900">Something else</option>
+                <option value="support" className="bg-canvas">A listing, order or my account</option>
+                <option value="corporate" className="bg-canvas">Corporate hardware / auctions</option>
+                <option value="safety" className="bg-canvas">Reporting something unsafe</option>
+                <option value="press" className="bg-canvas">Press</option>
+                <option value="other" className="bg-canvas">Something else</option>
               </select>
             </Field>
             <Field label="Reference" hint="Listing or order ID, if you have one.">
@@ -47,7 +47,7 @@ export default function ContactPage() {
               <textarea className={`${inputClass} min-h-36 resize-y`} name="message" required />
             </Field>
             <Button type="submit">Send message</Button>
-            <p className="text-xs leading-relaxed text-text-faint">
+            <p className="text-xs leading-relaxed text-ink-3">
               This form is the design; message delivery is wired up in the next build phase. In the
               meantime email {brand.supportEmail} directly.
             </p>
@@ -58,13 +58,13 @@ export default function ContactPage() {
           {CHANNELS.map((c) => (
             <Card key={c.t}>
               <Eyebrow>{c.t}</Eyebrow>
-              <p className="mt-3 text-sm leading-relaxed text-text-muted">{c.b}</p>
-              <p className="mt-3 text-sm font-medium text-violet-300">{c.v}</p>
+              <p className="mt-3 text-sm leading-relaxed text-ink-2">{c.b}</p>
+              <p className="mt-3 text-sm font-medium text-brand">{c.v}</p>
             </Card>
           ))}
           <Card>
             <Eyebrow>Registered office</Eyebrow>
-            <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            <p className="mt-3 text-sm leading-relaxed text-ink-2">
               {brand.legalName}<br />Bengaluru, Karnataka, India
             </p>
           </Card>

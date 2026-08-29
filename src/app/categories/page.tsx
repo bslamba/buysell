@@ -18,7 +18,7 @@ export const metadata = buildMetadata({
 
 const TIER_COPY = {
   certified: { label: "Fully certified", tone: "ok" as const, note: "Software reads the device itself — a complete condition report, guaranteed." },
-  assisted: { label: "Assisted checks", tone: "violet" as const, note: "Serial lookups, guided photos, and every automated photo and price check." },
+  assisted: { label: "Assisted checks", tone: "brand" as const, note: "Serial lookups, guided photos, and every automated photo and price check." },
   basic: { label: "Standard checks", tone: "plain" as const, note: "Photo originality, price sanity, prohibited-goods screening and seller history." },
 };
 
@@ -37,7 +37,7 @@ export default function CategoriesPage() {
         sub="The catalogue is open — almost anything can be listed. What changes by category is how much verification runs before it appears, because a ₹60,000 laptop and a ₹300 textbook do not carry the same risk."
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         {/* Verification tiers, explained once */}
         <section className="grid gap-3 sm:grid-cols-3">
           {(["certified", "assisted", "basic"] as const).map((t) => {
@@ -45,8 +45,8 @@ export default function CategoriesPage() {
             return (
               <Card key={t}>
                 <Badge tone={TIER_COPY[t].tone}>{TIER_COPY[t].label}</Badge>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{TIER_COPY[t].note}</p>
-                <p className="mt-3 text-xs text-text-faint">{n} {n === 1 ? "category" : "categories"}</p>
+                <p className="mt-3 text-sm leading-relaxed text-ink-2">{TIER_COPY[t].note}</p>
+                <p className="mt-3 text-xs text-ink-3">{n} {n === 1 ? "category" : "categories"}</p>
               </Card>
             );
           })}
@@ -63,34 +63,34 @@ export default function CategoriesPage() {
                   {items.map((c) => (
                     <Card key={c.slug} hover className="flex flex-col">
                       <div className="flex items-start gap-3">
-                        <span className="mt-0.5 shrink-0 text-violet-300"><CategoryIcon name={c.icon} /></span>
+                        <span className="mt-0.5 shrink-0 text-brand"><CategoryIcon name={c.icon} /></span>
                         <div className="min-w-0 flex-1">
                           <h3 className="text-base font-semibold tracking-[-0.01em]">
-                            <Link href={`/browse/${c.slug}`} className="hover:text-violet-200">{c.label}</Link>
+                            <Link href={`/browse/${c.slug}`} className="hover:text-brand-600">{c.label}</Link>
                           </h3>
-                          <p className="mt-1.5 text-xs leading-relaxed text-text-muted">{c.blurb}</p>
+                          <p className="mt-1.5 text-xs leading-relaxed text-ink-2">{c.blurb}</p>
                         </div>
                       </div>
 
                       <dl className="mt-5 space-y-1.5 text-[13px]">
                         <div className="flex justify-between gap-4">
-                          <dt className="text-text-faint">Price range</dt>
-                          <dd className="tabular text-text-muted">{rupees(c.minPricePaise)} – {rupees(c.maxPricePaise)}</dd>
+                          <dt className="text-ink-3">Price range</dt>
+                          <dd className="tabular text-ink-2">{rupees(c.minPricePaise)} – {rupees(c.maxPricePaise)}</dd>
                         </div>
                         <div className="flex justify-between gap-4">
-                          <dt className="text-text-faint">Photos</dt>
-                          <dd className="tabular text-text-muted">{c.minImages}–{c.maxImages}</dd>
+                          <dt className="text-ink-3">Photos</dt>
+                          <dd className="tabular text-ink-2">{c.minImages}–{c.maxImages}</dd>
                         </div>
                         <div className="flex justify-between gap-4">
-                          <dt className="text-text-faint">Identity check</dt>
-                          <dd className="text-right text-text-muted">
+                          <dt className="text-ink-3">Identity check</dt>
+                          <dd className="text-right text-ink-2">
                             {c.requiresImei ? "IMEI + CEIR" : c.requiresSerial ? "Serial number" : "Not required"}
                           </dd>
                         </div>
                       </dl>
 
-                      <div className="mt-4 border-t border-white/[0.06] pt-4">
-                        <p className="text-[12px] leading-relaxed text-text-faint">
+                      <div className="mt-4 border-t border-hairline pt-4">
+                        <p className="text-[12px] leading-relaxed text-ink-3">
                           {c.subcategories.slice(0, 6).join(" · ")}
                         </p>
                       </div>
@@ -102,13 +102,13 @@ export default function CategoriesPage() {
           })}
         </div>
 
-        <section className="glass mt-20 rounded-[18px] p-10">
+        <section className="tile mt-20 rounded-[18px] p-10">
           <Eyebrow>Not permitted</Eyebrow>
           <h2 className="mt-3 text-xl font-semibold tracking-[-0.02em]">What we will not list, and why</h2>
           <div className="mt-5 grid gap-6 md:grid-cols-2">
             <div>
               <h3 className="text-sm font-semibold">Prohibited outright</h3>
-              <p className="mt-2 text-sm leading-relaxed text-text-muted">
+              <p className="mt-2 text-sm leading-relaxed text-ink-2">
                 Weapons and ammunition, controlled substances, prescription medicines, identity
                 documents, wildlife products, counterfeit or &ldquo;first copy&rdquo; goods, SIM cards,
                 gambling-related items, live animals. Screened automatically and rejected without review.
@@ -116,7 +116,7 @@ export default function CategoriesPage() {
             </div>
             <div>
               <h3 className="text-sm font-semibold">Excluded because we can&apos;t verify them</h3>
-              <p className="mt-2 text-sm leading-relaxed text-text-muted">
+              <p className="mt-2 text-sm leading-relaxed text-ink-2">
                 Gift cards and vouchers, event tickets, real estate and services. Each is either
                 unverifiable before payment or a different business entirely. Listing something we
                 cannot check would undo the one thing that makes WorthIt worth using.

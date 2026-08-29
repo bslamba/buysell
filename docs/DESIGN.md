@@ -1,72 +1,91 @@
 # Design system
 
-Apple-glass on dark violet. One theme, committed to deliberately.
+Deep purple on white, built on Apple's typographic system.
 
-## Why single-theme
+## The reference, and what was actually taken
 
-The whole surface is one continuous dark ground with light bleeding through
-translucent panels. That effect only holds together if the ground stays
-constant — glass over white is just a grey box. A light mode would mean
-designing the thing twice and getting a worse version of both, so `globals.css`
-declares every colour explicitly and never borrows the host's theme.
+The brief was apple.com. What transfers is **structure and metrics** — not
+imagery, not copy, not branding:
 
-## Tokens
+- a slim translucent global bar, 44px tall
+- full-bleed sections stacked vertically, alternating white / near-white grey,
+  with the occasional dark band for contrast
+- enormous headlines whose letter-spacing tightens as the size grows
+- paired actions: one filled pill, one chevron link
+- horizontal scroll-snap shelves for browsing product tiles
 
-All in `@theme` in `src/app/globals.css`.
+Apple's palette is neutral. Ours substitutes deep purple everywhere they use
+blue, and biases every grey a few degrees toward violet so the neutrals read as
+chosen rather than inherited.
 
-| Group | Tokens | Notes |
+## Typography
+
+**The metrics matter more than the face.** Apple sets SF Pro, which is licensed
+for Apple platforms only and cannot legally be served from a third-party site.
+Inter is the closest freely-licensable match — same humanist-grotesque skeleton,
+same generous x-height — and it is self-hosted via `@fontsource-variable/inter`.
+
+What actually makes type read as "Apple" is the relationship between size and
+tracking, reproduced exactly:
+
+| Utility | Size | Line height | Tracking | Weight |
+|---|---|---|---|---|
+| `.t-hero` | clamp(40px, 7.2vw, 80px) | 1.05 | −0.015em | 600 |
+| `.t-headline` | clamp(32px, 5vw, 56px) | 1.0714 | −0.009em | 600 |
+| `.t-title` | clamp(24px, 3.2vw, 40px) | 1.1 | −0.003em | 600 |
+| `.t-subhead` | clamp(19px, 2vw, 28px) | 1.1905 | +0.011em | 400 |
+| `.t-lead` | clamp(17px, 1.4vw, 21px) | 1.381 | +0.011em | 400 |
+| `.t-body` | 17px | 1.47059 | −0.022em | 400 |
+| `.t-small` | 14px | 1.4286 | −0.016em | 400 |
+| `.t-caption` | 12px | 1.3334 | −0.01em | 400 |
+
+Note the sign change: display sizes track **negative**, sub-headings track
+**positive**. That is Apple's system and it is why their large type looks tight
+and their intro paragraphs look airy. Headlines are 600, never 700.
+
+## Colour
+
+| Token | Value | Use |
 |---|---|---|
-| Ground | `--color-void` `#05030A`, `ink-950` … `ink-700` | Black with a violet undertone, so the greys read as chosen rather than default |
-| Accent | `violet-200` … `violet-900`, primary `#A855F7` | The only decorative hue on the page |
-| Text | `--color-text` `#F4F0FF`, `text-muted`, `text-faint` | Three levels, no more |
-| Semantic | `--color-ok` `#34D8A0`, `warn` `#F5A524`, `bad` `#FB6D5C` | Kept distinct from the violet accent on purpose — status must not read as branding |
-
-## The glass
-
-Four utilities do all the work:
-
-- **`.glass`** — the material. A 158° white gradient (7.5% → 2.2%), 22px blur at
-  175% saturation, a 9%-white hairline border, and an inner top highlight. That
-  inner highlight is what makes it read as a *pane* rather than a flat
-  translucent box; without it the effect collapses.
-- **`.glass-hover`** — lifts 2px, brightens the gradient, warms the border to
-  violet, and deepens the shadow.
-- **`.glass-bar`** — the sticky nav. Heavier blur (28px), thinner material.
-- **`.glass-input`** — form fields, with a violet focus border.
-
-Two things on `body` make the glass work at all:
-
-1. **`body::before`** paints three fixed radial violet pools. Translucent panels
-   need something to refract; over flat black they just look grey.
-2. **`body::after`** lays a 3.5%-opacity SVG noise texture over everything, which
-   stops the large gradients banding on cheap panels.
-
-## Type
-
-**Inter**, self-hosted through `@fontsource-variable/inter` — see `NAMING.md`
-for why not `next/font/google`. Display sizes run tight (`tracking-[-0.03em]` to
-`-0.04em`); that negative tracking at large sizes is most of what makes type
-read as Apple-adjacent rather than generic. Numbers in tables and stats use the
-`.tabular` utility.
+| `--color-canvas` | `#FFFFFF` | default band |
+| `--color-surface` | `#F4F1F7` | alternating band, cards on white |
+| `--color-deep` | `#1C1030` | dark contrast bands (`.band-deep`) |
+| `--color-ink` | `#1A1220` | body text |
+| `--color-ink-2` | `#6B6076` | secondary text |
+| `--color-ink-3` | `#928A9C` | captions, disabled |
+| `--color-brand` | `#6D28D9` | links, fills, accents |
+| `--color-hairline` | `#E3DDEA` | every border |
+| `--color-ok / warn / bad` | — | status only, deliberately outside the brand hue |
 
 ## Components
 
-`src/components/ui.tsx` — `Button` (primary / glass / ghost), `Card`, `Badge`,
-`Eyebrow`, `SectionTitle`, `PageHeader`, `EmptyState`, `Field`, `inputClass`.
-`prose.tsx` handles long-form legal copy. `logo.tsx` carries the identity.
+- **`.a-btn` + `.a-btn-fill` / `.a-btn-ghost`** — 980px radius, 12px/22px
+  padding, 17px label. `.a-btn-sm` for bars.
+- **`.a-link`** — Apple's inline text link: brand-coloured, trailing `›`,
+  underline on hover. The default for a secondary action.
+- **`.tile`** — 18px radius, soft shadow, 4px lift on hover.
+- **`.shelf`** — the Apple Store grid. Horizontal scroll with `scroll-snap-type:
+  x mandatory` so tiles land squarely, a left gutter matched to the container,
+  and a trailing spacer so the last tile never sits flush to the edge.
+  `components/shelf.tsx` adds paging arrows that disable at each end rather than
+  disappearing — a control that vanishes shifts the layout.
+- **`.band` / `.band-grey` / `.band-deep`** — section grounds. Apple changes
+  section colour with a hard edge and no border; so do we.
+- **`.on-deep`** — put this on a dark band and every button and link inverts.
 
-Use these rather than hand-rolling classes. If a page needs something they can't
-express, add it to `ui.tsx` — a one-off `className` on a page is how a design
-system rots.
+## Layout
+
+`.container-a` is 1240px with 24px gutters for content. The **global nav is
+1024px** — narrower than the content on purpose, which is what makes a 44px bar
+read as a thin rule of text rather than a piece of furniture.
 
 ## Accessibility
 
-Focus rings are a 2px violet outline with 3px offset, never removed.
-`prefers-reduced-motion` disables transitions and smooth scrolling. Body text
-sits at `--color-text-muted` on the dark ground, which clears WCAG AA for body
-sizes; `text-faint` is for incidental labels only and should not carry meaning
-on its own.
+Focus is a 2px brand outline at 3px offset, never removed. `prefers-reduced-
+motion` disables transitions, smooth scrolling and shelf animation. A skip link
+precedes the nav. Body text is `--color-ink` on white (well past AA);
+`--color-ink-2` clears AA at body size; `--color-ink-3` is for incidental labels
+only and must never carry meaning alone.
 
-**Not yet audited.** Run a proper contrast pass over the glass panels before
-launch — translucent surfaces vary with whatever sits behind them, which is
-exactly the case automated checkers handle worst.
+**Not yet audited.** Run a full contrast pass before launch — particularly white
+text on `--color-deep`, and the brand purple on `--color-surface`.

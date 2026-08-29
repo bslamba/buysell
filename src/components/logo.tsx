@@ -76,12 +76,12 @@ export function LogoMark({ size = 32, className = "" }: { size?: number; classNa
   );
 }
 
-export function Wordmark({ className = "" }: { className?: string }) {
+export function Wordmark({ className = "", tone = "ink" }: { className?: string; tone?: "ink" | "white" }) {
   return (
     <span className={`inline-flex select-none items-baseline gap-[0.14em] font-semibold tracking-[-0.035em] ${className}`}>
-      <span className="text-white">Worth</span>
+      <span className={tone === "white" ? "text-white" : "text-ink"}>Worth</span>
       <span
-        className="relative inline-flex items-baseline rounded-[0.32em] bg-gradient-to-br from-violet-300 via-violet-400 to-fuchsia-400 px-[0.3em] pb-[0.09em] pt-[0.03em] text-[0.92em] font-bold leading-none text-[#12061F] shadow-[0_2px_10px_-2px_rgba(168,85,247,0.75)]"
+        className="relative inline-flex items-baseline rounded-[0.32em] bg-brand px-[0.3em] pb-[0.09em] pt-[0.03em] text-[0.92em] font-bold leading-none text-white"
       >
         It
       </span>
@@ -89,13 +89,13 @@ export function Wordmark({ className = "" }: { className?: string }) {
   );
 }
 
-export function Logo({ size = 30, className = "", textClass = "text-[20px]" }: {
-  size?: number; className?: string; textClass?: string;
+export function Logo({ size = 22, className = "", textClass = "text-[16px]", tone = "ink" }: {
+  size?: number; className?: string; textClass?: string; tone?: "ink" | "white";
 }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
+    <span className={`inline-flex items-center gap-2 ${className}`}>
       <LogoMark size={size} />
-      <Wordmark className={textClass} />
+      <Wordmark className={textClass} tone={tone} />
     </span>
   );
 }

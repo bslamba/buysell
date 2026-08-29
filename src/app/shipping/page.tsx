@@ -25,13 +25,13 @@ export default function ShippingPage() {
         sub="We don't hold stock, so nothing ships from a warehouse. The seller ships directly, on a label we provide, with the payment held until you've checked it."
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s) => (
             <Card key={s.n} hover className="flex h-full flex-col">
-              <span className="font-mono text-xs text-violet-300">{s.n}</span>
+              <span className="font-mono text-xs text-brand">{s.n}</span>
               <h2 className="mt-4 text-base font-semibold tracking-[-0.01em]">{s.t}</h2>
-              <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{s.b}</p>
+              <p className="mt-2.5 text-sm leading-relaxed text-ink-2">{s.b}</p>
             </Card>
           ))}
         </div>

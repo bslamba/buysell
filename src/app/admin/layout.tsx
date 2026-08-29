@@ -16,11 +16,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="mx-auto max-w-6xl gap-10 px-6 py-12 md:flex">
       <aside className="mb-8 md:mb-0 md:w-52 md:shrink-0">
-        <Badge tone="violet">{user.role}</Badge>
+        <Badge tone="brand">{user.role}</Badge>
         <nav className="mt-5 flex gap-1 overflow-x-auto md:flex-col">
           {NAV.map((n) => (
             <Link key={n.href} href={n.href}
-              className="whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-medium text-text-muted transition-colors hover:bg-white/[0.06] hover:text-text">
+              className="whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-medium text-ink-2 transition-colors hover:bg-surface hover:text-ink">
               {n.label}
             </Link>
           ))}

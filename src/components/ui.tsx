@@ -1,78 +1,94 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Variant = "primary" | "glass" | "ghost";
+/**
+ * Primitives in Apple's idiom: pill buttons, inline chevron links, soft-shadow
+ * tiles, and section headers that lead with an eyebrow. Deliberately few — the
+ * page carries its weight through typography and spacing rather than chrome.
+ */
 
-const BUTTON_BASE =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-45 disabled:pointer-events-none";
-
-const BUTTON_VARIANT: Record<Variant, string> = {
-  primary:
-    "bg-gradient-to-br from-violet-400 to-violet-600 text-white shadow-[0_8px_28px_-8px_rgba(124,58,237,0.85)] hover:brightness-110 hover:shadow-[0_12px_36px_-8px_rgba(124,58,237,1)]",
-  glass: "glass glass-hover text-text",
-  ghost: "text-text-muted hover:text-text hover:bg-white/[0.06]",
-};
+type Variant = "fill" | "ghost" | "link";
 
 export function Button({
-  children, href, type = "button", variant = "primary", disabled, onClick, className = "",
+  children, href, type = "button", variant = "fill", size = "md", disabled, onClick, className = "",
 }: {
-  children: ReactNode; href?: string; type?: "button" | "submit"; variant?: Variant;
-  disabled?: boolean; onClick?: () => void; className?: string;
+  children: ReactNode; href?: string; type?: "button" | "submit";
+  variant?: Variant; size?: "md" | "sm"; disabled?: boolean;
+  onClick?: () => void; className?: string;
 }) {
-  const cls = `${BUTTON_BASE} ${BUTTON_VARIANT[variant]} ${className}`;
+  if (variant === "link") {
+    const cls = `a-link ${className}`;
+    return href ? <Link href={href} className={cls}>{children}</Link>
+      : <button type={type} onClick={onClick} disabled={disabled} className={cls}>{children}</button>;
+  }
+  const cls = `a-btn ${variant === "fill" ? "a-btn-fill" : "a-btn-ghost"} ${size === "sm" ? "a-btn-sm" : ""} ${disabled ? "pointer-events-none opacity-40" : ""} ${className}`;
   if (href) return <Link href={href} className={cls}>{children}</Link>;
   return <button type={type} disabled={disabled} onClick={onClick} className={cls}>{children}</button>;
+}
+
+/** Apple's paired actions: a filled primary next to a chevron link. */
+export function Actions({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`flex flex-wrap items-center gap-x-7 gap-y-4 ${className}`}>{children}</div>;
 }
 
 export function Card({ children, className = "", hover = false }: {
   children: ReactNode; className?: string; hover?: boolean;
 }) {
-  return (
-    <div className={`glass ${hover ? "glass-hover" : ""} rounded-[18px] p-6 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`tile ${hover ? "" : "!transform-none hover:!shadow-[0_4px_14px_rgba(28,16,48,0.06)]"} p-7 ${className}`}>{children}</div>;
 }
 
-export function Badge({ tone = "violet", children }: {
-  tone?: "violet" | "ok" | "warn" | "bad" | "plain"; children: ReactNode;
+export function Badge({ tone = "brand", children }: {
+  tone?: "brand" | "ok" | "warn" | "bad" | "plain"; children: ReactNode;
 }) {
   const tones = {
-    violet: "bg-violet-400/15 text-violet-300 ring-violet-400/25",
-    ok: "bg-ok/12 text-ok ring-ok/25",
-    warn: "bg-warn/12 text-warn ring-warn/25",
-    bad: "bg-bad/12 text-bad ring-bad/25",
-    plain: "bg-white/[0.06] text-text-muted ring-white/10",
+    brand: "bg-brand-100 text-brand-700",
+    ok: "bg-ok/10 text-ok",
+    warn: "bg-warn/10 text-warn",
+    bad: "bg-bad/10 text-bad",
+    plain: "bg-surface text-ink-2",
   } as const;
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${tones[tone]}`}>
-      {children}
-    </span>
-  );
+  return <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 t-caption font-semibold ${tones[tone]}`}>{children}</span>;
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-faint">{children}</p>
-  );
+export function Eyebrow({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <p className={`t-eyebrow text-brand ${className}`}>{children}</p>;
 }
 
-export function SectionTitle({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
+/** Centred section head — Apple's default for a full-bleed band. */
+export function SectionHead({ eyebrow, title, sub, align = "center" }: {
+  eyebrow?: string; title: string; sub?: string; align?: "center" | "left";
+}) {
+  const a = align === "center" ? "text-center mx-auto" : "";
   return (
-    <div className="max-w-2xl">
-      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-      <h2 className="mt-3 text-balance text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">{title}</h2>
-      {sub ? <p className="mt-4 text-[15px] leading-relaxed text-text-muted">{sub}</p> : null}
+    <div className={`${a} max-w-3xl`}>
+      {eyebrow ? <Eyebrow className="mb-3">{eyebrow}</Eyebrow> : null}
+      <h2 className="t-headline text-balance">{title}</h2>
+      {sub ? <p className="t-subhead mt-4 text-ink-2">{sub}</p> : null}
     </div>
+  );
+}
+
+/** Kept for pages that still call the old name. */
+export const SectionTitle = SectionHead;
+
+export function PageHeader({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
+  return (
+    <header className="band-grey">
+      <div className="container-a py-20 text-center sm:py-24">
+        {eyebrow ? <Eyebrow className="mb-3">{eyebrow}</Eyebrow> : null}
+        <h1 className="t-hero text-balance">{title}</h1>
+        {sub ? <p className="t-subhead mx-auto mt-5 max-w-2xl text-ink-2">{sub}</p> : null}
+      </div>
+    </header>
   );
 }
 
 export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return (
-    <div className="glass rounded-[18px] px-6 py-16 text-center">
-      <h3 className="text-base font-semibold">{title}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-text-muted">{body}</p>
-      {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
+    <div className="rounded-[18px] border border-hairline px-6 py-20 text-center">
+      <h3 className="t-title">{title}</h3>
+      <p className="t-body mx-auto mt-3 max-w-md text-ink-2">{body}</p>
+      {action ? <div className="mt-7 flex justify-center">{action}</div> : null}
     </div>
   );
 }
@@ -80,25 +96,12 @@ export function EmptyState({ title, body, action }: { title: string; body: strin
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-text">{label}</span>
+      <span className="t-small mb-2 block font-medium">{label}</span>
       {children}
-      {hint ? <span className="mt-2 block text-xs leading-relaxed text-text-faint">{hint}</span> : null}
+      {hint ? <span className="t-caption mt-2 block text-ink-3">{hint}</span> : null}
     </label>
   );
 }
 
 export const inputClass =
-  "glass-input w-full rounded-xl px-4 py-3 text-sm text-text placeholder:text-text-faint";
-
-/** Page header used by every content page, so they all start the same way. */
-export function PageHeader({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
-  return (
-    <header className="border-b border-white/[0.06] py-16">
-      <div className="mx-auto max-w-6xl px-6">
-        {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-        <h1 className="mt-3 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">{title}</h1>
-        {sub ? <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-text-muted">{sub}</p> : null}
-      </div>
-    </header>
-  );
-}
+  "w-full rounded-xl border border-hairline bg-canvas px-4 py-3 t-body text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-brand";

@@ -14,9 +14,9 @@ export default function PrivacyPage() {
     <>
       <PageHeader eyebrow="Legal" title="Privacy policy" sub="Last updated 29 August 2026." />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <Card className="mb-12 border-warn/25">
-          <p className="text-sm leading-relaxed text-text-muted">
+          <p className="text-sm leading-relaxed text-ink-2">
             <strong className="font-semibold text-warn">Draft — not yet reviewed by counsel.</strong>{" "}
             This describes how the product is built to handle data. It must be reviewed against the
             Digital Personal Data Protection Act, 2023 before {brand.name} handles real user data at

@@ -10,7 +10,7 @@ export default function CorporatePendingPage() {
         <h1 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
           We&apos;re verifying your company
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-text-muted">
+        <p className="mt-4 text-sm leading-relaxed text-ink-2">
           An administrator is checking your GSTIN and incorporation details. This usually takes one
           working day, and we&apos;ll email you as soon as it&apos;s done.
         </p>

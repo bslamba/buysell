@@ -25,14 +25,14 @@ export default function SocialsPage() {
         sub="We publish what we block. Every month we post how many listings failed which check — it's the cheapest honest signal we can give you."
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <div className="grid gap-4 sm:grid-cols-2">
           {Object.entries(brand.socials).map(([key, url]) => (
             <a key={key} href={url} target="_blank" rel="noreferrer noopener">
               <Card hover className="flex h-full flex-col">
                 <h2 className="text-lg font-semibold capitalize tracking-[-0.02em]">{key}</h2>
-                <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{BLURBS[key]}</p>
-                <p className="mt-auto pt-6 text-xs text-violet-300">{url.replace("https://", "")} →</p>
+                <p className="mt-2.5 text-sm leading-relaxed text-ink-2">{BLURBS[key]}</p>
+                <p className="mt-auto pt-6 text-xs text-brand">{url.replace("https://", "")} →</p>
               </Card>
             </a>
           ))}

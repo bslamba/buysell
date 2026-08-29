@@ -25,12 +25,12 @@ export default function AboutPage() {
         sub={`${brand.name} is built on a single idea: the reason people don't buy used online in India isn't price, and it isn't selection. It's that nobody will stand behind what's in the picture.`}
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <div className="grid gap-4 md:grid-cols-2">
           {BELIEFS.map((x) => (
             <Card key={x.t} hover>
               <h2 className="text-lg font-semibold tracking-[-0.02em]">{x.t}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-text-muted">{x.b}</p>
+              <p className="mt-3 text-sm leading-relaxed text-ink-2">{x.b}</p>
             </Card>
           ))}
         </div>
@@ -40,7 +40,7 @@ export default function AboutPage() {
           <h2 className="mt-3 max-w-2xl text-balance text-3xl font-semibold tracking-[-0.03em]">
             Early access in Bengaluru, on purpose.
           </h2>
-          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-text-muted">
+          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-ink-2">
             A marketplace is only useful if things actually sell, and that needs density rather than
             reach. So we are starting in one corridor of one city — where the buyers, the sellers and
             the corporate hardware all sit within a few kilometres of each other — and we will not
@@ -48,15 +48,15 @@ export default function AboutPage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button href="/sell">Sell something</Button>
-            <Button href="/contact" variant="glass">Talk to us</Button>
+            <Button href="/contact" variant="ghost">Talk to us</Button>
           </div>
         </section>
 
         <section className="mt-20">
           <Card>
             <Eyebrow>The company</Eyebrow>
-            <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-text-muted">
-              {brand.name} is operated by <strong className="font-semibold text-text">{brand.legalName}</strong>,
+            <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-ink-2">
+              {brand.name} is operated by <strong className="font-semibold text-ink">{brand.legalName}</strong>,
               registered in Bengaluru. We are a marketplace: we never take ownership of anything listed
               here, and we charge buyers a protection fee rather than taking a commission from sellers.
             </p>

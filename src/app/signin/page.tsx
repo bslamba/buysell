@@ -31,7 +31,7 @@ export default async function SignInPage({
       <div className="text-center">
         <Eyebrow>Welcome</Eyebrow>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Sign in to {brand.name}</h1>
-        <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-text-muted">
+        <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-ink-2">
           Your phone number is what keeps this marketplace honest — it&apos;s how we stop one person
           running ten seller accounts. Buyers never see it.
         </p>
@@ -41,10 +41,10 @@ export default async function SignInPage({
         <SignInForm next={target} googleEnabled={googleEnabled} />
       </Card>
 
-      <p className="mt-8 text-center text-xs leading-relaxed text-text-faint">
+      <p className="mt-8 text-center text-xs leading-relaxed text-ink-3">
         By continuing you agree to {brand.name}&apos;s{" "}
-        <a href="/terms" className="text-violet-300 hover:text-violet-200">terms</a> and{" "}
-        <a href="/privacy" className="text-violet-300 hover:text-violet-200">privacy policy</a>.
+        <a href="/terms" className="text-brand hover:text-brand-600">terms</a> and{" "}
+        <a href="/privacy" className="text-brand hover:text-brand-600">privacy policy</a>.
       </p>
     </div>
   );

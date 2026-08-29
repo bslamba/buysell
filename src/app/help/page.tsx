@@ -47,21 +47,21 @@ export default function HelpPage() {
         sub="If none of this covers it, write to us — a person reads every message."
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <div className="space-y-16">
           {GROUPS.map((g) => (
             <section key={g.heading}>
               <h2 className="text-2xl font-semibold tracking-[-0.03em]">{g.heading}</h2>
               <div className="mt-6 space-y-3">
                 {g.faqs.map((f) => (
-                  <details key={f.q} className="glass group rounded-[18px] px-6 py-5">
+                  <details key={f.q} className="tile group rounded-[18px] px-6 py-5">
                     <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-[-0.01em] marker:hidden">
                       <span className="flex items-start justify-between gap-4">
                         {f.q}
-                        <span className="mt-1 shrink-0 text-violet-300 transition-transform group-open:rotate-45">+</span>
+                        <span className="mt-1 shrink-0 text-brand transition-transform group-open:rotate-45">+</span>
                       </span>
                     </summary>
-                    <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted">{f.a}</p>
+                    <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-2">{f.a}</p>
                   </details>
                 ))}
               </div>
@@ -72,13 +72,13 @@ export default function HelpPage() {
         <Card className="mt-16">
           <Eyebrow>Still stuck</Eyebrow>
           <h2 className="mt-3 text-xl font-semibold tracking-[-0.02em]">Talk to a person</h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-2">
             Email {brand.supportEmail} or use the contact form. If it is about a specific listing or
             order, include the reference and we will have the full history in front of us.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button href="/contact">Contact us</Button>
-            <Link href="/shipping" className="glass glass-hover rounded-full px-5 py-2.5 text-sm font-semibold">
+            <Link href="/shipping" className="tile rounded-full px-5 py-2.5 text-sm font-semibold">
               Shipping & delivery
             </Link>
           </div>

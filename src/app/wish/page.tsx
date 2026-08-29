@@ -29,7 +29,7 @@ export default function WishPage() {
               <Field label="Category">
                 <select className={inputClass} name="category" defaultValue="laptops">
                   {CATEGORIES.map((c) => (
-                    <option key={c.slug} value={c.slug} className="bg-ink-900">{c.label}</option>
+                    <option key={c.slug} value={c.slug} className="bg-canvas">{c.label}</option>
                   ))}
                 </select>
               </Field>
@@ -48,7 +48,7 @@ export default function WishPage() {
             </Field>
 
             <Button type="submit">Create the alert</Button>
-            <p className="text-xs leading-relaxed text-text-faint">
+            <p className="text-xs leading-relaxed text-ink-3">
               Saving wishlists needs an account and a connected database — this form is the design,
               wired up in the next build phase.
             </p>
@@ -64,7 +64,7 @@ export default function WishPage() {
             <Card key={x.t}>
               <Eyebrow>Why bother</Eyebrow>
               <h3 className="mt-3 text-base font-semibold tracking-[-0.01em]">{x.t}</h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{x.b}</p>
+              <p className="mt-2.5 text-sm leading-relaxed text-ink-2">{x.b}</p>
             </Card>
           ))}
         </div>

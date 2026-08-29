@@ -14,9 +14,9 @@ export default function TermsPage() {
     <>
       <PageHeader eyebrow="Legal" title="Terms of use" sub="Last updated 29 August 2026." />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="container-a py-16">
         <Card className="mb-12 border-warn/25">
-          <p className="text-sm leading-relaxed text-text-muted">
+          <p className="text-sm leading-relaxed text-ink-2">
             <strong className="font-semibold text-warn">Draft — not yet reviewed by counsel.</strong>{" "}
             This sets out the intended terms so the product can be built around them. It must be
             reviewed by a qualified lawyer before {brand.name} accepts a real transaction.

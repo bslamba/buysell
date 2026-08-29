@@ -44,15 +44,15 @@ export default async function SellPage() {
       ]} />
 
       {/* Hero */}
-      <section className="border-b border-white/[0.06]">
+      <section className="border-b border-hairline">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-2">
           <div>
             <Badge tone="ok">Free to list · no commission</Badge>
             <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.04] tracking-[-0.04em] sm:text-6xl">
               If you&apos;re not using it,<br />
-              <span className="text-gradient">someone is.</span>
+              <span className="text-brand">someone is.</span>
             </h1>
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-text-muted">
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-2">
               List in about three minutes. We verify it, buyers trust it, and you keep every rupee
               of the sale price.
             </p>
@@ -62,7 +62,7 @@ export default async function SellPage() {
               ) : (
                 <Button href={user ? "/sell/new" : "/signin?next=/sell/new"}>List an item</Button>
               )}
-              <Button href="/sell/how-it-works" variant="glass">See how it works</Button>
+              <Button href="/sell/how-it-works" variant="ghost">See how it works</Button>
             </div>
           </div>
 
@@ -74,28 +74,28 @@ export default async function SellPage() {
                 { k: "Seller commission", v: "₹0" },
                 { k: "Payout on a ₹40,000 sale", v: "₹40,000" },
               ].map((r, i) => (
-                <div key={r.k} className={`flex items-baseline justify-between gap-4 ${i === 2 ? "border-t border-white/[0.08] pt-4" : ""}`}>
-                  <span className="text-sm text-text-muted">{r.k}</span>
+                <div key={r.k} className={`flex items-baseline justify-between gap-4 ${i === 2 ? "border-t border-hairline pt-4" : ""}`}>
+                  <span className="text-sm text-ink-2">{r.k}</span>
                   <span className={`tabular font-semibold tracking-[-0.02em] ${i === 2 ? "text-2xl text-ok" : "text-lg"}`}>{r.v}</span>
                 </div>
               ))}
             </div>
-            <p className="mt-5 text-xs leading-relaxed text-text-faint">
-              Buyers pay a protection fee on top. <Link href="/sell/fees" className="text-violet-300 hover:text-violet-200">See the full fee breakdown →</Link>
+            <p className="mt-5 text-xs leading-relaxed text-ink-3">
+              Buyers pay a protection fee on top. <Link href="/sell/fees" className="text-brand hover:text-brand-600">See the full fee breakdown →</Link>
             </p>
           </Card>
         </div>
       </section>
 
       {/* Benefits */}
-      <section className="border-b border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
+      <section className="border-b border-hairline py-24">
+        <div className="container-a">
           <SectionTitle eyebrow="Why sell here" title="Reach buyers who already trust the listing" />
           <div className="mt-12 grid gap-4 md:grid-cols-3">
             {BENEFITS.map((b) => (
               <Card key={b.t} hover>
                 <h3 className="text-lg font-semibold tracking-[-0.02em]">{b.t}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{b.b}</p>
+                <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.b}</p>
               </Card>
             ))}
           </div>
@@ -103,8 +103,8 @@ export default async function SellPage() {
       </section>
 
       {/* Category picker */}
-      <section className="border-b border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
+      <section className="border-b border-hairline py-24">
+        <div className="container-a">
           <SectionTitle eyebrow="Start here" title="What are you selling?" />
           <div className="mt-10 space-y-8">
             {GROUP_ORDER.map((g) => {
@@ -112,12 +112,12 @@ export default async function SellPage() {
               if (items.length === 0) return null;
               return (
                 <div key={g}>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-faint">{GROUP_LABELS[g]}</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-3">{GROUP_LABELS[g]}</h3>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {items.map((c) => (
                       <Link key={c.slug} href={`/sell/new?category=${c.slug}`}
-                        className="glass glass-hover flex items-center gap-2.5 rounded-full px-4 py-2.5 text-sm font-medium">
-                        <span className="text-violet-300"><CategoryIcon name={c.icon} size={17} /></span>
+                        className="tile flex items-center gap-2.5 rounded-full px-4 py-2.5 text-sm font-medium">
+                        <span className="text-brand"><CategoryIcon name={c.icon} size={17} /></span>
                         {c.label}
                       </Link>
                     ))}
@@ -126,15 +126,15 @@ export default async function SellPage() {
               );
             })}
           </div>
-          <p className="mt-8 text-sm text-text-muted">
-            {CATEGORIES.length} categories. <Link href="/categories" className="text-violet-300 hover:text-violet-200">See what each one requires →</Link>
+          <p className="mt-8 text-sm text-ink-2">
+            {CATEGORIES.length} categories. <Link href="/categories" className="text-brand hover:text-brand-600">See what each one requires →</Link>
           </p>
         </div>
       </section>
 
       {/* Business */}
-      <section className="border-b border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
+      <section className="border-b border-hairline py-24">
+        <div className="container-a">
           <Card className="!p-0">
             <div className="grid gap-10 p-10 lg:grid-cols-2 lg:p-14">
               <div>
@@ -142,7 +142,7 @@ export default async function SellPage() {
                 <h2 className="mt-3 text-balance text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
                   Bulk lots, auctions and dealer tools
                 </h2>
-                <p className="mt-5 text-[15px] leading-relaxed text-text-muted">
+                <p className="mt-5 text-[15px] leading-relaxed text-ink-2">
                   Companies retiring IT assets, dealers, refurbishers and disposal firms get bulk
                   upload, sealed-lot auctions with proxy bidding, and the option to let retail
                   buyers take single pieces from a lot.
@@ -157,8 +157,8 @@ export default async function SellPage() {
                   "Issue data-wipe certificates for compliance",
                   "GSTIN verified before auctions are enabled",
                 ].map((t) => (
-                  <li key={t} className="flex gap-3 text-sm leading-relaxed text-text-muted">
-                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />{t}
+                  <li key={t} className="flex gap-3 text-sm leading-relaxed text-ink-2">
+                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />{t}
                   </li>
                 ))}
               </ul>
@@ -169,18 +169,18 @@ export default async function SellPage() {
 
       {/* FAQ */}
       <section className="py-24">
-        <div className="mx-auto max-w-6xl px-6">
+        <div className="container-a">
           <SectionTitle eyebrow="Seller FAQ" title="What sellers ask before their first listing" />
           <div className="mt-10 space-y-3">
             {FAQS.map((f) => (
-              <details key={f.q} className="glass group rounded-[18px] px-6 py-5">
+              <details key={f.q} className="tile group rounded-[18px] px-6 py-5">
                 <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-[-0.01em] marker:hidden">
                   <span className="flex items-start justify-between gap-4">
                     <h3 className="font-semibold">{f.q}</h3>
-                    <span className="mt-0.5 shrink-0 text-violet-300 transition-transform group-open:rotate-45">+</span>
+                    <span className="mt-0.5 shrink-0 text-brand transition-transform group-open:rotate-45">+</span>
                   </span>
                 </summary>
-                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted">{f.a}</p>
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-2">{f.a}</p>
               </details>
             ))}
           </div>

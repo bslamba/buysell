@@ -48,7 +48,7 @@ export default async function CorporateHome() {
       <PageHeader eyebrow="For businesses" title="Your company accounts" />
       <div className="mx-auto max-w-3xl px-6 py-12">
         <div className="mb-6 flex justify-end">
-          <Button href="/corporate/register" variant="glass">Register another</Button>
+          <Button href="/corporate/register" variant="ghost">Register another</Button>
         </div>
         <div className="space-y-3">
           {orgs.map((o) => (
@@ -56,7 +56,7 @@ export default async function CorporateHome() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold tracking-[-0.02em]">{o.orgName}</h2>
-                  <p className="mt-1.5 text-xs text-text-faint">You are {o.role} of this account</p>
+                  <p className="mt-1.5 text-xs text-ink-3">You are {o.role} of this account</p>
                 </div>
                 <Badge tone={STATUS_TONE[o.orgStatus as keyof typeof STATUS_TONE] ?? "plain"}>
                   {o.orgStatus}
@@ -72,7 +72,7 @@ export default async function CorporateHome() {
               </div>
               {o.orgStatus === "approved" && o.canRunAuctions && (
                 <div className="mt-6">
-                  <Link href={`/corporate/${o.orgId}/auctions`} className="text-sm font-semibold text-violet-300 hover:text-violet-200">
+                  <Link href={`/corporate/${o.orgId}/auctions`} className="text-sm font-semibold text-brand hover:text-brand-600">
                     Manage auctions →
                   </Link>
                 </div>

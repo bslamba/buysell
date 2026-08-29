@@ -1,133 +1,192 @@
 import Link from "next/link";
 import { brand } from "@/config/brand";
-import { CATEGORIES, GROUP_ORDER, GROUP_LABELS, categoriesByGroup } from "@/config/categories";
-import { Button, Card, Badge, Eyebrow, SectionTitle } from "@/components/ui";
+import { CATEGORIES, RAIL_CATEGORIES, GROUP_ORDER, GROUP_LABELS, categoriesByGroup } from "@/config/categories";
+import { Button, Actions, Eyebrow } from "@/components/ui";
 import { CategoryIcon } from "@/components/icons";
+import { LogoMark } from "@/components/logo";
+import { Shelf } from "@/components/shelf";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbLd, faqLd } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-const STEPS = [
-  { n: "01", title: "List it in three minutes", body: "Pick the category, add photos, and answer a few questions about condition. We suggest a price from what comparable items actually sold for." },
-  { n: "02", title: "We check it before anyone sees it", body: "Photos are fingerprinted, IMEIs are matched against the government stolen-device register, and the price is compared against the real market. Most listings clear in seconds." },
-  { n: "03", title: "Sell safely, get paid", body: "Buyers talk to you here, not on WhatsApp. Payment is held until the item arrives and the buyer confirms it matches." },
+const FAQS = [
+  { q: "Is it safe to buy used products online in India?", a: "It is when the listing has been verified. On WorthIt every listing passes eleven automated checks before it appears — photographs are fingerprinted against every image ever uploaded, phone IMEIs are checked against the Government of India's CEIR stolen-device register, and prices are compared against real market data. Your payment is then held until the item arrives and you confirm it matches." },
+  { q: "What does it cost to sell on WorthIt?", a: "Nothing. There is no listing fee and no commission taken from your payout. Buyers pay a small protection fee at checkout, which is what funds the verification." },
+  { q: "How do I know a used phone is not stolen?", a: "Every phone listed on WorthIt has its IMEI checked against the CEIR register maintained by India's Department of Telecommunications before the listing goes live. A device reported lost or stolen is rejected automatically and never reaches a buyer." },
+  { q: "Which cities does WorthIt cover?", a: "WorthIt is in early access in Bengaluru. We are deliberately saturating one city before opening others, because a marketplace is only useful when things actually sell." },
+  { q: "Can businesses sell on WorthIt?", a: "Yes. Companies, dealers, refurbishers and IT asset disposal firms can register a corporate account and run bulk lot auctions, with a serial manifest and certified data wipe. Retail buyers can take single pieces from a bulk lot where the seller allows it." },
 ];
 
 const CHECKS = [
-  { title: "Photos can't be borrowed", body: "Every image is fingerprinted and matched against every photo ever uploaded here — including ones from deleted listings. Resize it, crop it, brighten it: still caught." },
-  { title: "Stolen phones don't get listed", body: "Every IMEI is checked against the Government of India's CEIR register before the listing can go live. No competitor does this at listing time." },
-  { title: "Too-good-to-be-true is a red flag", body: "A device priced far under its real market value is the oldest trick in classifieds. We know what things actually sell for, so bait listings never appear." },
-  { title: "Your number stays yours", body: "Phone numbers hidden in descriptions get stripped — however cleverly they're spelled out. Conversations stay here, where your payment is protected." },
-];
-
-const STATS = [
-  { v: "11", k: "automated checks", s: "run on every listing before a human ever sees it" },
-  { v: "< 10s", k: "typical decision", s: "from submit to live for a clean listing" },
-  { v: "0", k: "items we hold", s: "no warehouse, no markup, no inventory games" },
+  { t: "Photos can't be borrowed", b: "Every image is fingerprinted and matched against every photo ever uploaded here — including ones from deleted listings. Resize it, crop it, brighten it: still caught." },
+  { t: "Stolen phones don't get listed", b: "Every IMEI is checked against the Government of India's CEIR register before the listing goes live. No other marketplace here does this at listing time." },
+  { t: "Too good to be true is a red flag", b: "A device priced far under its real market value is the oldest trick in classifieds. We know what things actually sell for, so bait listings never appear." },
+  { t: "Your number stays yours", b: "Phone numbers hidden in descriptions get stripped, however cleverly they're spelled out. Conversations stay here, where your payment is protected." },
 ];
 
 export default function HomePage() {
   const certified = CATEGORIES.filter((c) => c.tier === "certified");
-  const featured = CATEGORIES.filter((c) => c.slug !== "other").slice(0, 8);
-
-  const faqs = [
-    { q: "Is it safe to buy used products online in India?", a: "It is when the listing has been verified. On WorthIt every listing passes eleven automated checks before it appears — photographs are fingerprinted against every image ever uploaded, phone IMEIs are checked against the Government of India's CEIR stolen-device register, and prices are compared against real market data. Your payment is then held until the item arrives and you confirm it matches." },
-    { q: "What does it cost to sell on WorthIt?", a: "Nothing. There is no listing fee and no commission taken from your payout. Buyers pay a small protection fee at checkout, which is what funds the verification." },
-    { q: "How do I know a used phone is not stolen?", a: "Every phone listed on WorthIt has its IMEI checked against the CEIR register maintained by India's Department of Telecommunications before the listing goes live. A device reported lost or stolen is rejected automatically and never reaches a buyer." },
-    { q: "Which cities does WorthIt cover?", a: "WorthIt is in early access in Bengaluru. We are deliberately saturating one city before opening others, because a marketplace is only useful when things actually sell." },
-    { q: "Can businesses sell on WorthIt?", a: "Yes. Companies, dealers, refurbishers and IT asset disposal firms can register a corporate account and run bulk lot auctions, with a serial manifest and certified data wipe. Retail buyers can take single pieces from a bulk lot where the seller allows it." },
-  ];
 
   return (
     <>
-      <JsonLd data={[
-        breadcrumbLd([{ name: "Home", path: "/" }]),
-        faqLd(faqs),
-      ]} />
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-6xl px-6 pb-24 pt-24 sm:pt-32">
-          <Badge tone="violet">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-300" />
-            Now in early access · {brand.defaultCity}
-          </Badge>
+      <JsonLd data={[breadcrumbLd([{ name: "Home", path: "/" }]), faqLd(FAQS)]} />
 
-          <h1 className="mt-7 max-w-4xl text-balance text-5xl font-semibold leading-[1.02] tracking-[-0.04em] sm:text-7xl">
-            <span className="text-gradient">Buy used</span>
-            <br />
-            without the guesswork.
-          </h1>
-
-          <p className="mt-7 max-w-xl text-lg leading-relaxed text-text-muted">
-            {brand.description}
+      {/* ── Hero: mark, name, one plain description, two links ───────────── */}
+      <section className="band">
+        <div className="container-a py-20 text-center sm:py-28">
+          <div className="flex justify-center">
+            <LogoMark size={84} />
+          </div>
+          <h1 className="t-hero mt-8 text-balance">{brand.name}</h1>
+          <p className="t-subhead mx-auto mt-4 max-w-[620px] text-balance text-ink-2">
+            Buy and sell used things in India without the guesswork. Every listing is
+            machine-checked before it goes live, and your payment is held until you say
+            the item is right.
           </p>
-
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button href="/browse">Browse listings</Button>
-            <Button href="/sell" variant="glass">Sell something</Button>
-          </div>
-
-          <div className="mt-14 grid gap-3 sm:grid-cols-3">
-            {STATS.map((s) => (
-              <Card key={s.k} hover>
-                <div className="text-4xl font-semibold tracking-[-0.04em] tabular">{s.v}</div>
-                <div className="mt-2 text-sm font-medium">{s.k}</div>
-                <div className="mt-1.5 text-[13px] leading-relaxed text-text-muted">{s.s}</div>
-              </Card>
-            ))}
-          </div>
+          <Actions className="mt-8 justify-center">
+            <Button href="/browse">Shop the store</Button>
+            <Button href="/sell" variant="link">Sell an item</Button>
+          </Actions>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="border-t border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <SectionTitle eyebrow="How it works" title="Three steps, and none of them involve meeting a stranger with cash." />
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            {STEPS.map((s) => (
-              <Card key={s.n} hover className="flex flex-col">
-                <span className="font-mono text-xs text-violet-300">{s.n}</span>
-                <h3 className="mt-4 text-lg font-semibold tracking-[-0.02em]">{s.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{s.body}</p>
-              </Card>
+      {/* ── Full-bleed dark band: the proposition ────────────────────────── */}
+      <section className="band-deep on-deep">
+        <div className="container-a py-24 text-center sm:py-32">
+          <Eyebrow className="!text-brand-300">Verified before it appears</Eyebrow>
+          <h2 className="t-headline mx-auto mt-4 max-w-[15ch] text-balance">
+            Eleven checks. Before anyone sees it.
+          </h2>
+          <p className="t-subhead mx-auto mt-5 max-w-[600px] text-balance text-white/70">
+            Other marketplaces moderate what gets reported. We check everything up front —
+            and what reaches a human is only what the machine genuinely could not decide.
+          </p>
+          <Actions className="mt-9 justify-center">
+            <Button href="/browse">Browse verified listings</Button>
+            <Button href="/help" variant="link">How verification works</Button>
+          </Actions>
+
+          <dl className="mx-auto mt-16 grid max-w-3xl grid-cols-1 gap-10 sm:grid-cols-3">
+            {[
+              { v: "11", k: "automated checks on every listing" },
+              { v: "< 10s", k: "typical time from submit to live" },
+              { v: "0", k: "items we hold — no inventory, no markup" },
+            ].map((s) => (
+              <div key={s.k}>
+                <dt className="t-hero !text-[52px] leading-none tabular">{s.v}</dt>
+                <dd className="t-small mt-3 text-white/60">{s.k}</dd>
+              </div>
             ))}
-          </div>
+          </dl>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="border-t border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <SectionTitle
-              eyebrow="Categories"
-              title="Sell almost anything. Some things we check harder."
-              sub="Twenty categories, each with its own rules. A ₹60,000 laptop and a ₹300 textbook do not carry the same risk, so they do not get the same checks."
-            />
-            <Link href="/categories" className="text-sm font-semibold text-violet-300 hover:text-violet-200">
-              All categories →
+      {/* ── Category shelf: left-to-right, Apple Store behaviour ─────────── */}
+      <section className="band-grey">
+        <Shelf
+          title="Shop by category"
+          subtitle="Twenty categories, each with its own verification rules."
+          seeAll={{ href: "/categories", label: "See all categories" }}
+        >
+          {RAIL_CATEGORIES.map((c) => (
+            <Link key={c.slug} href={`/browse/${c.slug}`} className="tile w-[236px] p-7">
+              <span className="text-brand"><CategoryIcon name={c.icon} size={28} /></span>
+              <h3 className="mt-6 text-[21px] font-semibold leading-tight tracking-[-0.015em]">{c.label}</h3>
+              <p className="t-small mt-2 text-ink-2">{c.blurb}</p>
+              <span className="a-link mt-6 !text-[14px]">Shop</span>
             </Link>
-          </div>
+          ))}
+        </Shelf>
+      </section>
 
+      {/* ── Two-up grid of the checks ────────────────────────────────────── */}
+      <section className="band py-20">
+        <div className="container-a">
+          <h2 className="t-headline max-w-[16ch] text-balance">Why a listing here is worth trusting.</h2>
+          <div className="mt-12 grid gap-5 md:grid-cols-2">
+            {CHECKS.map((c) => (
+              <div key={c.t} className="band-grey rounded-[18px] p-9">
+                <h3 className="t-title text-balance">{c.t}</h3>
+                <p className="t-body mt-4 text-ink-2">{c.b}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Certified categories shelf ───────────────────────────────────── */}
+      <section className="band-grey">
+        <Shelf
+          title="Fully certified categories"
+          subtitle="Software reads the device itself, so these carry a complete condition report."
+          seeAll={{ href: "/categories", label: "How verification tiers work" }}
+        >
+          {certified.map((c) => (
+            <Link key={c.slug} href={`/browse/${c.slug}`}
+              className="tile flex w-[300px] flex-col justify-between p-8">
+              <div>
+                <Eyebrow>Certified</Eyebrow>
+                <h3 className="t-title mt-3">{c.label}</h3>
+                <p className="t-small mt-3 text-ink-2">{c.seo.description}</p>
+              </div>
+              <span className="a-link mt-7 !text-[14px]">Shop {c.label}</span>
+            </Link>
+          ))}
+        </Shelf>
+      </section>
+
+      {/* ── Full-bleed: business ─────────────────────────────────────────── */}
+      <section className="band py-20">
+        <div className="container-a">
+          <div className="grid items-center gap-12 rounded-[22px] bg-surface p-10 lg:grid-cols-2 lg:p-16">
+            <div>
+              <Eyebrow>For businesses</Eyebrow>
+              <h2 className="t-headline mt-4 text-balance">Retiring 500 laptops? Auction them.</h2>
+              <p className="t-body mt-5 max-w-md text-ink-2">
+                Companies, dealers and IT asset disposal firms list bulk lots with a serial
+                manifest and certified data wipe. Dealers bid for the whole lot while retail
+                buyers take single pieces — one listing, both kinds of demand.
+              </p>
+              <Actions className="mt-8">
+                <Button href="/sell/business">Business selling</Button>
+                <Button href="/auctions" variant="link">See live auctions</Button>
+              </Actions>
+            </div>
+            <ul className="space-y-4">
+              {[
+                "Sealed-lot auctions with proxy bidding and anti-sniping",
+                "Single-piece purchase from any bulk lot you allow",
+                "Serial manifests and grade mix published up front",
+                "Data-wipe certificates for compliance sign-off",
+                "GSTIN verified before auctions are enabled",
+              ].map((t) => (
+                <li key={t} className="flex gap-3 t-body text-ink-2">
+                  <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />{t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Full category directory, grouped ─────────────────────────────── */}
+      <section className="band-grey py-20">
+        <div className="container-a">
+          <h2 className="t-headline text-balance">Everything you can buy and sell.</h2>
           <div className="mt-12 space-y-10">
             {GROUP_ORDER.map((g) => {
               const items = categoriesByGroup(g);
               if (items.length === 0) return null;
               return (
                 <div key={g}>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-faint">
-                    {GROUP_LABELS[g]}
-                  </h3>
-                  <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                  <h3 className="t-eyebrow text-ink-3">{GROUP_LABELS[g]}</h3>
+                  <div className="mt-4 flex flex-wrap gap-2.5">
                     {items.map((c) => (
                       <Link key={c.slug} href={`/browse/${c.slug}`}
-                        className="glass glass-hover flex items-start gap-3.5 rounded-[16px] p-4">
-                        <span className="mt-0.5 shrink-0 text-violet-300"><CategoryIcon name={c.icon} /></span>
-                        <span className="min-w-0">
-                          <span className="block text-sm font-semibold tracking-[-0.01em]">{c.label}</span>
-                          <span className="mt-1 block text-xs leading-relaxed text-text-muted">{c.blurb}</span>
-                        </span>
+                        className="tile flex items-center gap-2.5 rounded-full px-5 py-3">
+                        <span className="text-brand"><CategoryIcon name={c.icon} size={17} /></span>
+                        <span className="t-small font-medium">{c.label}</span>
                       </Link>
                     ))}
                   </div>
@@ -138,105 +197,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* The checks */}
-      <section className="border-t border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <SectionTitle
-            eyebrow="Why it's different"
-            title="Other marketplaces moderate what gets reported. We check everything before it appears."
-            sub="Eleven automated checks run on every submission. What reaches a human moderator is only what the machine genuinely could not decide."
-          />
-          <div className="mt-12 grid gap-4 md:grid-cols-2">
-            {CHECKS.map((c) => (
-              <Card key={c.title} hover>
-                <h3 className="text-lg font-semibold tracking-[-0.02em]">{c.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{c.body}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Corporate */}
-      <section className="border-t border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <Card className="overflow-hidden !p-0">
-            <div className="grid gap-10 p-10 lg:grid-cols-2 lg:p-14">
-              <div>
-                <Eyebrow>For businesses</Eyebrow>
-                <h2 className="mt-3 text-balance text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-                  Retiring 500 laptops? Run it as an auction.
-                </h2>
-                <p className="mt-5 text-[15px] leading-relaxed text-text-muted">
-                  Companies, dealers and ITAD firms can list bulk lots with a serial manifest and
-                  certified data wipe. Dealers bid for the whole lot while retail buyers take single
-                  pieces at a fixed price — one listing, both kinds of demand.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <Button href="/corporate/register">Register a company</Button>
-                  <Button href="/auctions" variant="glass">See live auctions</Button>
-                </div>
-              </div>
-              <ul className="space-y-3 self-center">
-                {[
-                  "Sealed-lot auctions with proxy bidding and anti-sniping",
-                  "Single-piece purchase from any bulk lot you allow",
-                  "Serial manifests and grade mix published up front",
-                  "Data-wipe certificates for compliance sign-off",
-                  "GSTIN verified before auctions are enabled",
-                ].map((t) => (
-                  <li key={t} className="flex gap-3 text-sm leading-relaxed text-text-muted">
-                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />
-                    {t}
-                  </li>
-                ))}
-              </ul>
+      {/* ── Two-up: sell / wishlist ──────────────────────────────────────── */}
+      <section className="band py-20">
+        <div className="container-a grid gap-5 md:grid-cols-2">
+          {[
+            { e: "Selling", t: "Free to list. No commission.", b: "You keep the full price you agreed. Buyers pay a protection fee instead — which is what makes your listing worth trusting in the first place.", cta: "/sell", label: "Start selling", link: "/sell/fees", linkLabel: "See the fees" },
+            { e: "Wishlist", t: "Tell us what to find.", b: "Nothing live that matches? Describe it and we'll alert you the moment a verified listing appears — and nudge sellers who have one in a drawer.", cta: "/wish", label: "Create an alert", link: "/browse", linkLabel: "Browse instead" },
+          ].map((c) => (
+            <div key={c.t} className="band-grey rounded-[18px] p-10 text-center">
+              <Eyebrow>{c.e}</Eyebrow>
+              <h2 className="t-title mt-3 text-balance">{c.t}</h2>
+              <p className="t-body mx-auto mt-4 max-w-sm text-ink-2">{c.b}</p>
+              <Actions className="mt-7 justify-center">
+                <Button href={c.cta}>{c.label}</Button>
+                <Button href={c.link} variant="link">{c.linkLabel}</Button>
+              </Actions>
             </div>
-          </Card>
+          ))}
         </div>
       </section>
 
-      {/* FAQ — visible copy behind the FAQPage schema */}
-      <section className="border-t border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <SectionTitle eyebrow="Common questions" title="What people ask before their first purchase" />
-          <div className="mt-10 space-y-3">
-            {faqs.map((f) => (
-              <details key={f.q} className="glass group rounded-[18px] px-6 py-5">
-                <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-[-0.01em] marker:hidden">
-                  <span className="flex items-start justify-between gap-4">
-                    <h3 className="font-semibold">{f.q}</h3>
-                    <span className="mt-0.5 shrink-0 text-violet-300 transition-transform group-open:rotate-45">+</span>
+      {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+      <section className="band-grey py-20">
+        <div className="container-a max-w-[820px]">
+          <h2 className="t-headline text-balance">Questions people ask first.</h2>
+          <div className="mt-10 divide-y divide-hairline border-y border-hairline">
+            {FAQS.map((f) => (
+              <details key={f.q} className="group py-5">
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-6 marker:hidden">
+                  <h3 className="t-lead font-medium">{f.q}</h3>
+                  <span className="mt-1 shrink-0 text-brand transition-transform group-open:rotate-45">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
                   </span>
                 </summary>
-                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted">{f.a}</p>
+                <p className="t-body mt-4 max-w-2xl text-ink-2">{f.a}</p>
               </details>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Certified strip + final CTA */}
-      <section className="border-t border-white/[0.06] py-24">
-        <div className="mx-auto max-w-6xl px-6 text-center">
-          <Eyebrow>Fully certified categories</Eyebrow>
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            {certified.map((c) => (
-              <span key={c.slug} className="glass rounded-full px-4 py-2 text-sm font-medium">{c.label}</span>
-            ))}
-          </div>
-          <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed text-text-muted">
-            These can be checked by software running on the device itself, so they carry a full
-            condition report. Everything else still passes photo, price and seller checks.
-          </p>
-          <div className="mt-12">
-            <h2 className="text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
-              Find out what it&apos;s worth.
-            </h2>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button href="/sell">Start selling</Button>
-              <Button href="/browse" variant="glass">Browse first</Button>
-            </div>
           </div>
         </div>
       </section>

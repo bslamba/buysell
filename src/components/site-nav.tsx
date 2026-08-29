@@ -1,174 +1,136 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "./logo";
-import { CategoryIcon, SearchIcon } from "./icons";
-import { RAIL_CATEGORIES } from "@/config/categories";
+import { SearchIcon } from "./icons";
 
 export interface NavUser {
   label: string;
   isAdmin: boolean;
 }
 
-const PRIMARY = [
-  { href: "/categories", label: "Categories" },
+/**
+ * The global bar, built to Apple's proportions: 44px tall, translucent with a
+ * heavy backdrop blur, and links at 12px spread evenly across the width rather
+ * than clustered left. At that size the bar reads as a thin rule of text over
+ * the page rather than a piece of furniture sitting on top of it — which is the
+ * whole point of the design.
+ */
+
+const LINKS = [
+  { href: "/browse", label: "Store" },
+  { href: "/browse/phones", label: "Phones" },
+  { href: "/browse/laptops", label: "Laptops" },
+  { href: "/browse/electronics", label: "Electronics" },
+  { href: "/browse/home-furniture", label: "Home" },
+  { href: "/browse/fashion", label: "Fashion" },
   { href: "/auctions", label: "Auctions" },
-  { href: "/team", label: "Team" },
-  { href: "/socials", label: "Socials" },
-  { href: "/help", label: "Help Centre" },
+  { href: "/sell", label: "Sell" },
+  { href: "/help", label: "Support" },
 ];
-
-function SearchBar({ compact = false }: { compact?: boolean }) {
-  const router = useRouter();
-  const params = useSearchParams();
-  const [q, setQ] = useState(params.get("q") ?? "");
-
-  return (
-    <form
-      role="search"
-      onSubmit={(e) => { e.preventDefault(); router.push(`/browse?q=${encodeURIComponent(q.trim())}`); }}
-      className={`glass-input flex items-center gap-2.5 rounded-full ${compact ? "px-4 py-2.5" : "px-5 py-3"} w-full`}
-    >
-      <SearchIcon className="shrink-0 text-text-faint" />
-      <input
-        value={q} onChange={(e) => setQ(e.target.value)}
-        name="q" type="search" autoComplete="off"
-        aria-label="Search listings"
-        placeholder="What are you looking for?"
-        className="w-full bg-transparent text-sm text-text outline-none placeholder:text-text-faint"
-      />
-      {q && (
-        <button type="submit" className="shrink-0 rounded-full bg-violet-400/20 px-3 py-1 text-xs font-semibold text-violet-200">
-          Search
-        </button>
-      )}
-    </form>
-  );
-}
-
-function CategoryRail() {
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const active = params.get("category");
-  const onBrowse = pathname === "/browse";
-
-  return (
-    <div className="border-t border-white/[0.06]">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="scrollbar-none flex gap-1 overflow-x-auto py-2.5">
-          <Link
-            href="/browse"
-            className={`flex min-w-[74px] shrink-0 flex-col items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-medium transition-colors ${
-              onBrowse && !active ? "bg-white/[0.09] text-text" : "text-text-muted hover:bg-white/[0.05] hover:text-text"
-            }`}
-          >
-            <CategoryIcon name="grid" />
-            All
-          </Link>
-          {RAIL_CATEGORIES.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/browse?category=${c.slug}`}
-              className={`flex min-w-[74px] shrink-0 flex-col items-center gap-1.5 rounded-xl px-3 py-2 text-center text-[11px] font-medium leading-tight transition-colors ${
-                active === c.slug ? "bg-white/[0.09] text-text" : "text-text-muted hover:bg-white/[0.05] hover:text-text"
-              }`}
-            >
-              <CategoryIcon name={c.icon} />
-              {c.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function SiteNav({ user }: { user: NavUser | null }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const [menu, setMenu] = useState(false);
+  const [search, setSearch] = useState(false);
+  const [q, setQ] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => { setMenu(false); setSearch(false); }, [pathname]);
+  useEffect(() => { if (search) searchRef.current?.focus(); }, [search]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setSearch(false); setMenu(false); } };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  function submitSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const v = q.trim();
+    if (v) router.push(`/browse?q=${encodeURIComponent(v)}`);
+  }
 
   return (
-    <header className="glass-bar sticky top-0 z-50">
-      <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-4 px-6">
-        <Link href="/" aria-label="WorthIt home" className="shrink-0"><Logo /></Link>
+    <header className="sticky top-0 z-50 border-b border-black/[0.06] bg-canvas/80 backdrop-blur-2xl backdrop-saturate-[1.8]">
+      <nav aria-label="Global" className="mx-auto flex h-11 max-w-[1024px] items-center justify-between px-6">
+        <Link href="/" aria-label="WorthIt home" className="shrink-0 opacity-90 transition-opacity hover:opacity-100">
+          <Logo size={19} textClass="text-[14px]" />
+        </Link>
 
-        <div className="hidden min-w-0 flex-1 lg:block">
-          <Suspense fallback={<div className="h-11" />}><SearchBar /></Suspense>
-        </div>
-
-        <nav aria-label="Primary" className="hidden shrink-0 items-center gap-0.5 xl:flex">
-          {PRIMARY.map((l) => (
-            <Link key={l.href} href={l.href}
-              className={`rounded-full px-3 py-2 text-sm font-medium transition-colors ${
-                pathname.startsWith(l.href) ? "text-text" : "text-text-muted hover:text-text"
-              }`}>
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="ml-auto hidden shrink-0 items-center gap-2 lg:flex">
-          {user ? (
-            <>
-              {user.isAdmin && (
-                <Link href="/admin" className="rounded-full px-3 py-2 text-sm font-semibold text-violet-300 hover:bg-violet-400/10">
-                  Admin
-                </Link>
-              )}
-              <Link href="/account" className="glass glass-hover rounded-full px-4 py-2 text-sm font-medium">
-                {user.label}
-              </Link>
-            </>
-          ) : (
-            <Link href="/signin" className="glass glass-hover rounded-full px-4 py-2 text-sm font-medium">
-              Sign in
-            </Link>
-          )}
-          <Link href="/sell"
-            className="rounded-full bg-gradient-to-br from-violet-400 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_28px_-8px_rgba(124,58,237,0.85)] transition-all hover:brightness-110">
-            Sell →
-          </Link>
-        </div>
-
-        <button type="button" onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}
-          className="glass ml-auto rounded-xl p-2.5 lg:hidden">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            {open
-              ? <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              : <path d="M2.5 5h13M2.5 9h13M2.5 13h13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />}
-          </svg>
-        </button>
-      </div>
-
-      <Suspense fallback={null}><CategoryRail /></Suspense>
-
-      {open && (
-        <div className="border-t border-white/[0.06] px-6 pb-6 pt-4 lg:hidden">
-          <Suspense fallback={null}><SearchBar compact /></Suspense>
-          <div className="mt-4 flex flex-col gap-1">
-            {PRIMARY.map((l) => (
-              <Link key={l.href} href={l.href} className="rounded-xl px-3 py-3 text-sm font-medium text-text-muted hover:bg-white/[0.05] hover:text-text">
+        <ul className="hidden items-center lg:flex">
+          {LINKS.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href}
+                className={`px-[11px] py-2 text-[12px] leading-none tracking-[-0.01em] transition-opacity ${
+                  pathname === l.href ? "text-ink opacity-100" : "text-ink opacity-[0.82] hover:opacity-100"
+                }`}>
                 {l.label}
               </Link>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex shrink-0 items-center gap-1">
+          <button type="button" onClick={() => setSearch((v) => !v)}
+            aria-label="Search" aria-expanded={search}
+            className="p-2 text-ink opacity-[0.82] transition-opacity hover:opacity-100">
+            <SearchIcon size={15} />
+          </button>
+          <Link href={user ? "/account" : "/signin"}
+            className="hidden px-[11px] py-2 text-[12px] leading-none tracking-[-0.01em] text-ink opacity-[0.82] transition-opacity hover:opacity-100 lg:block">
+            {user ? user.label : "Sign in"}
+          </Link>
+          {user?.isAdmin && (
+            <Link href="/admin" className="hidden px-[11px] py-2 text-[12px] leading-none text-brand lg:block">Admin</Link>
+          )}
+          <button type="button" onClick={() => setMenu((v) => !v)}
+            aria-label={menu ? "Close menu" : "Open menu"} aria-expanded={menu}
+            className="p-2 text-ink opacity-[0.82] lg:hidden">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              {menu
+                ? <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                : <path d="M1.5 5h13M1.5 11h13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />}
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      {/* Search drawer — Apple drops this in under the bar rather than navigating away */}
+      {search && (
+        <div className="border-t border-black/[0.06] bg-canvas/95 backdrop-blur-2xl">
+          <form onSubmit={submitSearch} role="search" className="mx-auto max-w-[1024px] px-6 py-5">
+            <div className="flex items-center gap-3">
+              <SearchIcon size={18} className="shrink-0 text-ink-3" />
+              <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)}
+                type="search" name="q" autoComplete="off" aria-label="Search listings"
+                placeholder="Search for anything"
+                className="w-full bg-transparent t-subhead text-ink outline-none placeholder:text-ink-3" />
+              <button type="button" onClick={() => setSearch(false)}
+                className="t-small shrink-0 text-ink-2 hover:text-ink">Cancel</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Mobile menu */}
+      {menu && (
+        <div className="border-t border-black/[0.06] bg-canvas lg:hidden">
+          <ul className="mx-auto max-w-[1024px] px-6 py-4">
+            {LINKS.map((l) => (
+              <li key={l.href} className="border-b border-hairline/60 last:border-0">
+                <Link href={l.href} className="block py-3.5 t-subhead">{l.label}</Link>
+              </li>
             ))}
-            <div className="rule-fade my-3" />
-            {user ? (
-              <>
-                {user.isAdmin && <Link href="/admin" className="rounded-xl px-3 py-3 text-sm font-semibold text-violet-300">Admin</Link>}
-                <Link href="/account" className="rounded-xl px-3 py-3 text-sm font-medium">{user.label}</Link>
-              </>
-            ) : (
-              <Link href="/signin" className="rounded-xl px-3 py-3 text-sm font-medium">Sign in</Link>
-            )}
-            <Link href="/sell" className="mt-1 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 px-5 py-3 text-center text-sm font-semibold text-white">
-              Sell an item
-            </Link>
-          </div>
+            <li className="mt-4 flex gap-3">
+              <Link href={user ? "/account" : "/signin"} className="a-btn a-btn-ghost a-btn-sm flex-1">
+                {user ? user.label : "Sign in"}
+              </Link>
+              <Link href="/sell" className="a-btn a-btn-fill a-btn-sm flex-1">Sell an item</Link>
+            </li>
+          </ul>
         </div>
       )}
     </header>
