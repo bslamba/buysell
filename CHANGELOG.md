@@ -170,6 +170,40 @@ in the compiled CSS.
 Verified against a running server: 40px/980px bar, filled Sell pill, 14 sample
 tiles with images and prices, gradients byte-identical across requests.
 
+## 2026-08-29 — Animated wordmark, 200 sample listings, listing detail pages
+
+Identity
+- The wordmark now enters letter by letter: each character arrives larger and
+  out of focus and settles into place, with the It pill landing last and
+  settling with a brief lift. The blur is what separates it from a plain scale —
+  type coming into focus reads as considered rather than bouncy.
+- CSS-only, no state and no client boundary. The stagger is an inline
+  animation-delay computed from the character index, a pure function of the
+  input, so server and client markup are identical. prefers-reduced-motion
+  neutralises it without leaving the name invisible.
+- Same treatment, smaller, on the nav logo.
+
+Nav
+- Down to 36px with 11px labels, centred cluster preserved.
+
+Catalogue
+- 200 sample listings, exactly 10 per category across all 20. Seven categories
+  are hand-written with real specs; the rest generate from their own
+  subcategory terms.
+- Two assertions guard the data: a category that yields fewer than ten throws at
+  import, and so does any duplicate title. Both caught real bugs — the first
+  pass produced 184 listings, and the wrap-around produced 8 duplicate names.
+
+Listing pages
+- /listing/[publicId] for all 200, statically generated: sticky buy bar, hero
+  with gallery, price breakdown including the protection fee, condition report,
+  specification table, what's included, seller panel and related items.
+- The condition report sits directly under the hero rather than further down,
+  because it is the thing a used-goods buyer is actually anxious about.
+- Product + Offer + Brand JSON-LD on every one.
+
+242 pages build clean, 22 tests passing, verified against a running server.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)

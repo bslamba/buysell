@@ -3,10 +3,10 @@ import { brand } from "@/config/brand";
 import { CATEGORIES, RAIL_CATEGORIES, GROUP_ORDER, GROUP_LABELS, categoriesByGroup } from "@/config/categories";
 import { Button, Actions, Eyebrow } from "@/components/ui";
 import { CategoryIcon } from "@/components/icons";
-import { LogoMark } from "@/components/logo";
+import { AnimatedWordmark } from "@/components/animated-wordmark";
 import { Shelf } from "@/components/shelf";
 import { ListingCard } from "@/components/listing-card";
-import { DEMO_LISTINGS, showDemoListings } from "@/config/demo-listings";
+import { SAMPLE_LISTINGS, showSamples } from "@/config/catalogue";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbLd, faqLd } from "@/lib/seo";
 
@@ -29,7 +29,11 @@ const CHECKS = [
 
 export default function HomePage() {
   const certified = CATEGORIES.filter((c) => c.tier === "certified");
-  const latest = showDemoListings() ? DEMO_LISTINGS.slice(0, 8) : [];
+  // One from each of the first eight categories, so the shelf shows range
+  // rather than eight laptops.
+  const latest = showSamples()
+    ? Array.from(new Map(SAMPLE_LISTINGS.map((l) => [l.categorySlug, l])).values()).slice(0, 8)
+    : [];
 
   return (
     <>
@@ -38,10 +42,9 @@ export default function HomePage() {
       {/* ── Hero: mark, name, one plain description, two links ───────────── */}
       <section className="band">
         <div className="container-a py-20 text-center sm:py-28">
-          <div className="flex justify-center">
-            <LogoMark size={84} />
-          </div>
-          <h1 className="t-hero mt-8 text-balance">{brand.name}</h1>
+          <h1 className="t-hero flex justify-center leading-none">
+            <AnimatedWordmark size="hero" withMark className="text-[clamp(44px,8vw,96px)]" />
+          </h1>
           <p className="t-subhead mx-auto mt-4 max-w-[620px] text-balance text-ink-2">
             Buy and sell used things in India without the guesswork. Every listing is
             machine-checked before it goes live, and your payment is held until you say

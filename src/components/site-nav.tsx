@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LogoMark, Wordmark } from "./logo";
+import { AnimatedWordmark } from "./animated-wordmark";
 import { SearchIcon } from "./icons";
 
 export interface NavUser {
@@ -60,16 +60,16 @@ export function SiteNav({ user }: { user: NavUser | null }) {
   }
 
   const linkClass = (active: boolean) =>
-    `px-2 py-1.5 text-[12px] leading-none tracking-[-0.01em] whitespace-nowrap transition-opacity ${
+    `px-[7px] py-1.5 text-[11px] leading-none tracking-[-0.008em] whitespace-nowrap transition-opacity ${
       active ? "opacity-100" : "opacity-[0.84] hover:opacity-100"
     }`;
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/[0.05] bg-canvas/80 backdrop-blur-2xl backdrop-saturate-[1.8]">
-      <nav aria-label="Global" className="mx-auto flex h-10 max-w-[980px] items-center justify-between gap-1 px-5">
-        <Link href="/" aria-label="WorthIt home" className="flex shrink-0 items-center gap-1.5 opacity-90 transition-opacity hover:opacity-100">
-          <LogoMark size={16} />
-          <Wordmark className="text-[13px]" />
+      <nav aria-label="Global" className="mx-auto flex h-9 max-w-[980px] items-center justify-between gap-0.5 px-5">
+        <Link href="/" aria-label="WorthIt home"
+          className="shrink-0 font-semibold tracking-[-0.035em] opacity-90 transition-opacity hover:opacity-100">
+          <AnimatedWordmark size="nav" withMark className="text-[12px]" />
         </Link>
 
         {LINKS.map((l) => (
@@ -81,14 +81,14 @@ export function SiteNav({ user }: { user: NavUser | null }) {
         {/* Sell is the one thing we want people to do, so it gets the only
             filled control in the bar. */}
         <Link href="/sell"
-          className="hidden shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-[12px] font-medium leading-none text-white transition-colors hover:bg-brand-600 lg:block">
+          className="hidden shrink-0 rounded-full bg-brand px-3 py-[5px] text-[11px] font-medium leading-none text-white transition-colors hover:bg-brand-600 lg:block">
           Sell
         </Link>
 
         <button type="button" onClick={() => setSearch((v) => !v)}
           aria-label="Search" aria-expanded={search}
-          className="shrink-0 px-2 py-1.5 opacity-[0.84] transition-opacity hover:opacity-100">
-          <SearchIcon size={14} />
+          className="shrink-0 px-[7px] py-1.5 opacity-[0.84] transition-opacity hover:opacity-100">
+          <SearchIcon size={13} />
         </button>
 
         <Link href={user ? "/account" : "/signin"} className={`hidden shrink-0 lg:block ${linkClass(false)}`}>
@@ -96,14 +96,14 @@ export function SiteNav({ user }: { user: NavUser | null }) {
         </Link>
 
         {user?.isAdmin && (
-          <Link href="/admin" className="hidden shrink-0 px-2 py-1.5 text-[12px] leading-none text-brand lg:block">
+          <Link href="/admin" className="hidden shrink-0 px-[7px] py-1.5 text-[11px] leading-none text-brand lg:block">
             Admin
           </Link>
         )}
 
         <button type="button" onClick={() => setMenu((v) => !v)}
           aria-label={menu ? "Close menu" : "Open menu"} aria-expanded={menu}
-          className="shrink-0 px-2 py-1.5 opacity-[0.84] lg:hidden">
+          className="shrink-0 px-[7px] py-1.5 opacity-[0.84] lg:hidden">
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             {menu
               ? <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />

@@ -57,7 +57,7 @@
 html {
   scroll-behavior: smooth;
   /* Apple's nav is sticky and slim; anchored sections must clear it. */
-  scroll-padding-top: 60px;
+  scroll-padding-top: 52px;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -183,6 +183,41 @@ body {
 
   .tabular { font-variant-numeric: tabular-nums; }
 
+  /* ── Wordmark entrance ────────────────────────────────────────────────
+     Each letter arrives from slightly larger and out of focus, settling into
+     place. The blur is what separates this from a plain scale — type coming
+     into focus reads as considered rather than bouncy, which is the difference
+     between an expensive brand and a template.
+
+     cubic-bezier(0.16, 1, 0.3, 1) is a strong ease-out: almost all the motion
+     happens in the first third, so it feels decisive rather than slow. */
+  @keyframes letter-in {
+    0%   { opacity: 0; transform: scale(1.55) translateY(0.05em); filter: blur(10px); }
+    55%  { opacity: 1; }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+  }
+  .animate-letter {
+    animation: letter-in 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+    display: inline-block;
+  }
+
+  /* The pill lands last and settles with a brief lift, so the eye finishes on
+     the half of the name that carries the meaning. */
+  @keyframes pill-in {
+    0%   { opacity: 0; transform: scale(0.72) translateY(0.12em); filter: blur(6px); }
+    60%  { opacity: 1; transform: scale(1.06) translateY(-0.02em); filter: blur(0); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .animate-pill { animation: pill-in 0.78s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* The mark rotates in a few degrees as it scales — enough to feel alive,
+     not enough to read as a spin. */
+  @keyframes mark-in {
+    0%   { opacity: 0; transform: scale(0.55) rotate(-9deg); filter: blur(7px); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
+  }
+  .animate-mark { animation: mark-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
   /* Section bands. Apple's rhythm is a hard colour change with no border. */
   .band       { background: var(--color-canvas); }
   .band-grey  { background: var(--color-surface); }
@@ -201,6 +236,14 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  /* Motion off means the wordmark is simply present — never invisible, which
+     is what `both` fill-mode would leave behind if the animation never ran. */
+  .animate-letter, .animate-pill, .animate-mark {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
   *, *::before, *::after {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;

@@ -1,0 +1,10 @@
+import { SAMPLE_LISTINGS } from "./src/config/catalogue";
+const byCat: Record<string, number> = {};
+for (const l of SAMPLE_LISTINGS) byCat[l.categorySlug] = (byCat[l.categorySlug] ?? 0) + 1;
+console.log("total listings:", SAMPLE_LISTINGS.length);
+console.log("categories covered:", Object.keys(byCat).length);
+console.log("per-category counts:", [...new Set(Object.values(byCat))].join(", "));
+const dupes = SAMPLE_LISTINGS.length - new Set(SAMPLE_LISTINGS.map(l => l.publicId)).size;
+console.log("duplicate ids:", dupes);
+const bad = SAMPLE_LISTINGS.filter(l => l.pricePaise >= l.wasPaise || l.pricePaise <= 0);
+console.log("listings priced at or above 'was', or non-positive:", bad.length);

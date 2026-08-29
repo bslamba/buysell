@@ -6,7 +6,7 @@ import { listings } from "@/db/schema";
 import { CATEGORIES, categoryBySlug } from "@/config/categories";
 import { Badge, EmptyState, Button, Eyebrow, Card } from "@/components/ui";
 import { ListingCard, type ListingCardData } from "@/components/listing-card";
-import { demoForCategory, showDemoListings } from "@/config/demo-listings";
+import { samplesForCategory, showSamples } from "@/config/catalogue";
 import { CategoryIcon } from "@/components/icons";
 import { JsonLd } from "@/components/json-ld";
 import { categoryMetadata, breadcrumbLd, categoryCollectionLd } from "@/lib/seo";
@@ -59,9 +59,9 @@ export default async function CategoryLandingPage({
   }
 
   // Samples stand in only while there is nothing real in this category.
-  const usingSamples = rows.length === 0 && showDemoListings();
+  const usingSamples = rows.length === 0 && showSamples();
   if (usingSamples) {
-    rows = demoForCategory(c.slug).map((d) => ({ ...d, isSample: true }));
+    rows = samplesForCategory(c.slug).map((d) => ({ ...d, isSample: true }));
   }
 
   const related = CATEGORIES.filter((x) => x.group === c.group && x.slug !== c.slug).slice(0, 5);

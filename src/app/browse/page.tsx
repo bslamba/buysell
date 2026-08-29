@@ -3,7 +3,7 @@ import { and, desc, eq, ilike } from "drizzle-orm";
 import { db } from "@/db";
 import { listings } from "@/db/schema";
 import { CATEGORIES, categoryBySlug } from "@/config/categories";
-import { DEMO_LISTINGS, showDemoListings } from "@/config/demo-listings";
+import { SAMPLE_LISTINGS, showSamples } from "@/config/catalogue";
 import { PageHeader, EmptyState, Button, Eyebrow } from "@/components/ui";
 import { ListingCard, type ListingCardData } from "@/components/listing-card";
 import { CategoryIcon } from "@/components/icons";
@@ -48,11 +48,12 @@ export default async function BrowsePage({
   }
 
   // Samples stand in only while there is nothing real to show.
-  const usingSamples = rows.length === 0 && showDemoListings() && !query;
+  const usingSamples = rows.length === 0 && showSamples() && !query;
   if (usingSamples) {
-    rows = DEMO_LISTINGS
+    rows = SAMPLE_LISTINGS
       .filter((d) => !active || d.categorySlug === active)
-      .map((d) => ({ ...d, isSample: true }));
+      .map((d) => ({ ...d, isSample: true }))
+      .slice(0, 60);
   }
 
   return (
