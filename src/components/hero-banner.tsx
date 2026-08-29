@@ -13,8 +13,24 @@ import { useEffect, useRef, type ReactNode } from "react";
  *
  * • The canvas is `fixed`, not `absolute`, so the effect covers the entire
  *   page rather than one band — the cursor gets a reaction anywhere on screen,
- *   including over the feature band and the shelves. It sits at z-1: above the
- *   opaque section grounds, below the z-50 nav.
+ *   including over the feature band and the shelves.
+ * • It sits at z-index -10, BEHIND every piece of content. Nothing the field
+ *   draws is ever in front of text, the logo, a button or a tile: glyphs and
+ *   cards occlude the dots, not the other way round. That only works because
+ *   the section grounds in globals.css are veils rather than solids — a solid
+ *   band would hide the field entirely. A negative z-index is required, not
+ *   z-0: a positioned element at z-0 still paints above non-positioned
+ *   in-flow content.
+ * • The canvas starts BELOW the nav rather than at the top of the viewport.
+ *   The nav is translucent, so a canvas running under it would show the letter
+ *   faintly through the bar, next to the logo — behind it in the stacking
+ *   sense, but still visible beside the logo, which is exactly what we were
+ *   asked to avoid. Its height is measured rather than hard-coded so the bar
+ *   can change without silently reopening the gap.
+ * • The letter's centre is clamped to keep the whole W inside the canvas. It
+ *   follows the cursor everywhere except the last few dozen pixels at an edge,
+ *   where it holds position instead of sliding off and rendering half a
+ *   letter.
  * • The letter is ALWAYS complete. Recruitment takes the nearest W_POINTS dots
  *   full stop, with no distance filter. An earlier version dropped dots beyond
  *   a radius, which meant that near a screen edge — or anywhere the field ran
@@ -46,6 +62,12 @@ const W_SIZE = 76;          // px across (210 → 105 → 76)
 const LETTER_DOT_R = 1.0;   // base radius inside the letter, jittered per dot
 const SCATTER = 0.07;       // per-dot offset from the stroke, in W widths
 const GLOW = 300;           // px, the radius the cursor visibly brightens
+const MAX_NAV = 72;         // px, a sanity cap on the measured nav inset
+// Half the letter's extent plus its scatter margin, so a clamped centre still
+// leaves the whole W on the canvas. Derived from the vertex bounds: x spans
+// ±0.5 and y ±0.375 of W_SIZE, plus SCATTER either side.
+const PAD_X = W_SIZE * (0.5 + SCATTER) + 2;
+const PAD_Y = W_SIZE * (0.375 + SCATTER) + 2;
 
 /** mulberry32 — tiny, seedable, good enough for scattering dots. */
 function prng(seed: number) {
@@ -152,6 +174,7 @@ export function HeroBanner({ children }: { children: ReactNode }) {
     });
 
     let dots: Dot[] = [];
+    let navH = 0;
     // Reused across calls: allocating a few thousand objects per pointer move
     // is a garbage-collection pause you can feel.
     const cd2 = new Float64Array(MAX_DOTS);
@@ -166,8 +189,11 @@ export function HeroBanner({ children }: { children: ReactNode }) {
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const bar = document.querySelector("header");
+      navH = Math.min(bar ? bar.getBoundingClientRect().height : 0, MAX_NAV);
       w = window.innerWidth;
-      h = window.innerHeight;
+      h = Math.max(window.innerHeight - navH, 1);
+      canvas!.style.top = `${navH}px`;
       canvas!.width = Math.floor(w * dpr);
       canvas!.height = Math.floor(h * dpr);
       canvas!.style.width = `${w}px`;
@@ -253,13 +279,16 @@ export function HeroBanner({ children }: { children: ReactNode }) {
       // stroke are drawn faint, so the W has a core and a spray around it
       // instead of one uniform outline.
       halo.length = 0;
+      // Clamped so the letter never runs off the canvas and renders partial.
+      const cx = Math.min(Math.max(pointer.x, PAD_X), Math.max(w - PAD_X, PAD_X));
+      const cy = Math.min(Math.max(pointer.y, PAD_Y), Math.max(h - PAD_Y, PAD_Y));
       ctx!.fillStyle = "rgba(109, 40, 217, 0.9)";
       ctx!.beginPath();
       for (const d of dots) {
         if (d.target < 0) continue;
         const p = targets[d.target];
-        const tx = pointer.x + (p.x + d.jx) * W_SIZE;
-        const ty = pointer.y + (p.y + d.jy) * W_SIZE;
+        const tx = cx + (p.x + d.jx) * W_SIZE;
+        const ty = cy + (p.y + d.jy) * W_SIZE;
         d.x += (tx - d.x) * d.pull;
         d.y += (ty - d.y) * d.pull;
         if (d.stray) { halo.push(d); continue; }
@@ -291,8 +320,9 @@ export function HeroBanner({ children }: { children: ReactNode }) {
 
     function onPointer(e: PointerEvent) {
       // The canvas is fixed to the viewport, so client coordinates are already
-      // canvas coordinates — no rect offset, and no recalculation on scroll.
-      pointer = { x: e.clientX, y: e.clientY, active: true };
+      // canvas coordinates, less the nav inset — and no recalculation on
+      // scroll, because the canvas does not move with the page.
+      pointer = { x: e.clientX, y: e.clientY - navH, active: true };
       dirty = true;
     }
     function onLeave() { pointer.active = false; dirty = true; }
@@ -328,7 +358,7 @@ export function HeroBanner({ children }: { children: ReactNode }) {
       <canvas
         ref={canvasRef}
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-[1] h-full w-full"
+        className="pointer-events-none fixed inset-x-0 bottom-0 -z-10 w-full"
       />
       {children}
     </div>

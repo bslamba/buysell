@@ -28,9 +28,22 @@
   /* Feature bands. Apple alternates a contrasting section into a light page.
      Ours used to be near-black purple; it now reads as a soft lavender wash —
      clearly violet against the near-neutral surface, but light enough to carry
-     ink text and to let the particle field show through it. */
+     ink text. */
   --color-deep:      #EFE9FB;
   --color-deep-2:    #E4DAF6;
+
+  /* Section grounds are painted as VEILS, not solids, because the particle
+     field sits behind the page content (see hero-banner.tsx) and a solid band
+     would hide it completely. Each veil is the colour that, composited at 50%
+     over the white body, lands on exactly the solid above — so the bands look
+     identical on pages with no field, and the dots read at half strength
+     underneath the ones that have it.
+       #E9E3EF @ 50% over #FFF = #F4F1F7  (--color-surface)
+       #DFD3F7 @ 50% over #FFF = #EFE9FB  (--color-deep)
+     If you change a band colour, recompute its veil as 2*target - 255 per
+     channel, or the band will drift. */
+  --color-surface-veil: rgba(233, 227, 239, 0.5);
+  --color-deep-veil:    rgba(223, 211, 247, 0.5);
 
   /* Ink — Apple's #1d1d1f and #6e6e73, pulled toward violet */
   --color-ink:       #1A1220;
@@ -268,10 +281,12 @@ body {
     transform-origin: 52.5px 14.2px; /* the spark's own centre in the 64pt grid */
   }
 
-  /* Section bands. Apple's rhythm is a hard colour change with no border. */
-  .band       { background: var(--color-canvas); }
-  .band-grey  { background: var(--color-surface); }
-  .band-deep  { background: var(--color-deep); color: var(--color-ink); }
+  /* Section bands. Apple's rhythm is a hard colour change with no border.
+     These are veils rather than solids so the particle field behind the page
+     shows through; `.band` is transparent because the body is already white. */
+  .band       { background: transparent; }
+  .band-grey  { background: var(--color-surface-veil); }
+  .band-deep  { background: var(--color-deep-veil); color: var(--color-ink); }
 
   .container-a { max-width: 1240px; margin-inline: auto; padding-inline: 24px; }
 }

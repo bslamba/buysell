@@ -52,6 +52,8 @@ and their intro paragraphs look airy. Headlines are 600, never 700.
 | `--color-canvas` | `#FFFFFF` | default band |
 | `--color-surface` | `#F4F1F7` | alternating band, cards on white |
 | `--color-deep` | `#EFE9FB` | lavender feature bands (`.band-deep`) |
+| `--color-surface-veil` | `rgba(233,227,239,.5)` | what `.band-grey` actually paints |
+| `--color-deep-veil` | `rgba(223,211,247,.5)` | what `.band-deep` actually paints |
 | `--color-ink` | `#1A1220` | body text |
 | `--color-ink-2` | `#6B6076` | secondary text |
 | `--color-ink-3` | `#928A9C` | captions, disabled |
@@ -72,7 +74,12 @@ and their intro paragraphs look airy. Headlines are 600, never 700.
   `components/shelf.tsx` adds paging arrows that disable at each end rather than
   disappearing — a control that vanishes shifts the layout.
 - **`.band` / `.band-grey` / `.band-deep`** — section grounds. Apple changes
-  section colour with a hard edge and no border; so do we.
+  section colour with a hard edge and no border; so do we. These paint **veils,
+  not solids**: the particle field sits behind all page content, and a solid
+  band would hide it. Each veil is the colour that composites at 50% over the
+  white body to exactly the solid it replaces, so bands look identical on pages
+  with no field. Changing a band colour means recomputing its veil as
+  `2 * target - 255` per channel, or the band drifts.
 - **`.on-deep`** — put this on a lavender band and buttons and links deepen to
   `--color-brand-700` so they hold their weight against the tint.
 

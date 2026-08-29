@@ -295,6 +295,31 @@ pointer sweeps (so comfortably 60 on a GPU), no page errors, and the W renders
 complete at the bottom-left corner and the right edge — the cases that used to
 crop it.
 
+## 2026-08-29 — The field moves behind the content
+
+- The particle canvas moved from z-1 to **z-index -10**, so nothing it draws is
+  ever in front of text, the logo, a button or a tile. Glyphs and cards occlude
+  the dots now, not the other way round. A negative z-index is required rather
+  than z-0: a positioned element at z-0 still paints above non-positioned
+  in-flow content.
+- That only works if the section grounds stop being opaque, so `.band-grey` and
+  `.band-deep` now paint veils — colours chosen to composite at 50% over the
+  white body to exactly the solids they replace. Verified by pixel sample under
+  `prefers-reduced-motion` (field never draws): band-grey paints #F4F1F7 and
+  band-deep #EFE9FB, unchanged.
+- The canvas now starts **below the nav** instead of at the top of the viewport.
+  The bar is translucent, so a canvas running under it showed the letter faintly
+  through it beside the logo — behind it in the stacking sense, but still
+  visible next to the logo. The inset is measured from the header rather than
+  hard-coded.
+- The letter's centre is **clamped to the canvas**, so the W stays whole at
+  every edge: it follows the cursor everywhere except the last few dozen pixels
+  at a boundary, where it holds position rather than sliding off half-drawn.
+
+Verified: 53fps in software rendering, no page errors, both band colours
+byte-identical to before, the nav strip clean with the cursor jammed against it,
+and a complete W at the top-left and bottom-right corners.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
