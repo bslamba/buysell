@@ -50,7 +50,7 @@ const twilioProvider: SmsProvider = {
       body: new URLSearchParams({
         To: phone,
         From: e.MSG91_SENDER_ID ?? "",
-        Body: `${code} is your Pakka verification code. It expires in 10 minutes. Never share it with anyone.`,
+        Body: `${code} is your WorthIt verification code. It expires in 10 minutes. Never share it with anyone.`,
       }),
     });
     if (!res.ok) throw new Error(`Twilio send failed: ${res.status} ${await res.text()}`);

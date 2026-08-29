@@ -1,4 +1,4 @@
-# Pakka — engineering log
+# WorthIt — engineering log
 
 ## 2026-08-29 — Repo initialised
 
@@ -30,6 +30,24 @@
   bit(64) custom type and declares the pgvector extension
 - Seed script for five test accounts and two organisations
 - 22 unit tests passing; typecheck and production build clean
+
+## 2026-08-29 — Named WorthIt; public site built
+
+- Final name **WorthIt**; identity is a single stroke that reads as a W whose
+  last stroke overshoots into a tick (`src/components/logo.tsx`, plus standalone
+  mark and lockup SVGs in `public/`)
+- Apple-glass design system on dark violet and black: layered translucency with
+  an inner top highlight, fixed radial light pools so the glass has something to
+  refract, and a fine noise layer to stop gradient banding. Single-theme by
+  choice — see `docs/DESIGN.md`
+- Inter self-hosted via `@fontsource-variable/inter` rather than
+  `next/font/google`, which fetches at build time and leaks a request per page
+  load. The first cloud build failed on exactly that, which is how it was caught
+- 13 new public pages mirroring a full marketplace information architecture:
+  home, browse, categories, sell, auctions, wish, about, team, socials, help,
+  contact, shipping, terms, privacy
+- Existing auth, admin and corporate pages migrated off the old light theme
+- 25 routes build clean; 22 tests passing
 
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest

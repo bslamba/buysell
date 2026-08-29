@@ -57,7 +57,7 @@ export const contactLeakCheck: Check = async (ctx) => {
       out.push({
         key: "text.phone_number",
         passed: false, severity: "blocker", scoreDelta: 100,
-        message: `Remove the ${label} from your listing. Buyers contact you through Pakka chat — that is what keeps your payment protected.`,
+        message: `Remove the ${label} from your listing. Buyers contact you through WorthIt chat — that is what keeps your payment protected.`,
         detail: { matched: hit[0].replace(/\d(?=\d{4})/g, "x") },
         sellerFixable: true,
       });

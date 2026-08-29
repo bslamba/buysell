@@ -1,7 +1,7 @@
 # Working notes for AI assistants on this repo
 
 ## What this is
-Pakka — a verification-first C2C + B2C marketplace for pre-owned goods in India.
+WorthIt — a verification-first C2C + B2C marketplace for pre-owned goods in India.
 The differentiator is the automated listing-review pipeline, not the storefront.
 Read `docs/BUILD.md` and `docs/MODERATION.md` before making changes.
 

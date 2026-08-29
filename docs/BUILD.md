@@ -1,4 +1,4 @@
-# Pakka — Step-by-step build plan
+# WorthIt — Step-by-step build plan
 
 > This is the working document. Follow it top to bottom. Every phase ends with
 > something demonstrable, and nothing in a later phase is required for an

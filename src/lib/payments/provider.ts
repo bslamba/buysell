@@ -5,7 +5,7 @@
  * this interface, so wiring Razorpay or Cashfree in Phase 7 is one new file and a
  * config switch — not a refactor.
  *
- * IMPORTANT: Pakka must never hold customer funds in its own account. Escrow runs
+ * IMPORTANT: WorthIt must never hold customer funds in its own account. Escrow runs
  * through a licensed partner (Castler, Escrowpay) or the payment aggregator's own
  * escrow. See the RBI (Regulation of Payment Aggregators) Directions, 2025.
  */

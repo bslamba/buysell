@@ -32,7 +32,7 @@ const schema = z.object({
 
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().default("Pakka <noreply@example.in>"),
+  EMAIL_FROM: z.string().default("WorthIt <noreply@example.in>"),
 
   PHASH_DUPLICATE_THRESHOLD: z.coerce.number().int().min(0).max(32).default(6),
   AUTOAPPROVE_MAX_RISK_SCORE: z.coerce.number().int().min(0).max(100).default(25),

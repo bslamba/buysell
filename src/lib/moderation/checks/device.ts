@@ -24,7 +24,7 @@ export function hashDeviceId(value: string, pepper = process.env.AUTH_SECRET ?? 
  * The IMEI is the closest thing to a passport a phone has. Three things matter:
  *   1. Is it structurally valid (Luhn)?
  *   2. Is it on the government's CEIR / Sanchar Saathi stolen-and-blocked list?
- *   3. Has it already been listed or sold on Pakka?
+ *   3. Has it already been listed or sold on WorthIt?
  *
  * Check 2 is the one no competitor does at listing time, and it is the difference
  * between a marketplace and a fence.

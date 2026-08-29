@@ -1,7 +1,7 @@
 import { count, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { listings, organizations, users } from "@/db/schema";
-import { Card, Badge, Button, EmptyState } from "@/components/ui";
+import { Card, Badge, Button, EmptyState, Eyebrow } from "@/components/ui";
 
 export const metadata = { title: "Admin" };
 export const dynamic = "force-dynamic";
@@ -23,60 +23,76 @@ async function stats() {
 }
 
 export default async function AdminHome() {
-  const s = await stats();
+  let s;
+  try {
+    s = await stats();
+  } catch {
+    return (
+      <EmptyState
+        title="Can't reach the database"
+        body="Add DATABASE_URL to .env.local and run npm run db:migrate, then this dashboard will populate."
+      />
+    );
+  }
+
   const queueDepth = s.pending + s.flagged;
   const reviewed = s.live + s.rejected;
   const autoApproveRate = reviewed > 0 ? Math.round((s.live / reviewed) * 100) : null;
 
   const tiles = [
-    { label: "Awaiting review", value: queueDepth, tone: queueDepth > 50 ? "warn" : "good" as const },
-    { label: "Live listings", value: s.live, tone: "neutral" as const },
-    { label: "Rejected", value: s.rejected, tone: "neutral" as const },
-    { label: "Orgs pending approval", value: s.orgsPending, tone: s.orgsPending > 0 ? "warn" : "neutral" as const },
+    { label: "Awaiting review", value: queueDepth },
+    { label: "Live listings", value: s.live },
+    { label: "Rejected", value: s.rejected },
+    { label: "Orgs pending", value: s.orgsPending },
   ];
 
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">Overview</h1>
+        <div>
+          <Eyebrow>Moderation</Eyebrow>
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em]">Overview</h1>
+        </div>
         <Button href="/admin/queue">Open review queue</Button>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
-          <Card key={t.label}>
-            <div className="text-3xl font-extrabold tabular-nums tracking-tight">{t.value}</div>
-            <div className="mt-2 text-sm font-medium text-ink-500">{t.label}</div>
+          <Card key={t.label} hover>
+            <div className="text-4xl font-semibold tracking-[-0.04em] tabular">{t.value}</div>
+            <div className="mt-2 text-sm font-medium text-text-muted">{t.label}</div>
           </Card>
         ))}
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <Card>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400">Auto-approve rate</h2>
-          <p className="mt-3 text-3xl font-extrabold tabular-nums">
+          <Eyebrow>Auto-approve rate</Eyebrow>
+          <p className="mt-3 text-4xl font-semibold tracking-[-0.04em] tabular">
             {autoApproveRate === null ? "—" : `${autoApproveRate}%`}
           </p>
-          <p className="mt-2 text-sm text-ink-500">
-            Share of reviewed listings that went live. Raise this only when the
-            false-positive rate on auto-rejects stays under 2%.
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            Share of reviewed listings that went live. Raise this only while the false-positive rate
+            on auto-rejects stays under 2%.
           </p>
         </Card>
         <Card>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-400">Registered users</h2>
-          <p className="mt-3 text-3xl font-extrabold tabular-nums">{s.users}</p>
-          <p className="mt-2 text-sm text-ink-500">
-            {s.oldest ? `Oldest unreviewed listing submitted ${new Date(s.oldest).toLocaleString("en-IN")}.` : "No listings waiting."}
+          <Eyebrow>Registered users</Eyebrow>
+          <p className="mt-3 text-4xl font-semibold tracking-[-0.04em] tabular">{s.users}</p>
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">
+            {s.oldest
+              ? `Oldest unreviewed listing submitted ${new Date(s.oldest).toLocaleString("en-IN")}.`
+              : "No listings waiting."}
           </p>
         </Card>
       </div>
 
       {queueDepth === 0 && (
-        <div className="mt-6">
+        <div className="mt-3">
           <EmptyState
             title="The queue is empty"
             body="Nothing is waiting for a human. When the moderation engine can't decide, listings land here sorted by priority, not by arrival time."
-            action={<Badge tone="good">All clear</Badge>}
+            action={<Badge tone="ok">All clear</Badge>}
           />
         </div>
       )}

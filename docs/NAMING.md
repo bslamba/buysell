@@ -1,76 +1,72 @@
-# Naming
+# Naming and identity
 
-The brand name lives in exactly one place: `src/config/brand.ts`. Changing it is
-a four-line edit. Nothing below is locked in.
+The name is **WorthIt**. It lives in exactly one place — `src/config/brand.ts` —
+so changing it anywhere means changing it there.
 
-## What the name has to do
+## Why WorthIt works
 
-1. **Be sayable by a Bangalore auto driver and a Bangalore CTO.** Two syllables,
-   no ambiguous spelling, no English word that gets mispronounced.
-2. **Mean something about verification, not about buying and selling.** Every
-   competitor is named after the transaction — OLX, Quikr, Cashify, Sell Any.
-   The differentiator is proof. The name should carry it.
-3. **Work as a verb and as an adjective.** "Get it Pakka-checked." "It's Pakka
-   certified."
-4. **Have a clean `.in` and a plausible `.com`.**
+It carries the product thesis without explaining it. Two readings sit on top of
+each other and both are true:
 
-## Shortlist
+- **"Is it worth it?"** — the question every buyer of a used device is actually
+  asking, and the one nobody currently answers for them.
+- **"It's worth it."** — the answer the verification gives.
 
-### 1. Pakka  *(working default)*
-पक्का — certain, confirmed, solid, guaranteed. It is literally the question an
-Indian buyer asks about a used device: *"Pakka hai?"* — is it genuine, is it
-sure. The brand answer is the whole product thesis in one word.
+It also names the thing we sell, which is not goods but *appraisal*. "Worth" is
+the noun a valuation produces. Practically: it is two syllables, unambiguous in
+English across every Indian metro, needs no transliteration, and has no
+pronunciation trap for a non-Hindi speaker in Bengaluru or Chennai.
 
-- Tagline: **"Pakka checked. Pakka safe."**
-- Verb form: "Pakka it before you buy."
-- Works in Hindi, Punjabi, Marathi, Gujarati, Bengali; understood in the south
-  as Indian-English slang.
-- Risks: common word, so trademark will be a device/logo mark rather than a
-  wordmark. Check `pakka.in`, `getpakka.com`, `pakka.app`.
+- Tagline: **"Know what it's worth."**
+- Verb form: "WorthIt checked it."
+- Domain in config: `worthit.in`
 
-### 2. Khara
-खरा — pure, genuine, sterling. From *khara sona*, pure gold. Premium, quiet,
-almost unused in Indian tech. Reads more upmarket than Pakka; slightly less
-instantly understood in the south.
-- Tagline: "Khara maal, khara daam." (Genuine goods, honest price.)
+## Still to confirm before launch
 
-### 3. Parakh
-परख — the act of testing and appraising quality. The most literally accurate name
-on the list; a *parakh* is exactly what the platform performs.
-- ⚠️ **Clash:** PARAKH is also NCERT's national assessment centre. Not the same
-  class of goods, but it will fight you for search results. Verify with a TM
-  attorney before committing.
+1. **Domains** — `worthit.in` and `worthit.com`, plus the app-store name.
+2. **Trademark** — Class 35 (online marketplace services) and Class 42
+   (SaaS / verification services) on the Indian TM registry. "Worth" is a common
+   English word, so expect to register a **device mark** (logo lockup) rather
+   than a bare wordmark.
+3. **Handles** — Instagram, X, LinkedIn, YouTube. The placeholders in
+   `brand.socials` need replacing with the real ones.
 
-### 4. GradeA
-English, zero translation cost, communicates the certificate grade instantly.
-Strongest with corporate and ITAD buyers, weakest as consumer brand equity —
-it's descriptive, which also makes it hard to trademark.
+## The mark
 
-### Also considered
-- **Chaap** (छाप, a stamp/hallmark) — distinctive and ownable; less immediately legible.
-- **Kasauti** (कसौटी, the touchstone used to test gold purity) — semantically perfect,
-  but heavily associated with the TV serial.
-- **Jaanch** (जाँच, inspection) — accurate, slightly bureaucratic.
-- **Asli** (असली, real/genuine) — strong, but leans counterfeit-adjacent.
+A single stroke that reads two ways: a **W** whose final stroke overshoots into
+a **tick**. Verification is the product, so the checkmark is the letterform
+rather than a badge stuck beside it.
 
-## A separate name for the certificate
+Drawn as an SVG path with round caps and joins, so it stays sharp at favicon
+size and never depends on a webfont loading.
 
-Whatever the platform is called, the certificate deserves its own name — it is
-the thing people share off-platform, so it carries the brand into WhatsApp and
-OLX.
+- `src/components/logo.tsx` — `LogoMark`, `Wordmark`, `Logo` (the lockup)
+- `public/logo-mark.svg` — square app-icon mark
+- `public/logo-lockup.svg` — horizontal mark + wordmark
 
-**"Device Kundli"** is the strongest option: a *kundli* is a complete birth chart
-and life record, and Indian used-car culture already talks about a "car ki
-kundli". "Har device ki kundli" is instantly understood and impossible to
-confuse with a generic condition report.
+**Colour.** The mark carries a violet gradient (`#A855F7 → #7C3AED → #4C1D95`)
+on the app's near-black ground, with a top sheen and a 22%-white hairline border
+so it reads as a piece of the same glass as the rest of the interface.
 
-Fallback: **"Pakka Report"** — plainer, safer, less memorable.
+**Wordmark.** "Worth" in solid white, "It" in a violet-to-fuchsia gradient — the
+split puts the emphasis on the half that does the work in both readings of the
+name.
 
-## Before you commit
+> The lockup SVG sets the wordmark as **live text** in Inter. Convert it to
+> outlines before sending it to a printer or anyone without the font.
 
-1. Domain: `.in` and `.com`, plus the app-store name.
-2. Trademark: Class 35 (online marketplace services) and Class 42 (SaaS/
-   verification services) on the Indian TM registry.
-3. Company: the entity is already Gryffin Global IT Services Pvt Ltd — the brand
-   can run as a trading name, no new incorporation needed for the pilot.
-4. Social handles across Instagram, X, LinkedIn, YouTube.
+## Typography
+
+**Inter**, self-hosted via `@fontsource-variable/inter`.
+
+Inter is the closest freely-licensable match to Apple's SF Pro, which is what
+the glass surface needs to feel coherent. It is loaded from the bundle rather
+than `next/font/google` on purpose: the Google path fetches at build time, so a
+deploy depends on a third party being reachable, and every page load leaks a
+request. Both were avoidable.
+
+The reference site given as a typography brief (`circlestore.in`) is fully
+client-rendered, so its typeface could not be read from the markup. If you can
+identify it and want to match it exactly, changing the `@fontsource` import in
+`src/app/layout.tsx` and the `--font-sans` token in `globals.css` is the whole
+job.

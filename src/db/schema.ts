@@ -242,7 +242,7 @@ export const listingImages = pgTable("listing_images", {
  *
  * Separate from listing_images on purpose: rows here SURVIVE listing deletion,
  * so a seller cannot delete a rejected listing and re-upload the same photos.
- * This is the table that answers "has this picture ever been used on Pakka?".
+ * This is the table that answers "has this picture ever been used on WorthIt?".
  */
 export const imageFingerprints = pgTable("image_fingerprints", {
   id: uuid("id").defaultRandom().primaryKey(),

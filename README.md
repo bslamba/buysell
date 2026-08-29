@@ -1,6 +1,6 @@
-# Pakka
+# WorthIt
 
-A verification-first marketplace for pre-owned goods in India.
+**Know what it's worth.** A verification-first marketplace for pre-owned goods in India.
 
 Every listing is machine-checked before it goes live: photographs are
 fingerprinted against every image ever uploaded to the platform, IMEIs are
@@ -42,7 +42,8 @@ npm run db:studio    # browse the database
 | [`docs/BUILD.md`](docs/BUILD.md) | **Start here.** Phase-by-phase build plan, accounts to create, what "done" means at each step |
 | [`docs/MODERATION.md`](docs/MODERATION.md) | Every automated check, why it exists, and the roadmap of checks still to build |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Stack choices and the reasoning behind each, data model, security posture |
-| [`docs/NAMING.md`](docs/NAMING.md) | Brand name shortlist, trademark cautions, certificate naming |
+| [`docs/NAMING.md`](docs/NAMING.md) | The name, the logo, typography, and what still needs a trademark check |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | The Apple-glass design system — tokens, the glass utilities, components |
 
 ## Stack
 
@@ -84,12 +85,29 @@ docs/                   the documents listed above
 
 ## Status
 
-**Phase 1 complete.** Schema, category rules, image fingerprinting, the moderation
-engine, phone-OTP and Google authentication, role guards, and the app shell with
-an admin review queue are all built. Typecheck, 22 unit tests and the production
-build are green.
+**Phase 1 complete, and the public site is built.** Schema, category rules, image
+fingerprinting, the moderation engine, phone-OTP and Google authentication, role
+guards, the admin review queue, and 25 routes of public site are all in place.
+Typecheck, 22 unit tests and a production build are green.
 
 Phase 2 (listing creation and image ingest) is next — see `docs/BUILD.md`.
+
+### Pages
+
+| Route | What it is |
+|---|---|
+| `/` | Home — hero, how it works, categories, the checks, corporate band |
+| `/browse` | Live listings, filterable by category |
+| `/categories` | Every category with its verification tier and rules |
+| `/sell` | Seller onboarding and the rules that decide if a listing goes live |
+| `/auctions` | Corporate bulk-lot auctions |
+| `/wish` | Wishlist — tell us what to find |
+| `/about` · `/team` · `/socials` | Company |
+| `/help` · `/contact` · `/shipping` | Support |
+| `/terms` · `/privacy` | Legal (**drafts — need counsel review**) |
+| `/signin` · `/verify-phone` | Auth |
+| `/admin` · `/admin/queue` | Moderation |
+| `/corporate` · `/corporate/pending` | Business accounts |
 
 ### Test accounts
 

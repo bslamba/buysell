@@ -1,60 +1,57 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/inter";
 import "./globals.css";
 import { brand } from "@/config/brand";
-import { currentUser } from "@/lib/auth/guards";
-import { atLeast } from "@/lib/auth/guards";
+import { currentUser, atLeast } from "@/lib/auth/guards";
+import { SiteNav } from "@/components/site-nav";
+import { SiteFooter } from "@/components/site-footer";
+
+/**
+ * Inter, self-hosted from @fontsource-variable.
+ *
+ * Deliberately NOT `next/font/google`: that fetches the font from Google at
+ * BUILD time, so every deploy depends on a third party being reachable, and
+ * every page load leaks a request to Google. Shipping the woff2 in the bundle
+ * removes both. (This was not theoretical - the first build failed exactly
+ * this way.)
+ *
+ * Inter is the face because it is the closest freely-licensable match to
+ * Apple's SF Pro, which is what an Apple-glass surface needs. The reference
+ * site is fully client-rendered, so its own typeface could not be read from
+ * markup. Change this one import to change the face everywhere.
+ */
 
 export const metadata: Metadata = {
+  metadataBase: new URL(`https://${brand.domain}`),
   title: { default: `${brand.name} — ${brand.tagline}`, template: `%s · ${brand.name}` },
   description: brand.description,
+  icons: { icon: "/logo-mark.svg", apple: "/logo-mark.svg" },
+  openGraph: {
+    title: `${brand.name} — ${brand.tagline}`,
+    description: brand.shortPitch,
+    type: "website",
+    locale: "en_IN",
+  },
 };
 
-async function Header() {
-  const user = await currentUser();
-  return (
-    <header className="border-b border-ink-200 bg-white dark:border-ink-700 dark:bg-ink-900">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-5">
-        <Link href="/" className="flex items-baseline gap-2">
-          <span className="text-xl font-extrabold tracking-tight text-brand-600">{brand.name}</span>
-          <span className="hidden text-xs text-ink-500 sm:inline">{brand.tagline}</span>
-        </Link>
-        <nav className="flex items-center gap-1 text-sm">
-          <Link href="/browse" className="rounded-lg px-3 py-2 font-medium hover:bg-ink-100 dark:hover:bg-ink-700">Browse</Link>
-          <Link href="/auctions" className="rounded-lg px-3 py-2 font-medium hover:bg-ink-100 dark:hover:bg-ink-700">Auctions</Link>
-          {user ? (
-            <>
-              <Link href="/sell" className="rounded-lg px-3 py-2 font-medium hover:bg-ink-100 dark:hover:bg-ink-700">Sell</Link>
-              {atLeast(user.role, "moderator") && (
-                <Link href="/admin" className="rounded-lg px-3 py-2 font-semibold text-brand-600 hover:bg-brand-50">Admin</Link>
-              )}
-              <Link href="/account" className="ml-1 rounded-lg border border-ink-200 px-3 py-2 font-medium dark:border-ink-700">
-                {user.name ?? user.phone ?? "Account"}
-              </Link>
-            </>
-          ) : (
-            <Link href="/signin" className="ml-1 rounded-lg bg-brand-600 px-4 py-2 font-semibold text-white hover:bg-brand-700">
-              Sign in
-            </Link>
-          )}
-        </nav>
-      </div>
-    </header>
-  );
-}
+export const viewport: Viewport = {
+  themeColor: "#05030A",
+  width: "device-width",
+  initialScale: 1,
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const user = await currentUser();
+  const navUser = user
+    ? { label: user.name?.split(" ")[0] ?? user.phone?.slice(-10) ?? "Account", isAdmin: atLeast(user.role, "moderator") }
+    : null;
+
   return (
     <html lang="en-IN">
-      <body className="min-h-dvh">
-        <Header />
+      <body className="min-h-dvh antialiased">
+        <SiteNav user={navUser} />
         <main>{children}</main>
-        <footer className="mt-24 border-t border-ink-200 py-10 dark:border-ink-700">
-          <div className="mx-auto max-w-6xl px-5 text-xs text-ink-500">
-            <p>{brand.name} is operated by {brand.legalName}.</p>
-            <p className="mt-1">Every listing is machine-checked before it goes live.</p>
-          </div>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   );

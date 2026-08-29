@@ -12,19 +12,19 @@ import { env } from "@/env";
  */
 declare global {
   // eslint-disable-next-line no-var
-  var __pakkaSql: ReturnType<typeof postgres> | undefined;
+  var __worthitSql: ReturnType<typeof postgres> | undefined;
 }
 
 function client() {
-  if (!globalThis.__pakkaSql) {
-    globalThis.__pakkaSql = postgres(env().DATABASE_URL, {
+  if (!globalThis.__worthitSql) {
+    globalThis.__worthitSql = postgres(env().DATABASE_URL, {
       max: 1,
       idle_timeout: 20,
       connect_timeout: 10,
       prepare: false, // required when going through a transaction pooler
     });
   }
-  return globalThis.__pakkaSql;
+  return globalThis.__worthitSql;
 }
 
 export const db = drizzle(client(), { schema });
