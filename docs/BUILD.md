@@ -59,9 +59,14 @@ The token goes into the macOS Keychain. It never touches a file in the repo.
 **Goal:** a deployed app at a real URL where a user can sign in with a phone
 number, and an admin can see an empty queue.
 
-1. **Install and run.**
+1. **Install and run.** Run this in a terminal on the machine itself — not
+   through a remote shell that mounts this folder. `sharp` and `lightningcss`
+   have per-platform native binaries, and installing from the wrong OS leaves
+   `node_modules` full of empty platform directories that fail at the first
+   native require. If you ever see `Cannot find module
+   '../lightningcss.darwin-arm64.node'`, the cure is `rm -rf node_modules && npm ci`.
    ```bash
-   npm install
+   npm ci        # or: npm install
    npm run dev
    ```
 2. **Database.** Create the Neon project, copy the pooled connection string into

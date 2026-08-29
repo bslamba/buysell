@@ -51,6 +51,29 @@ Add one entry to `CATEGORIES` in `src/config/categories.ts`. Nothing else.
 If a new category needs behaviour the `CategoryRule` interface can't express,
 extend the interface — don't special-case the slug in a check.
 
+## Installing dependencies
+
+**Always run `npm install` / `npm ci` on the host machine (macOS), never through a
+remote bridge or a container that mounts this folder.**
+
+`sharp` and `lightningcss` ship per-platform native binaries. Installing from a
+Linux VM into a macOS-mounted folder produces a `node_modules` full of empty
+platform directories and fails at the first native require:
+
+```
+Cannot find module '../lightningcss.darwin-arm64.node'
+```
+
+If that happens, the install is corrupt rather than incomplete — patching one
+package will not fix it:
+
+```bash
+rm -rf node_modules && npm ci
+```
+
+`package-lock.json` records every platform variant, so `npm ci` on any OS
+installs the right binaries.
+
 ## Commands
 ```
 npm run dev | build | typecheck | test
