@@ -204,6 +204,29 @@ Listing pages
 
 242 pages build clean, 22 tests passing, verified against a running server.
 
+## 2026-08-29 — Interactive banner, sphere zoom, stacked hero logo
+
+- Nav down to 32px on a 940px rail with 10px labels and near-zero gaps.
+- Nav wordmark now uses the heavy entrance: letters scale in from 4x with a lit
+  radial bloom expanding behind each one as it lands, then fading.
+- Home hero logo moved above the name, and the spark on the W now twinkles
+  continuously — slow and low-contrast on purpose, because a fast blink reads as
+  a notification badge rather than a gleam.
+- New HeroBanner: a canvas field of ~320 drifting dots across the hero. Dots
+  near the pointer peel away and assemble into a letter W around it, then drift
+  home when it moves on. The W is sampled from a five-point polyline rather than
+  a font, so it stays crisp at any size and needs no text measurement.
+  - Canvas rather than DOM: 320 animated elements would thrash layout; one
+    canvas is a single composite per frame.
+  - Dots are seeded from a deterministic PRNG, not Math.random — partly
+    aesthetic, partly the hydration rule that has already bitten twice.
+  - The pointer listener sits on window, so the field reacts to the whole
+    screen rather than only to the canvas.
+  - rAF stops when the banner scrolls out of view and never starts under
+    prefers-reduced-motion.
+
+242 pages build clean, 22 tests passing, verified against a running server.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)

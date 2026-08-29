@@ -57,7 +57,7 @@
 html {
   scroll-behavior: smooth;
   /* Apple's nav is sticky and slim; anchored sections must clear it. */
-  scroll-padding-top: 52px;
+  scroll-padding-top: 46px;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -184,10 +184,9 @@ body {
   .tabular { font-variant-numeric: tabular-nums; }
 
   /* ── Wordmark entrance ────────────────────────────────────────────────
-     Each letter arrives from slightly larger and out of focus, settling into
-     place. The blur is what separates this from a plain scale — type coming
-     into focus reads as considered rather than bouncy, which is the difference
-     between an expensive brand and a template.
+     Each letter arrives from far larger and out of focus, settling into place.
+     The blur is what separates this from a plain scale — type coming into
+     focus reads as considered rather than bouncy.
 
      cubic-bezier(0.16, 1, 0.3, 1) is a strong ease-out: almost all the motion
      happens in the first third, so it feels decisive rather than slow. */
@@ -196,9 +195,46 @@ body {
     55%  { opacity: 1; }
     100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
   }
+  /* The heavy version: letters come in from 4x, as if rushing up to the glass.
+     Paired with .letter-orb below, which puts a lit sphere behind each one. */
+  @keyframes letter-in-big {
+    0%   { opacity: 0; transform: scale(4) translateY(0.02em); filter: blur(16px); }
+    45%  { opacity: 1; }
+    75%  { transform: scale(0.94); filter: blur(0); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+  }
+  @keyframes orb-in {
+    0%   { opacity: 0; transform: scale(0.2); }
+    40%  { opacity: 0.85; transform: scale(1.5); }
+    100% { opacity: 0; transform: scale(2.4); }
+  }
+
   .animate-letter {
     animation: letter-in 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
     display: inline-block;
+  }
+  .animate-letter-big {
+    animation: letter-in-big 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    display: inline-block;
+    position: relative;
+  }
+  /* The "sphere" — a radial bloom that expands out from behind the glyph as it
+     lands, then fades. Sits behind the text and never intercepts a click. */
+  .letter-orb::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.2em;
+    height: 2.2em;
+    margin-left: -1.1em;
+    margin-top: -1.1em;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(139, 61, 240, 0.55) 0%, rgba(168, 85, 247, 0.18) 45%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+    animation: orb-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: inherit;
   }
 
   /* The pill lands last and settles with a brief lift, so the eye finishes on
@@ -210,13 +246,24 @@ body {
   }
   .animate-pill { animation: pill-in 0.78s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-  /* The mark rotates in a few degrees as it scales — enough to feel alive,
-     not enough to read as a spin. */
+  /* The mark rotates in a few degrees as it scales. */
   @keyframes mark-in {
     0%   { opacity: 0; transform: scale(0.55) rotate(-9deg); filter: blur(7px); }
     100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
   }
   .animate-mark { animation: mark-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* The spark on the W keeps catching the light. Slow and low-contrast on
+     purpose — a fast blink would read as a notification badge, not a gleam. */
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.35; transform: scale(0.82) rotate(0deg); }
+    45%      { opacity: 1;    transform: scale(1.18) rotate(12deg); }
+    70%      { opacity: 0.6;  transform: scale(0.95) rotate(4deg); }
+  }
+  .animate-twinkle {
+    animation: twinkle 2.8s ease-in-out infinite;
+    transform-origin: 52.5px 14.2px; /* the spark's own centre in the 64pt grid */
+  }
 
   /* Section bands. Apple's rhythm is a hard colour change with no border. */
   .band       { background: var(--color-canvas); }
@@ -238,12 +285,13 @@ body {
   html { scroll-behavior: auto; }
   /* Motion off means the wordmark is simply present — never invisible, which
      is what `both` fill-mode would leave behind if the animation never ran. */
-  .animate-letter, .animate-pill, .animate-mark {
+  .animate-letter, .animate-letter-big, .animate-pill, .animate-mark, .animate-twinkle {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
   }
+  .letter-orb::before { display: none !important; }
   *, *::before, *::after {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;

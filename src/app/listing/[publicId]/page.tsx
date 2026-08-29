@@ -97,8 +97,8 @@ export default async function ListingPage({
       ]} />
 
       {/* Sticky buy bar */}
-      <div className="sticky top-9 z-40 border-b border-black/[0.05] bg-canvas/80 backdrop-blur-2xl backdrop-saturate-[1.8]">
-        <div className="mx-auto flex h-12 max-w-[980px] items-center justify-between gap-4 px-5">
+      <div className="sticky top-8 z-40 border-b border-black/[0.05] bg-canvas/80 backdrop-blur-2xl backdrop-saturate-[1.8]">
+        <div className="mx-auto flex h-11 max-w-[940px] items-center justify-between gap-4 px-5">
           <p className="truncate text-[14px] font-semibold tracking-[-0.015em]">{l.title}</p>
           <div className="flex shrink-0 items-center gap-4">
             <span className="hidden text-[13px] tabular text-ink-2 sm:inline">{inr(l.pricePaise)}</span>

@@ -60,16 +60,16 @@ export function SiteNav({ user }: { user: NavUser | null }) {
   }
 
   const linkClass = (active: boolean) =>
-    `px-[7px] py-1.5 text-[11px] leading-none tracking-[-0.008em] whitespace-nowrap transition-opacity ${
+    `px-[6px] py-1.5 text-[10px] leading-none tracking-[-0.005em] whitespace-nowrap transition-opacity ${
       active ? "opacity-100" : "opacity-[0.84] hover:opacity-100"
     }`;
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/[0.05] bg-canvas/80 backdrop-blur-2xl backdrop-saturate-[1.8]">
-      <nav aria-label="Global" className="mx-auto flex h-9 max-w-[980px] items-center justify-between gap-0.5 px-5">
+      <nav aria-label="Global" className="mx-auto flex h-8 max-w-[940px] items-center justify-between gap-0 px-5">
         <Link href="/" aria-label="WorthIt home"
           className="shrink-0 font-semibold tracking-[-0.035em] opacity-90 transition-opacity hover:opacity-100">
-          <AnimatedWordmark size="nav" withMark className="text-[12px]" />
+          <AnimatedWordmark size="nav" withMark intensity="big" className="text-[11px]" />
         </Link>
 
         {LINKS.map((l) => (
@@ -81,14 +81,14 @@ export function SiteNav({ user }: { user: NavUser | null }) {
         {/* Sell is the one thing we want people to do, so it gets the only
             filled control in the bar. */}
         <Link href="/sell"
-          className="hidden shrink-0 rounded-full bg-brand px-3 py-[5px] text-[11px] font-medium leading-none text-white transition-colors hover:bg-brand-600 lg:block">
+          className="hidden shrink-0 rounded-full bg-brand px-2.5 py-[4px] text-[10px] font-medium leading-none text-white transition-colors hover:bg-brand-600 lg:block">
           Sell
         </Link>
 
         <button type="button" onClick={() => setSearch((v) => !v)}
           aria-label="Search" aria-expanded={search}
-          className="shrink-0 px-[7px] py-1.5 opacity-[0.84] transition-opacity hover:opacity-100">
-          <SearchIcon size={13} />
+          className="shrink-0 px-[6px] py-1.5 opacity-[0.84] transition-opacity hover:opacity-100">
+          <SearchIcon size={12} />
         </button>
 
         <Link href={user ? "/account" : "/signin"} className={`hidden shrink-0 lg:block ${linkClass(false)}`}>
@@ -96,14 +96,14 @@ export function SiteNav({ user }: { user: NavUser | null }) {
         </Link>
 
         {user?.isAdmin && (
-          <Link href="/admin" className="hidden shrink-0 px-[7px] py-1.5 text-[11px] leading-none text-brand lg:block">
+          <Link href="/admin" className="hidden shrink-0 px-[6px] py-1.5 text-[10px] leading-none text-brand lg:block">
             Admin
           </Link>
         )}
 
         <button type="button" onClick={() => setMenu((v) => !v)}
           aria-label={menu ? "Close menu" : "Open menu"} aria-expanded={menu}
-          className="shrink-0 px-[7px] py-1.5 opacity-[0.84] lg:hidden">
+          className="shrink-0 px-[6px] py-1.5 opacity-[0.84] lg:hidden">
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             {menu
               ? <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
@@ -114,7 +114,7 @@ export function SiteNav({ user }: { user: NavUser | null }) {
 
       {search && (
         <div className="border-t border-black/[0.05] bg-canvas/95 backdrop-blur-2xl">
-          <form onSubmit={submitSearch} role="search" className="mx-auto max-w-[980px] px-5 py-5">
+          <form onSubmit={submitSearch} role="search" className="mx-auto max-w-[940px] px-5 py-5">
             <div className="flex items-center gap-3">
               <SearchIcon size={18} className="shrink-0 text-ink-3" />
               <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)}
@@ -130,7 +130,7 @@ export function SiteNav({ user }: { user: NavUser | null }) {
 
       {menu && (
         <div className="border-t border-black/[0.05] bg-canvas lg:hidden">
-          <ul className="mx-auto max-w-[980px] px-5 py-4">
+          <ul className="mx-auto max-w-[940px] px-5 py-4">
             {LINKS.map((l) => (
               <li key={l.href} className="border-b border-hairline/60">
                 <Link href={l.href} className="block py-3.5 t-subhead">{l.label}</Link>

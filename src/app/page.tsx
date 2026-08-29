@@ -4,6 +4,7 @@ import { CATEGORIES, RAIL_CATEGORIES, GROUP_ORDER, GROUP_LABELS, categoriesByGro
 import { Button, Actions, Eyebrow } from "@/components/ui";
 import { CategoryIcon } from "@/components/icons";
 import { AnimatedWordmark } from "@/components/animated-wordmark";
+import { HeroBanner } from "@/components/hero-banner";
 import { Shelf } from "@/components/shelf";
 import { ListingCard } from "@/components/listing-card";
 import { SAMPLE_LISTINGS, showSamples } from "@/config/catalogue";
@@ -39,11 +40,15 @@ export default function HomePage() {
     <>
       <JsonLd data={[breadcrumbLd([{ name: "Home", path: "/" }]), faqLd(FAQS)]} />
 
-      {/* ── Hero: mark, name, one plain description, two links ───────────── */}
-      <section className="band">
+      {/* ── Hero: the mark sits above the name, over a live particle field ── */}
+      <HeroBanner>
+      <section>
         <div className="container-a py-20 text-center sm:py-28">
           <h1 className="t-hero flex justify-center leading-none">
-            <AnimatedWordmark size="hero" withMark className="text-[clamp(44px,8vw,96px)]" />
+            <AnimatedWordmark
+              size="hero" withMark layout="stacked"
+              className="text-[clamp(44px,8vw,96px)]"
+            />
           </h1>
           <p className="t-subhead mx-auto mt-4 max-w-[620px] text-balance text-ink-2">
             Buy and sell used things in India without the guesswork. Every listing is
@@ -54,8 +59,10 @@ export default function HomePage() {
             <Button href="/browse">Shop the store</Button>
             <Button href="/sell" variant="link">Sell an item</Button>
           </Actions>
+          <p className="t-caption mt-14 text-ink-3">Move your cursor across the banner.</p>
         </div>
       </section>
+      </HeroBanner>
 
       {/* ── Full-bleed dark band: the proposition ────────────────────────── */}
       <section className="band-deep on-deep">

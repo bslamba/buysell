@@ -9,8 +9,8 @@ import { SellNav } from "./sell-nav";
 export default function SellLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <div className="sticky top-9 z-40 border-b border-black/[0.06] bg-canvas/80 backdrop-blur-2xl backdrop-saturate-[1.8]">
-        <div className="mx-auto flex h-10 max-w-[980px] items-center justify-between gap-6 px-5">
+      <div className="sticky top-8 z-40 border-b border-black/[0.06] bg-canvas/80 backdrop-blur-2xl backdrop-saturate-[1.8]">
+        <div className="mx-auto flex h-10 max-w-[940px] items-center justify-between gap-6 px-5">
           <Link href="/sell" className="shrink-0 text-[19px] font-semibold tracking-[-0.02em]">Selling</Link>
           <SellNav />
           <Link href="/sell/new" className="a-btn a-btn-fill a-btn-sm hidden shrink-0 sm:inline-flex">

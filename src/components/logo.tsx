@@ -23,8 +23,8 @@
  * genuinely distinct instance is needed, pass `idPrefix`.
  */
 
-export function LogoMark({ size = 32, className = "", idPrefix = "wi" }: {
-  size?: number; className?: string; idPrefix?: string;
+export function LogoMark({ size = 32, className = "", idPrefix = "wi", twinkle = true }: {
+  size?: number; className?: string; idPrefix?: string; twinkle?: boolean;
 }) {
   const tile = `${idPrefix}-tile`;
   const rim = `${idPrefix}-rim`;
@@ -68,10 +68,13 @@ export function LogoMark({ size = 32, className = "", idPrefix = "wi" }: {
         stroke={`url(#${stroke})`} strokeWidth="7"
         strokeLinecap="round" strokeLinejoin="round"
       />
-      {/* Spark at the apex — where the eye lands last */}
+      {/* Spark at the apex — where the eye lands last. It keeps catching the
+          light rather than sitting still; the animation is CSS so it costs
+          nothing and never desynchronises between server and client. */}
       <path
         d="M52.5 8.5 L54 12.6 L58 14.2 L54 15.8 L52.5 20 L51 15.8 L47 14.2 L51 12.6 Z"
         fill="#fff" fillOpacity="0.92"
+        className={twinkle ? "animate-twinkle" : undefined}
       />
     </svg>
   );
