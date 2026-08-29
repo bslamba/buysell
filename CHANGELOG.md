@@ -126,6 +126,22 @@ Also
 34 routes build clean, 22 tests passing, Apple's exact metrics confirmed present
 in the compiled CSS.
 
+## 2026-08-29 — Fix hydration mismatch in the logo mark
+
+- LogoMark derived its SVG gradient ids from a module-level counter, so the
+  server and the client incremented in different orders: `url(#wi-tile-1)` on
+  the server became `url(#wi-tile-2)` on the client and React bailed out of
+  patching the tree.
+- Ids are now fixed strings, making the component a pure function of its props —
+  which is what hydration requires. `useId()` was the alternative but it is a
+  hook, and would have forced a Client Component boundary around a logo that
+  renders as a Server Component in the layout, footer and sign-in page.
+- Repeated ids across instances are harmless here: every instance is identical,
+  so `url(#…)` resolving to the first match paints the same gradient. `idPrefix`
+  is there for the case where a genuinely distinct instance is needed.
+- Verified against a running server: ids are fixed, byte-identical across
+  repeated requests, and every url() reference resolves.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
