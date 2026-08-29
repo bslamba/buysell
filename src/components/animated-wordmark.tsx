@@ -43,7 +43,7 @@ export function AnimatedWordmark({
 
   const mark = withMark ? (
     <LogoMark
-      size={isHero ? (layout === "stacked" ? 112 : 96) : 16}
+      size={isHero ? (layout === "stacked" ? 168 : 96) : 16}
       className="animate-mark"
     />
   ) : null;
@@ -79,7 +79,7 @@ export function AnimatedWordmark({
 
   if (layout === "stacked") {
     return (
-      <span className={`inline-flex flex-col items-center gap-6 ${className}`}>
+      <span className={`inline-flex flex-col items-center gap-7 ${className}`}>
         {mark}
         {name}
       </span>

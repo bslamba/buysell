@@ -47,7 +47,7 @@ export default function HomePage() {
           <h1 className="t-hero flex justify-center leading-none">
             <AnimatedWordmark
               size="hero" withMark layout="stacked"
-              className="text-[clamp(44px,8vw,96px)]"
+              className="text-[clamp(30px,4.6vw,54px)]"
             />
           </h1>
           <p className="t-subhead mx-auto mt-4 max-w-[620px] text-balance text-ink-2">

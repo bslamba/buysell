@@ -25,10 +25,11 @@ import { useEffect, useRef, type ReactNode } from "react";
  *   fan or fight someone's vestibular system.
  */
 
-const DOT_COUNT = 320;
-const W_POINTS = 46;      // dots recruited into the letter
-const W_SIZE = 190;       // px, the letter's height at 1x
-const INFLUENCE = 340;    // px, how far the pointer reaches
+const DOT_COUNT = 340;
+const W_POINTS = 64;        // dots recruited into the letter — enough to read as a stroke
+const W_SIZE = 210;         // px across, matching the logo's 40pt path width
+const LETTER_DOT_R = 3.1;   // uniform, mirroring the mark's constant stroke width
+const INFLUENCE = 360;      // px, how far the pointer reaches
 
 /** mulberry32 — tiny, seedable, good enough for scattering dots. */
 function prng(seed: number) {
@@ -40,11 +41,24 @@ function prng(seed: number) {
   };
 }
 
-/** The W as a polyline in unit space, sampled into evenly spaced points. */
+/**
+ * The W, taken from the logo mark itself rather than drawn symmetrically.
+ *
+ * The mark's path in its 64pt grid is:
+ *   M12.5 20.5 → 22 44.5 → 31.5 30 → 41 44.5 → 52.5 14.5
+ *
+ * That shape is deliberately asymmetric — the final stroke overshoots upward so
+ * the W also reads as a tick — and a symmetric W loses the whole idea. These
+ * are those exact vertices, translated to the path's own centre (32.5, 29.5)
+ * and divided by its 40pt width, so the proportions are identical to the logo.
+ */
 function wTargets(count: number): { x: number; y: number }[] {
   const verts = [
-    { x: -0.5, y: -0.5 }, { x: -0.25, y: 0.5 },
-    { x: 0, y: -0.12 }, { x: 0.25, y: 0.5 }, { x: 0.5, y: -0.5 },
+    { x: -0.5000, y: -0.2250 },
+    { x: -0.2625, y:  0.3750 },
+    { x: -0.0250, y:  0.0125 },
+    { x:  0.2125, y:  0.3750 },
+    { x:  0.5000, y: -0.3750 },
   ];
   const segs = verts.slice(0, -1).map((v, i) => {
     const w = verts[i + 1];
@@ -156,8 +170,10 @@ export function HeroBanner({ children }: { children: ReactNode }) {
 
         const inLetter = d.target >= 0;
         ctx!.beginPath();
-        ctx!.arc(d.x, d.y, inLetter ? d.r * 1.7 : d.r, 0, Math.PI * 2);
-        ctx!.fillStyle = inLetter ? "rgba(109, 40, 217, 0.9)" : "rgba(109, 40, 217, 0.26)";
+        // Constant radius inside the letter: the logo's stroke is a single
+        // uniform width, so varying dot sizes would render a different W.
+        ctx!.arc(d.x, d.y, inLetter ? LETTER_DOT_R : d.r, 0, Math.PI * 2);
+        ctx!.fillStyle = inLetter ? "rgba(109, 40, 217, 0.92)" : "rgba(109, 40, 217, 0.26)";
         ctx!.fill();
       }
 

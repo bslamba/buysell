@@ -227,6 +227,23 @@ Listing pages
 
 242 pages build clean, 22 tests passing, verified against a running server.
 
+## 2026-08-29 — Particle W matched to the logo; hero proportions rebalanced
+
+- The banner's letter W now uses the logo mark's own path vertices rather than a
+  symmetric W. The mark is deliberately asymmetric — its final stroke overshoots
+  upward so the W also reads as a tick — and a symmetric version threw that away.
+  Vertices are the mark's five points translated to the path centre (32.5, 29.5)
+  and divided by its 40pt width, so the proportions are identical.
+- Letter particles now draw at a constant radius. The mark has a single uniform
+  stroke width, so a letter assembled from varying dot sizes rendered a subtly
+  different letterform.
+- Point count up to 64 so the stroke reads continuous rather than dotted.
+- Hero mark 112px -> 168px; hero wordmark down from 44-96px to 30-54px, so the
+  mark leads and the name supports it rather than competing.
+
+Verified: the banner's vertices are byte-identical to the logo path under the
+documented transform, and the asymmetry is preserved.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
