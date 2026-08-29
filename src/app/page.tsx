@@ -61,7 +61,6 @@ export default function HomePage() {
             <Button href="/browse">Shop the store</Button>
             <Button href="/sell" variant="link">Sell an item</Button>
           </Actions>
-          <p className="t-caption mt-14 text-ink-3">Move your cursor anywhere on the page.</p>
         </div>
       </section>
 

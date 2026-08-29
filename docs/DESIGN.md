@@ -80,6 +80,11 @@ and their intro paragraphs look airy. Headlines are 600, never 700.
   white body to exactly the solid it replaces, so bands look identical on pages
   with no field. Changing a band colour means recomputing its veil as
   `2 * target - 255` per channel, or the band drifts.
+- The particle field never forms its letter over content. It measures text
+  line rects and control rects and suppresses the W where they are, so the
+  letter appears only in genuinely clear space. Anything new that must stay
+  clear of it needs to be text or match the control selector in
+  `hero-banner.tsx`; a bare styled `div` will not be seen.
 - **`.on-deep`** — put this on a lavender band and buttons and links deepen to
   `--color-brand-700` so they hold their weight against the tint.
 

@@ -320,6 +320,35 @@ Verified: 53fps in software rendering, no page errors, both band colours
 byte-identical to before, the nav strip clean with the cursor jammed against it,
 and a complete W at the top-left and bottom-right corners.
 
+## 2026-08-29 — The letter stays off content entirely
+
+Being behind the text was not enough: a W sitting under a paragraph still reads
+as a W scribbled across it. The field now measures where content actually is
+and refuses to form the letter there.
+
+- Content is measured per text LINE, not per block. Range.getClientRects() on
+  each text node yields one rect per rendered line, so the letter can use a
+  paragraph's ragged right edge and the gaps between lines instead of being
+  locked out of the whole column. Links, buttons, inputs, images and SVGs go in
+  whole. 493 rects on the home page.
+- Rects are held in document coordinates, so scrolling costs nothing. They are
+  remeasured on resize and on any change to the body's size, which covers
+  webfont swap-in, images loading and the FAQ accordion opening.
+- Fixed a leak found while verifying: dots still travelling toward the letter
+  were drawn at full letter strength, so a dot in flight could streak across
+  text even when the letter's resting place was clear. A dot now counts as part
+  of the letter only within SNAP (12px) of its target; further out it is drawn
+  as an ordinary field dot. SNAP is folded into the clearance box, so every
+  pixel drawn at letter strength is provably inside the box that was tested.
+- Removed the "Move your cursor anywhere on the page." hint from the hero.
+
+Verified by pixel test rather than by eye: across 384 cursor positions at four
+scroll depths, the canvas's own pixels were read back and every dot drawn at
+letter strength was tested against all 493 content rects. Before the in-flight
+fix, 2 positions leaked (worst 5px); after it, 0. The letter still forms at 153
+of the 384 positions, so the effect is suppressed near content, not disabled.
+53fps, no page errors.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
