@@ -17,3 +17,6 @@ drizzle/meta/_journal.json.bak
 .idea/
 .vscode/
 tmp/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+next-env.d.ts
