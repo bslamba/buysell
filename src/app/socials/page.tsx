@@ -1,7 +1,13 @@
 import { brand } from "@/config/brand";
 import { PageHeader, Card } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Socials" };
+export const metadata = buildMetadata({
+  title: "Follow WorthIt",
+  description: "Where we publish what we block — monthly numbers on listings rejected, scams stopped, and stolen devices caught.",
+  path: "/socials",
+  keywords: ["worthit instagram", "worthit linkedin", "marketplace transparency india"],
+});
 
 const BLURBS: Record<string, string> = {
   instagram: "Listings worth a second look, and the occasional look inside the review queue.",

@@ -1,18 +1,25 @@
 import Link from "next/link";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 import { db } from "@/db";
 import { listings } from "@/db/schema";
 import { CATEGORIES, categoryBySlug } from "@/config/categories";
 import { PageHeader, Card, Badge, EmptyState, Button } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Browse" };
+export const metadata = buildMetadata({
+  title: "Browse Verified Used Items in India",
+  description: "Every listing here passed eleven automated checks before it appeared — photo verification, stolen-device lookup and price sanity. Payment protected until you accept.",
+  path: "/browse",
+  keywords: ["buy used items india", "second hand products online", "verified used marketplace", "second hand bangalore"],
+});
 export const dynamic = "force-dynamic";
 
 export default async function BrowsePage({
   searchParams,
-}: { searchParams: Promise<{ category?: string }> }) {
-  const { category } = await searchParams;
+}: { searchParams: Promise<{ category?: string; q?: string }> }) {
+  const { category, q } = await searchParams;
   const active = category && categoryBySlug.has(category) ? category : undefined;
+  const query = q?.trim().slice(0, 80) || undefined;
 
   let rows: { id: string; publicId: string; title: string; pricePaise: number; city: string; categorySlug: string; condition: string }[] = [];
   let dbError = false;
@@ -24,9 +31,11 @@ export default async function BrowsePage({
         categorySlug: listings.categorySlug, condition: listings.condition,
       })
       .from(listings)
-      .where(active
-        ? and(eq(listings.status, "approved"), eq(listings.categorySlug, active))
-        : eq(listings.status, "approved"))
+      .where(and(
+        eq(listings.status, "approved"),
+        ...(active ? [eq(listings.categorySlug, active)] : []),
+        ...(query ? [ilike(listings.title, `%${query}%`)] : []),
+      ))
       .orderBy(desc(listings.publishedAt))
       .limit(60);
   } catch {
@@ -37,7 +46,7 @@ export default async function BrowsePage({
     <>
       <PageHeader
         eyebrow="Browse"
-        title={active ? categoryBySlug.get(active)!.label : "Everything that passed the checks"}
+        title={query ? `Results for “${query}”` : active ? categoryBySlug.get(active)!.label : "Everything that passed the checks"}
         sub="Only listings that cleared verification appear here. Nothing is shown while it is still under review."
       />
 
@@ -50,7 +59,7 @@ export default async function BrowsePage({
             All
           </Link>
           {CATEGORIES.filter((c) => c.slug !== "other").map((c) => (
-            <Link key={c.slug} href={`/browse?category=${c.slug}`}
+            <Link key={c.slug} href={`/browse/${c.slug}`}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 active === c.slug ? "bg-white/[0.10] text-text" : "glass glass-hover text-text-muted"
               }`}>

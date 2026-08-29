@@ -1,7 +1,13 @@
 import { PageHeader, Card, Eyebrow } from "@/components/ui";
 import { Prose } from "@/components/prose";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Shipping & delivery" };
+export const metadata = buildMetadata({
+  title: "Shipping, Delivery & Returns",
+  description: "How items get from seller to buyer, what shipping costs, how the inspection window works, and when a refund applies.",
+  path: "/shipping",
+  keywords: ["marketplace shipping india", "used goods delivery india", "return policy second hand", "inspection window marketplace"],
+});
 
 const STEPS = [
   { n: "01", t: "Seller books a pickup", b: "Once a buyer pays, the seller gets a prepaid label and a pickup slot. Within Bengaluru that is usually same or next day." },

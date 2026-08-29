@@ -6,7 +6,7 @@ import { Card, Eyebrow } from "@/components/ui";
 import { LogoMark } from "@/components/logo";
 import { SignInForm } from "./signin-form";
 
-export const metadata = { title: "Sign in" };
+export const metadata = { title: "Sign in", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 /** Only same-origin relative paths, so ?next= can't be used for an open redirect. */

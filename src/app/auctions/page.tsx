@@ -4,8 +4,14 @@ import { db } from "@/db";
 import { auctions, organizations } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { PageHeader, Card, Badge, EmptyState, Button, Eyebrow } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Auctions" };
+export const metadata = buildMetadata({
+  title: "Corporate Bulk Lot Auctions in India",
+  description: "Bid on bulk lots from companies retiring IT hardware — serial manifests, published grade mix and certified data wipe. Single-piece purchase where allowed.",
+  path: "/auctions",
+  keywords: ["bulk laptop auction india", "IT asset auction india", "liquidation auction india", "buy used laptops in bulk", "corporate hardware auction bangalore"],
+});
 export const dynamic = "force-dynamic";
 
 export default async function AuctionsPage() {

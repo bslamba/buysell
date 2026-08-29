@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth/guards";
 import { Card, Eyebrow } from "@/components/ui";
 import { SignInForm } from "../signin/signin-form";
 
-export const metadata = { title: "Verify your phone" };
+export const metadata = { title: "Verify your phone", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function VerifyPhonePage({

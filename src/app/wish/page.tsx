@@ -1,7 +1,13 @@
 import { CATEGORIES } from "@/config/categories";
 import { PageHeader, Card, Field, inputClass, Button, Eyebrow } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Wishlist a find" };
+export const metadata = buildMetadata({
+  title: "Wishlist — Tell Us What to Find",
+  description: "Nothing live that matches? Describe what you want and get alerted the moment a verified listing appears.",
+  path: "/wish",
+  keywords: ["wanted ads india", "looking to buy used india", "product alert marketplace india"],
+});
 
 export default function WishPage() {
   return (

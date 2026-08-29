@@ -1,8 +1,13 @@
 import { brand } from "@/config/brand";
 import { PageHeader, Card } from "@/components/ui";
 import { Prose } from "@/components/prose";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Privacy policy" };
+export const metadata = buildMetadata({
+  title: "Privacy Policy",
+  description: "What we collect, how device identifiers and image fingerprints are stored, who we share data with, and your rights under Indian law.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

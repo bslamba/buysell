@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { brand } from "@/config/brand";
 import { PageHeader, Card, Button, Eyebrow } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Help" };
+export const metadata = buildMetadata({
+  title: "Help Centre — Buying, Selling & Safety",
+  description: "How buyer protection works, why listings get rejected, what to do if someone asks you to pay off-platform, and everything else people actually ask.",
+  path: "/help",
+  keywords: ["marketplace help india", "is it safe to buy used online", "online marketplace scams india", "buyer protection india"],
+});
 
 const GROUPS = [
   {

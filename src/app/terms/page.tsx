@@ -1,8 +1,13 @@
 import { brand } from "@/config/brand";
 import { PageHeader, Card } from "@/components/ui";
 import { Prose } from "@/components/prose";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Terms of use" };
+export const metadata = buildMetadata({
+  title: "Terms of Use",
+  description: "The terms governing use of WorthIt as a marketplace intermediary, including listing rules, fees, payment protection and liability.",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

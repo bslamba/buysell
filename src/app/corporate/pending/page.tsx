@@ -1,6 +1,6 @@
 import { Button, Card, Eyebrow } from "@/components/ui";
 
-export const metadata = { title: "Verification pending" };
+export const metadata = { title: "Verification pending", robots: { index: false, follow: false } };
 
 export default function CorporatePendingPage() {
   return (

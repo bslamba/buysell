@@ -49,6 +49,54 @@
 - Existing auth, admin and corporate pages migrated off the old light theme
 - 25 routes build clean; 22 tests passing
 
+## 2026-08-29 — Taxonomy, seller hub and the SEO layer
+
+Categories
+- Rebuilt the registry: 20 categories across 8 groups, merging a Circle-style
+  consumer rail with a general marketplace's top-level shape, adapted for India.
+- Each entry now carries an icon, a blurb, subcategory terms, and its own SEO
+  title, description, keyword set and intro paragraph — so adding a category
+  adds a ranking page with no other code change.
+- Four things are deliberately excluded with the reasoning written down: gift
+  cards, event tickets, real estate and services. Each is unverifiable before
+  payment or a different business; listing what we cannot check would undo the
+  point of the product.
+- Prohibited-goods screening extended to live animals, human remains, gift-card
+  codes and event tickets.
+
+Navigation
+- Icon category rail across the top, plus a real search bar wired to /browse?q=.
+
+Seller hub
+- /sell rebuilt with its own sticky sub-navigation, plus three new pages:
+  how-it-works (six steps and the four reasons listings fail), fees (full
+  breakdown and why the fee sits on the buyer), and business (bulk lots,
+  auctions, ITAD).
+
+SEO
+- buildMetadata() helper: canonical, OpenGraph, Twitter, robots per page.
+- JSON-LD: OnlineStore, WebSite with SearchAction, BreadcrumbList, FAQPage,
+  CollectionPage + ItemList, and a Product builder ready for listing pages.
+- 20 statically-generated category landing pages at /browse/<slug>.
+- sitemap.xml (37 URLs) and robots.txt generated from the registry; faceted
+  /browse?* URLs disallowed so crawl budget goes to the clean pages.
+- noindex on every private route, in metadata and robots.txt both.
+- **Bug caught by this work:** middleware matched /sell/:path*, so the entire
+  seller hub redirected to sign-in — pages meant to rank for "sell online india"
+  returned 307 to a crawler. Only /sell/new and /sell/manage are gated now.
+
+Logo
+- Reworked: the stroke carries its own top-lit gradient, a spark sits at the
+  tick's apex, and the tile has an inner rim highlight so it reads as an object
+  rather than a coloured square. The wordmark now sets "It" in a gradient pill —
+  it reads as a stamp, which is what the company does.
+
+Also
+- Postgres connect_timeout 10s -> 5s. With max:1 every request queues behind the
+  one in front, so a slow timeout turns a brief outage into a pile-up.
+
+34 routes build clean, 22 tests passing, verified against a production server.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)

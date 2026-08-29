@@ -13,10 +13,19 @@ import { getToken } from "next-auth/jwt";
 
 import { atLeast, type Role } from "@/lib/auth/roles";
 
+/**
+ * Only routes that genuinely need an account.
+ *
+ * NOTE: `/sell` itself is deliberately NOT here. The seller hub — /sell,
+ * /sell/fees, /sell/how-it-works, /sell/business — is marketing, and marketing
+ * behind a redirect cannot be crawled or ranked. Only the listing form and the
+ * seller's own dashboard require sign-in.
+ */
 const RULES: { prefix: string; minimum: Role }[] = [
   { prefix: "/admin", minimum: "moderator" },
   { prefix: "/corporate", minimum: "user" },
-  { prefix: "/sell", minimum: "user" },
+  { prefix: "/sell/new", minimum: "user" },
+  { prefix: "/sell/manage", minimum: "user" },
   { prefix: "/account", minimum: "user" },
 ];
 
@@ -41,5 +50,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/corporate/:path*", "/sell/:path*", "/account/:path*"],
+  matcher: ["/admin/:path*", "/corporate/:path*", "/sell/new/:path*", "/sell/manage/:path*", "/account/:path*"],
 };

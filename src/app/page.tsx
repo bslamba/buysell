@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { brand } from "@/config/brand";
-import { CATEGORIES } from "@/config/categories";
+import { CATEGORIES, GROUP_ORDER, GROUP_LABELS, categoriesByGroup } from "@/config/categories";
 import { Button, Card, Badge, Eyebrow, SectionTitle } from "@/components/ui";
+import { CategoryIcon } from "@/components/icons";
+import { JsonLd } from "@/components/json-ld";
+import { breadcrumbLd, faqLd } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +31,20 @@ export default function HomePage() {
   const certified = CATEGORIES.filter((c) => c.tier === "certified");
   const featured = CATEGORIES.filter((c) => c.slug !== "other").slice(0, 8);
 
+  const faqs = [
+    { q: "Is it safe to buy used products online in India?", a: "It is when the listing has been verified. On WorthIt every listing passes eleven automated checks before it appears — photographs are fingerprinted against every image ever uploaded, phone IMEIs are checked against the Government of India's CEIR stolen-device register, and prices are compared against real market data. Your payment is then held until the item arrives and you confirm it matches." },
+    { q: "What does it cost to sell on WorthIt?", a: "Nothing. There is no listing fee and no commission taken from your payout. Buyers pay a small protection fee at checkout, which is what funds the verification." },
+    { q: "How do I know a used phone is not stolen?", a: "Every phone listed on WorthIt has its IMEI checked against the CEIR register maintained by India's Department of Telecommunications before the listing goes live. A device reported lost or stolen is rejected automatically and never reaches a buyer." },
+    { q: "Which cities does WorthIt cover?", a: "WorthIt is in early access in Bengaluru. We are deliberately saturating one city before opening others, because a marketplace is only useful when things actually sell." },
+    { q: "Can businesses sell on WorthIt?", a: "Yes. Companies, dealers, refurbishers and IT asset disposal firms can register a corporate account and run bulk lot auctions, with a serial manifest and certified data wipe. Retail buyers can take single pieces from a bulk lot where the seller allows it." },
+  ];
+
   return (
     <>
+      <JsonLd data={[
+        breadcrumbLd([{ name: "Home", path: "/" }]),
+        faqLd(faqs),
+      ]} />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-6 pb-24 pt-24 sm:pt-32">
@@ -85,32 +100,40 @@ export default function HomePage() {
       <section className="border-t border-white/[0.06] py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-wrap items-end justify-between gap-6">
-            <SectionTitle eyebrow="Categories" title="Sell almost anything. Some things we check harder." />
+            <SectionTitle
+              eyebrow="Categories"
+              title="Sell almost anything. Some things we check harder."
+              sub="Twenty categories, each with its own rules. A ₹60,000 laptop and a ₹300 textbook do not carry the same risk, so they do not get the same checks."
+            />
             <Link href="/categories" className="text-sm font-semibold text-violet-300 hover:text-violet-200">
               All categories →
             </Link>
           </div>
 
-          <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.map((c) => (
-              <Link key={c.slug} href={`/browse?category=${c.slug}`}
-                className="glass glass-hover flex flex-col justify-between rounded-[18px] p-5">
-                <div>
-                  <h3 className="text-base font-semibold tracking-[-0.01em]">{c.label}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-text-muted">
-                    {c.minImages}+ photos required
-                    {c.requiresImei ? " · IMEI checked" : c.requiresSerial ? " · serial checked" : ""}
-                  </p>
+          <div className="mt-12 space-y-10">
+            {GROUP_ORDER.map((g) => {
+              const items = categoriesByGroup(g);
+              if (items.length === 0) return null;
+              return (
+                <div key={g}>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-faint">
+                    {GROUP_LABELS[g]}
+                  </h3>
+                  <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                    {items.map((c) => (
+                      <Link key={c.slug} href={`/browse/${c.slug}`}
+                        className="glass glass-hover flex items-start gap-3.5 rounded-[16px] p-4">
+                        <span className="mt-0.5 shrink-0 text-violet-300"><CategoryIcon name={c.icon} /></span>
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold tracking-[-0.01em]">{c.label}</span>
+                          <span className="mt-1 block text-xs leading-relaxed text-text-muted">{c.blurb}</span>
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-                <div className="mt-6">
-                  {c.tier === "certified"
-                    ? <Badge tone="ok">Fully certified</Badge>
-                    : c.tier === "assisted"
-                      ? <Badge tone="violet">Assisted checks</Badge>
-                      : <Badge tone="plain">Standard checks</Badge>}
-                </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -170,6 +193,26 @@ export default function HomePage() {
               </ul>
             </div>
           </Card>
+        </div>
+      </section>
+
+      {/* FAQ — visible copy behind the FAQPage schema */}
+      <section className="border-t border-white/[0.06] py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <SectionTitle eyebrow="Common questions" title="What people ask before their first purchase" />
+          <div className="mt-10 space-y-3">
+            {faqs.map((f) => (
+              <details key={f.q} className="glass group rounded-[18px] px-6 py-5">
+                <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-[-0.01em] marker:hidden">
+                  <span className="flex items-start justify-between gap-4">
+                    <h3 className="font-semibold">{f.q}</h3>
+                    <span className="mt-0.5 shrink-0 text-violet-300 transition-transform group-open:rotate-45">+</span>
+                  </span>
+                </summary>
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-muted">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

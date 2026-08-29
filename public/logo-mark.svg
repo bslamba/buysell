@@ -1,14 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#A855F7"/><stop offset="0.55" stop-color="#7C3AED"/><stop offset="1" stop-color="#4C1D95"/>
+    <linearGradient id="tile" x1="4" y1="0" x2="58" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C77DFF"/><stop offset="0.42" stop-color="#8B3DF0"/><stop offset="1" stop-color="#3B1478"/>
     </linearGradient>
-    <linearGradient id="s" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#fff" stop-opacity="0.28"/><stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+    <linearGradient id="rim" x1="32" y1="0" x2="32" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0.55"/><stop offset="0.45" stop-color="#fff" stop-opacity="0.05"/><stop offset="1" stop-color="#fff" stop-opacity="0.16"/>
     </linearGradient>
+    <linearGradient id="stroke" x1="14" y1="12" x2="46" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#EBDCFF"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(50 16) rotate(90) scale(22)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0.5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="64" height="64" rx="17" fill="url(#g)"/>
-  <rect width="64" height="64" rx="17" fill="url(#s)"/>
-  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="16.25" stroke="#fff" stroke-opacity="0.22" stroke-width="1.5"/>
-  <path d="M13 21 L22.5 45 L31.5 31 L40.5 45 L52 15" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="64" height="64" rx="17.5" fill="url(#tile)"/>
+  <rect width="64" height="64" rx="17.5" fill="url(#glow)"/>
+  <rect x="1" y="1" width="62" height="62" rx="16.5" stroke="url(#rim)" stroke-width="2"/>
+  <path d="M12.5 20.5 L22 44.5 L31.5 30 L41 44.5 L52.5 14.5" stroke="url(#stroke)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M52.5 8.5 L54 12.6 L58 14.2 L54 15.8 L52.5 20 L51 15.8 L47 14.2 L51 12.6 Z" fill="#fff" fill-opacity="0.92"/>
 </svg>

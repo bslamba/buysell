@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { listings, organizations, users } from "@/db/schema";
 import { Card, Badge, Button, EmptyState, Eyebrow } from "@/components/ui";
 
-export const metadata = { title: "Admin" };
+export const metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 async function stats() {

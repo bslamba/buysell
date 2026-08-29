@@ -1,0 +1,191 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { and, desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { listings } from "@/db/schema";
+import { CATEGORIES, categoryBySlug } from "@/config/categories";
+import { Card, Badge, EmptyState, Button, Eyebrow } from "@/components/ui";
+import { CategoryIcon } from "@/components/icons";
+import { JsonLd } from "@/components/json-ld";
+import { categoryMetadata, breadcrumbLd, categoryCollectionLd } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
+
+/**
+ * One indexable landing page per category.
+ *
+ * This is the page that ranks. It carries the category's own title, meta
+ * description, keyword set, a paragraph of real copy, the subcategory terms
+ * people actually search for, and the live listings themselves — plus
+ * CollectionPage and BreadcrumbList structured data. `/browse?category=x` is
+ * disallowed in robots.txt precisely so this URL is the one Google indexes.
+ */
+
+export function generateStaticParams() {
+  return CATEGORIES.map((c) => ({ category: c.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
+  const { category } = await params;
+  const c = categoryBySlug.get(category);
+  if (!c) return {};
+  return categoryMetadata(c);
+}
+
+export default async function CategoryLandingPage({
+  params,
+}: { params: Promise<{ category: string }> }) {
+  const { category } = await params;
+  const c = categoryBySlug.get(category);
+  if (!c) notFound();
+
+  let rows: { id: string; publicId: string; title: string; pricePaise: number; city: string; condition: string }[] = [];
+  let dbError = false;
+  try {
+    rows = await db
+      .select({
+        id: listings.id, publicId: listings.publicId, title: listings.title,
+        pricePaise: listings.pricePaise, city: listings.city, condition: listings.condition,
+      })
+      .from(listings)
+      .where(and(eq(listings.status, "approved"), eq(listings.categorySlug, c.slug)))
+      .orderBy(desc(listings.publishedAt))
+      .limit(48);
+  } catch {
+    dbError = true;
+  }
+
+  const related = CATEGORIES.filter((x) => x.group === c.group && x.slug !== c.slug).slice(0, 5);
+
+  return (
+    <>
+      <JsonLd data={[
+        breadcrumbLd([
+          { name: "Home", path: "/" },
+          { name: "Browse", path: "/browse" },
+          { name: c.label, path: `/browse/${c.slug}` },
+        ]),
+        categoryCollectionLd(c, rows.map((r) => ({ title: r.title, path: `/listing/${r.publicId}`, pricePaise: r.pricePaise }))),
+      ]} />
+
+      <header className="border-b border-white/[0.06] py-16">
+        <div className="mx-auto max-w-6xl px-6">
+          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-text-faint">
+            <Link href="/" className="hover:text-text-muted">Home</Link>
+            <span>/</span>
+            <Link href="/browse" className="hover:text-text-muted">Browse</Link>
+            <span>/</span>
+            <span className="text-text-muted">{c.label}</span>
+          </nav>
+
+          <div className="flex items-start gap-4">
+            <span className="glass mt-1 shrink-0 rounded-2xl p-3 text-violet-300">
+              <CategoryIcon name={c.icon} size={26} />
+            </span>
+            <div>
+              <h1 className="text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+                {c.label}
+              </h1>
+              <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-text-muted">{c.seo.intro}</p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            <Badge tone={c.tier === "certified" ? "ok" : c.tier === "assisted" ? "violet" : "plain"}>
+              {c.tier === "certified" ? "Fully certified" : c.tier === "assisted" ? "Assisted checks" : "Standard checks"}
+            </Badge>
+            {c.requiresImei && <Badge tone="ok">IMEI checked against CEIR</Badge>}
+            {c.requiresSerial && <Badge tone="plain">Serial number required</Badge>}
+            <Badge tone="plain">{c.minImages}+ photos required</Badge>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        {/* Subcategory terms — the long-tail queries, as real internal links */}
+        <section aria-label="Popular in this category">
+          <Eyebrow>Popular in {c.label}</Eyebrow>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {c.subcategories.map((s) => (
+              <Link key={s} href={`/browse?category=${c.slug}&q=${encodeURIComponent(s)}`}
+                className="glass glass-hover rounded-full px-4 py-2 text-sm text-text-muted">
+                {s}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12">
+          {dbError ? (
+            <EmptyState title="Can't reach the catalogue right now"
+              body="The database isn't connected yet. Add DATABASE_URL to .env.local and run the migrations." />
+          ) : rows.length === 0 ? (
+            <EmptyState
+              title={`Nothing live in ${c.label} yet`}
+              body="WorthIt is in early access in Bengaluru. List something here and it appears the moment it clears the automated checks."
+              action={<Button href={`/sell/new?category=${c.slug}`}>Sell in {c.label}</Button>}
+            />
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {rows.map((l) => (
+                <Link key={l.id} href={`/listing/${l.publicId}`}>
+                  <Card hover className="flex h-full flex-col">
+                    <div className="flex items-start justify-between gap-3">
+                      <h2 className="text-base font-semibold leading-snug tracking-[-0.01em]">{l.title}</h2>
+                      <Badge tone="ok">Verified</Badge>
+                    </div>
+                    <p className="mt-2 text-xs capitalize text-text-faint">
+                      {l.condition.replace(/_/g, " ")} · {l.city}
+                    </p>
+                    <p className="mt-auto pt-6 text-2xl font-semibold tracking-[-0.03em] tabular">
+                      ₹{(l.pricePaise / 100).toLocaleString("en-IN")}
+                    </p>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Category rules — genuinely useful, and indexable depth */}
+        <section className="mt-16 grid gap-4 md:grid-cols-2">
+          <Card>
+            <Eyebrow>What we ask sellers for</Eyebrow>
+            <p className="mt-3 text-sm leading-relaxed text-text-muted">
+              {c.requiredAttributes.map((a) => a.replace(/_/g, " ")).join(", ")}.
+              Between {c.minImages} and {c.maxImages} photographs of the actual item.
+            </p>
+          </Card>
+          {c.notes && c.notes.length > 0 && (
+            <Card>
+              <Eyebrow>Rules for this category</Eyebrow>
+              <ul className="mt-3 space-y-2">
+                {c.notes.map((n) => (
+                  <li key={n} className="flex gap-2.5 text-sm leading-relaxed text-text-muted">
+                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />
+                    {n}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </section>
+
+        {related.length > 0 && (
+          <section className="mt-16">
+            <Eyebrow>Related categories</Eyebrow>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {related.map((r) => (
+                <Link key={r.slug} href={`/browse/${r.slug}`}
+                  className="glass glass-hover flex items-center gap-2.5 rounded-full px-4 py-2.5 text-sm font-medium">
+                  <span className="text-violet-300"><CategoryIcon name={r.icon} size={17} /></span>
+                  {r.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </>
+  );
+}

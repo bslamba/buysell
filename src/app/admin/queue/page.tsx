@@ -4,7 +4,7 @@ import { listings, users } from "@/db/schema";
 import { Badge, EmptyState, Eyebrow } from "@/components/ui";
 import { slaHours } from "@/lib/moderation/engine";
 
-export const metadata = { title: "Review queue" };
+export const metadata = { title: "Review queue", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 function riskTone(score: number) {

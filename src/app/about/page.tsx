@@ -1,7 +1,13 @@
 import { brand } from "@/config/brand";
 import { PageHeader, Card, Eyebrow, Button } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "About" };
+export const metadata = buildMetadata({
+  title: "About WorthIt — Verification-First Resale in India",
+  description: "Why we verify every listing before it appears, why we never hold inventory, and why we started in one corridor of Bengaluru instead of launching nationwide.",
+  path: "/about",
+  keywords: ["about worthit", "verified resale india", "recommerce startup india", "second hand marketplace bangalore"],
+});
 
 const BELIEFS = [
   { t: "The problem isn't listings. It's truth.", b: "India has no shortage of places to list a used phone — one of them has thirty million people a month. What none of them tell you is whether the thing in the photo is real, whether it's stolen, or whether the person selling it owns it. That gap is the entire business." },

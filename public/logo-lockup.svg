@@ -1,22 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="96" viewBox="0 0 420 96" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="112" viewBox="0 0 460 112" fill="none">
   <defs>
-    <linearGradient id="g" x1="16" y1="16" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#A855F7"/><stop offset="0.55" stop-color="#7C3AED"/><stop offset="1" stop-color="#4C1D95"/>
+    <linearGradient id="tile" x1="28" y1="24" x2="82" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C77DFF"/><stop offset="0.42" stop-color="#8B3DF0"/><stop offset="1" stop-color="#3B1478"/>
     </linearGradient>
-    <linearGradient id="s" x1="0" y1="16" x2="0" y2="80" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#fff" stop-opacity="0.28"/><stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+    <linearGradient id="rim" x1="56" y1="24" x2="56" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0.55"/><stop offset="0.45" stop-color="#fff" stop-opacity="0.05"/><stop offset="1" stop-color="#fff" stop-opacity="0.16"/>
     </linearGradient>
-    <linearGradient id="t" x1="250" y1="30" x2="330" y2="70" gradientUnits="userSpaceOnUse">
+    <linearGradient id="stroke" x1="38" y1="36" x2="70" y2="72" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#EBDCFF"/>
+    </linearGradient>
+    <linearGradient id="pill" x1="300" y1="34" x2="392" y2="80" gradientUnits="userSpaceOnUse">
       <stop stop-color="#D8B4FE"/><stop offset="0.5" stop-color="#A855F7"/><stop offset="1" stop-color="#E879F9"/>
     </linearGradient>
   </defs>
-  <g transform="translate(16,16)">
-    <rect width="64" height="64" rx="17" fill="url(#g)"/>
-    <rect width="64" height="64" rx="17" fill="url(#s)"/>
-    <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="16.25" stroke="#fff" stroke-opacity="0.22" stroke-width="1.5"/>
-    <path d="M13 21 L22.5 45 L31.5 31 L40.5 45 L52 15" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(24,24)">
+    <rect width="64" height="64" rx="17.5" fill="url(#tile)"/>
+    <rect x="1" y="1" width="62" height="62" rx="16.5" stroke="url(#rim)" stroke-width="2"/>
+    <path d="M12.5 20.5 L22 44.5 L31.5 30 L41 44.5 L52.5 14.5" stroke="url(#stroke)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M52.5 8.5 L54 12.6 L58 14.2 L54 15.8 L52.5 20 L51 15.8 L47 14.2 L51 12.6 Z" fill="#fff" fill-opacity="0.92"/>
   </g>
-  <!-- Wordmark uses live text: convert to outlines before sending to a printer. -->
-  <text x="98" y="63" font-family="Inter, -apple-system, Helvetica, Arial, sans-serif"
-        font-size="44" font-weight="650" letter-spacing="-1.4" fill="#FFFFFF">Worth<tspan fill="url(#t)">It</tspan></text>
+  <!-- Wordmark is LIVE TEXT in Inter. Convert to outlines before print. -->
+  <text x="106" y="72" font-family="Inter, -apple-system, Helvetica, Arial, sans-serif"
+        font-size="46" font-weight="640" letter-spacing="-1.6" fill="#FFFFFF">Worth</text>
+  <rect x="288" y="34" width="82" height="44" rx="13" fill="url(#pill)"/>
+  <text x="329" y="68" text-anchor="middle" font-family="Inter, -apple-system, Helvetica, Arial, sans-serif"
+        font-size="40" font-weight="740" letter-spacing="-1.4" fill="#12061F">It</text>
 </svg>

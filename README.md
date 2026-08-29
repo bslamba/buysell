@@ -44,6 +44,7 @@ npm run db:studio    # browse the database
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Stack choices and the reasoning behind each, data model, security posture |
 | [`docs/NAMING.md`](docs/NAMING.md) | The name, the logo, typography, and what still needs a trademark check |
 | [`docs/DESIGN.md`](docs/DESIGN.md) | The Apple-glass design system — tokens, the glass utilities, components |
+| [`docs/SEO.md`](docs/SEO.md) | What's built for organic search, what it caught, and what's still to do |
 
 ## Stack
 
@@ -96,18 +97,23 @@ Phase 2 (listing creation and image ingest) is next — see `docs/BUILD.md`.
 
 | Route | What it is |
 |---|---|
-| `/` | Home — hero, how it works, categories, the checks, corporate band |
-| `/browse` | Live listings, filterable by category |
-| `/categories` | Every category with its verification tier and rules |
-| `/sell` | Seller onboarding and the rules that decide if a listing goes live |
+| `/` | Home — hero, how it works, 20-category directory, the checks, corporate band, FAQ |
+| `/browse` | Live listings with search, filterable by category |
+| `/browse/[category]` | 20 statically-generated, indexable category landing pages |
+| `/categories` | Full taxonomy grouped by area, with each category's rules |
+| `/sell` | Seller hub — free-to-sell pitch, category picker, seller FAQ |
+| `/sell/how-it-works` | Six-step guide plus the four reasons listings get rejected |
+| `/sell/fees` | Full fee breakdown and the reasoning behind charging buyers |
+| `/sell/business` | Bulk lots, auctions and ITAD for companies |
 | `/auctions` | Corporate bulk-lot auctions |
 | `/wish` | Wishlist — tell us what to find |
 | `/about` · `/team` · `/socials` | Company |
 | `/help` · `/contact` · `/shipping` | Support |
 | `/terms` · `/privacy` | Legal (**drafts — need counsel review**) |
-| `/signin` · `/verify-phone` | Auth |
-| `/admin` · `/admin/queue` | Moderation |
-| `/corporate` · `/corporate/pending` | Business accounts |
+| `/signin` · `/verify-phone` | Auth (noindex) |
+| `/admin` · `/admin/queue` | Moderation (noindex) |
+| `/corporate` · `/corporate/pending` | Business accounts (noindex) |
+| `/sitemap.xml` · `/robots.txt` | Generated from the category registry |
 
 ### Test accounts
 

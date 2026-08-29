@@ -1,7 +1,13 @@
 import { brand } from "@/config/brand";
 import { PageHeader, Card, Button, Eyebrow } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Team" };
+export const metadata = buildMetadata({
+  title: "Team & Careers at WorthIt",
+  description: "A deliberately small team building verification software for India's used-goods market. Open roles in engineering, trust and safety, and corporate supply.",
+  path: "/team",
+  keywords: ["worthit careers", "startup jobs bangalore", "trust and safety jobs india", "marketplace engineering jobs india"],
+});
 
 const ROLES = [
   { t: "Founding engineer — verification", b: "You'd own the diagnostic engine: reading battery cycles, SMART data and thermals across Windows, macOS and Android, and turning that into a condition report we're willing to guarantee." },

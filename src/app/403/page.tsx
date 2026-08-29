@@ -1,6 +1,6 @@
 import { Button, Card, Eyebrow } from "@/components/ui";
 
-export const metadata = { title: "Not allowed" };
+export const metadata = { title: "Not allowed", robots: { index: false, follow: false } };
 
 export default function ForbiddenPage() {
   return (

@@ -1,7 +1,13 @@
 import { brand } from "@/config/brand";
 import { PageHeader, Card, Field, inputClass, Button, Eyebrow } from "@/components/ui";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Contact" };
+export const metadata = buildMetadata({
+  title: "Contact WorthIt",
+  description: "Support for a listing, order or account, plus partnership enquiries for corporate hardware disposal and ITAD.",
+  path: "/contact",
+  keywords: ["contact worthit", "marketplace support india", "itad partnership india"],
+});
 
 const CHANNELS = [
   { t: "Support", b: "Anything about a listing, an order or your account.", v: brand.supportEmail },

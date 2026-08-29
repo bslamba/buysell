@@ -20,7 +20,11 @@ function client() {
     globalThis.__worthitSql = postgres(env().DATABASE_URL, {
       max: 1,
       idle_timeout: 20,
-      connect_timeout: 10,
+      // Deliberately short. With max:1, every request queues behind the
+      // connection attempt in front of it, so a slow timeout against an
+      // unreachable database turns one outage into a pile-up. Failing fast lets
+      // the page render its degraded state instead.
+      connect_timeout: 5,
       prepare: false, // required when going through a transaction pooler
     });
   }
