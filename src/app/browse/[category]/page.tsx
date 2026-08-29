@@ -4,7 +4,9 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { listings } from "@/db/schema";
 import { CATEGORIES, categoryBySlug } from "@/config/categories";
-import { Card, Badge, EmptyState, Button, Eyebrow } from "@/components/ui";
+import { Badge, EmptyState, Button, Eyebrow, Card } from "@/components/ui";
+import { ListingCard, type ListingCardData } from "@/components/listing-card";
+import { demoForCategory, showDemoListings } from "@/config/demo-listings";
 import { CategoryIcon } from "@/components/icons";
 import { JsonLd } from "@/components/json-ld";
 import { categoryMetadata, breadcrumbLd, categoryCollectionLd } from "@/lib/seo";
@@ -39,13 +41,14 @@ export default async function CategoryLandingPage({
   const c = categoryBySlug.get(category);
   if (!c) notFound();
 
-  let rows: { id: string; publicId: string; title: string; pricePaise: number; city: string; condition: string }[] = [];
+  let rows: ListingCardData[] = [];
   let dbError = false;
   try {
     rows = await db
       .select({
         id: listings.id, publicId: listings.publicId, title: listings.title,
-        pricePaise: listings.pricePaise, city: listings.city, condition: listings.condition,
+        pricePaise: listings.pricePaise, city: listings.city,
+        condition: listings.condition, categorySlug: listings.categorySlug,
       })
       .from(listings)
       .where(and(eq(listings.status, "approved"), eq(listings.categorySlug, c.slug)))
@@ -53,6 +56,12 @@ export default async function CategoryLandingPage({
       .limit(48);
   } catch {
     dbError = true;
+  }
+
+  // Samples stand in only while there is nothing real in this category.
+  const usingSamples = rows.length === 0 && showDemoListings();
+  if (usingSamples) {
+    rows = demoForCategory(c.slug).map((d) => ({ ...d, isSample: true }));
   }
 
   const related = CATEGORIES.filter((x) => x.group === c.group && x.slug !== c.slug).slice(0, 5);
@@ -116,7 +125,16 @@ export default async function CategoryLandingPage({
         </section>
 
         <section className="mt-12">
-          {dbError ? (
+          {usingSamples && rows.length > 0 && (
+            <div className="mb-8 rounded-[14px] bg-surface px-5 py-4">
+              <Eyebrow>Sample listings</Eyebrow>
+              <p className="t-small mt-1.5 text-ink-2">
+                Nothing real is listed in {c.label} yet — these show how the category will look.
+              </p>
+            </div>
+          )}
+
+          {dbError && !usingSamples ? (
             <EmptyState title="Can't reach the catalogue right now"
               body="The database isn't connected yet. Add DATABASE_URL to .env.local and run the migrations." />
           ) : rows.length === 0 ? (
@@ -126,23 +144,8 @@ export default async function CategoryLandingPage({
               action={<Button href={`/sell/new?category=${c.slug}`}>Sell in {c.label}</Button>}
             />
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {rows.map((l) => (
-                <Link key={l.id} href={`/listing/${l.publicId}`}>
-                  <Card hover className="flex h-full flex-col">
-                    <div className="flex items-start justify-between gap-3">
-                      <h2 className="text-base font-semibold leading-snug tracking-[-0.01em]">{l.title}</h2>
-                      <Badge tone="ok">Verified</Badge>
-                    </div>
-                    <p className="mt-2 text-xs capitalize text-ink-3">
-                      {l.condition.replace(/_/g, " ")} · {l.city}
-                    </p>
-                    <p className="mt-auto pt-6 text-2xl font-semibold tracking-[-0.03em] tabular">
-                      ₹{(l.pricePaise / 100).toLocaleString("en-IN")}
-                    </p>
-                  </Card>
-                </Link>
-              ))}
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {rows.map((l) => <ListingCard key={l.id} item={l} />)}
             </div>
           )}
         </section>

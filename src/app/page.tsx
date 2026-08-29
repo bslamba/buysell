@@ -5,6 +5,8 @@ import { Button, Actions, Eyebrow } from "@/components/ui";
 import { CategoryIcon } from "@/components/icons";
 import { LogoMark } from "@/components/logo";
 import { Shelf } from "@/components/shelf";
+import { ListingCard } from "@/components/listing-card";
+import { DEMO_LISTINGS, showDemoListings } from "@/config/demo-listings";
 import { JsonLd } from "@/components/json-ld";
 import { breadcrumbLd, faqLd } from "@/lib/seo";
 
@@ -27,6 +29,7 @@ const CHECKS = [
 
 export default function HomePage() {
   const certified = CATEGORIES.filter((c) => c.tier === "certified");
+  const latest = showDemoListings() ? DEMO_LISTINGS.slice(0, 8) : [];
 
   return (
     <>
@@ -99,6 +102,23 @@ export default function HomePage() {
           ))}
         </Shelf>
       </section>
+
+      {/* ── The latest listings, left to right ───────────────────────────── */}
+      {latest.length > 0 && (
+        <section className="band-grey pb-4">
+          <Shelf
+            title="The latest."
+            subtitle="Sample listings — these show how the store looks once sellers arrive."
+            seeAll={{ href: "/browse", label: "Shop the store" }}
+          >
+            {latest.map((l) => (
+              <div key={l.id} className="w-[268px]">
+                <ListingCard item={{ ...l, isSample: true }} />
+              </div>
+            ))}
+          </Shelf>
+        </section>
+      )}
 
       {/* ── Two-up grid of the checks ────────────────────────────────────── */}
       <section className="band py-20">

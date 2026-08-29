@@ -142,6 +142,34 @@ in the compiled CSS.
 - Verified against a running server: ids are fixed, byte-identical across
   repeated requests, and every url() reference resolves.
 
+## 2026-08-29 — Nav proportions, store imagery, sample listings
+
+- Global bar rebuilt to Apple's actual trick: a NARROW 980px container using
+  space-between, not justify-center. That is what makes the cluster read as
+  centred while the first and last items still anchor to the container edges.
+  The previous left/centre/right grouping across a wider rail is why the logo
+  looked stranded.
+- Bar down to 40px with a 16px mark and 12px labels — slimmer than Apple's 44px
+  because the mark is smaller relative to the bar.
+- Sell is now the only filled control in the bar: a purple pill. It is the one
+  action we want people to take, so it gets the only piece of colour.
+- New ListingImage: a generated 4:3 tile with a two-stop gradient and the
+  category glyph, picked by hashing the listing id so it is identical on server
+  and client. A random palette here would have reintroduced exactly the
+  hydration mismatch just fixed in the logo.
+- New ListingCard matching the Apple Store grid: image, condition chip, title,
+  price, and the saving as an absolute rupee figure rather than a percentage —
+  in resale "how much less than new" is the number people respond to.
+- 14 sample listings so the store renders as a storefront before any seller
+  arrives. They appear ONLY when the database returns zero rows, every one
+  carries a visible "Sample" badge, and NEXT_PUBLIC_HIDE_DEMO_LISTINGS=true
+  removes them for production.
+- Browse rebuilt with an icon category rail and the store grid; home gains a
+  "The latest." shelf running left to right.
+
+Verified against a running server: 40px/980px bar, filled Sell pill, 14 sample
+tiles with images and prices, gradients byte-identical across requests.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)

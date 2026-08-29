@@ -3,7 +3,10 @@ import { and, desc, eq, ilike } from "drizzle-orm";
 import { db } from "@/db";
 import { listings } from "@/db/schema";
 import { CATEGORIES, categoryBySlug } from "@/config/categories";
-import { PageHeader, Card, Badge, EmptyState, Button } from "@/components/ui";
+import { DEMO_LISTINGS, showDemoListings } from "@/config/demo-listings";
+import { PageHeader, EmptyState, Button, Eyebrow } from "@/components/ui";
+import { ListingCard, type ListingCardData } from "@/components/listing-card";
+import { CategoryIcon } from "@/components/icons";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
@@ -12,6 +15,7 @@ export const metadata = buildMetadata({
   path: "/browse",
   keywords: ["buy used items india", "second hand products online", "verified used marketplace", "second hand bangalore"],
 });
+
 export const dynamic = "force-dynamic";
 
 export default async function BrowsePage({
@@ -21,10 +25,10 @@ export default async function BrowsePage({
   const active = category && categoryBySlug.has(category) ? category : undefined;
   const query = q?.trim().slice(0, 80) || undefined;
 
-  let rows: { id: string; publicId: string; title: string; pricePaise: number; city: string; categorySlug: string; condition: string }[] = [];
+  let rows: ListingCardData[] = [];
   let dbError = false;
   try {
-    rows = await db
+    const found = await db
       .select({
         id: listings.id, publicId: listings.publicId, title: listings.title,
         pricePaise: listings.pricePaise, city: listings.city,
@@ -38,66 +42,84 @@ export default async function BrowsePage({
       ))
       .orderBy(desc(listings.publishedAt))
       .limit(60);
+    rows = found;
   } catch {
     dbError = true;
+  }
+
+  // Samples stand in only while there is nothing real to show.
+  const usingSamples = rows.length === 0 && showDemoListings() && !query;
+  if (usingSamples) {
+    rows = DEMO_LISTINGS
+      .filter((d) => !active || d.categorySlug === active)
+      .map((d) => ({ ...d, isSample: true }));
   }
 
   return (
     <>
       <PageHeader
         eyebrow="Store"
-        title={query ? `Results for \u201c${query}\u201d` : active ? categoryBySlug.get(active)!.label : "The store"}
+        title={query ? `Results for “${query}”` : active ? categoryBySlug.get(active)!.label : "The store"}
         sub="Only listings that cleared verification appear here. Nothing is shown while it is still under review."
       />
 
-      <div className="band-grey">
-        <div className="container-a scrollbar-none flex gap-1 overflow-x-auto py-3">
+      {/* Category rail — icons above labels, the way the Apple Store opens */}
+      <div className="band-grey border-b border-hairline/70">
+        <div className="container-a scrollbar-none flex gap-2 overflow-x-auto py-7">
           <Link href="/browse"
-            className={`whitespace-nowrap rounded-full px-4 py-2 t-small transition-colors ${
-              !active ? "bg-brand text-white" : "text-ink-2 hover:text-ink"
+            className={`flex min-w-[84px] shrink-0 flex-col items-center gap-2 rounded-xl px-3 py-2 text-center transition-colors ${
+              !active ? "text-brand" : "text-ink-2 hover:text-ink"
             }`}>
-            All
+            <CategoryIcon name="grid" size={26} />
+            <span className="t-caption font-medium">All</span>
           </Link>
           {CATEGORIES.filter((c) => c.slug !== "other").map((c) => (
             <Link key={c.slug} href={`/browse/${c.slug}`}
-              className={`whitespace-nowrap rounded-full px-4 py-2 t-small transition-colors ${
-                active === c.slug ? "bg-brand text-white" : "text-ink-2 hover:text-ink"
+              className={`flex min-w-[84px] shrink-0 flex-col items-center gap-2 rounded-xl px-3 py-2 text-center transition-colors ${
+                active === c.slug ? "text-brand" : "text-ink-2 hover:text-ink"
               }`}>
-              {c.label}
+              <CategoryIcon name={c.icon} size={26} />
+              <span className="t-caption font-medium leading-tight">{c.label}</span>
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="band py-14">
+      <div className="band py-12">
         <div className="container-a">
-          {dbError ? (
+          {usingSamples && (
+            <div className="mb-8 rounded-[14px] bg-surface px-5 py-4">
+              <Eyebrow>Sample listings</Eyebrow>
+              <p className="t-small mt-1.5 text-ink-2">
+                Nothing real is listed yet, so these are placeholders showing how the store will
+                look. They disappear the moment a genuine listing clears verification.
+              </p>
+            </div>
+          )}
+
+          {dbError && !usingSamples ? (
             <EmptyState
               title="Can't reach the catalogue right now"
-              body="The database isn't connected yet. Add DATABASE_URL to .env.local and run the migrations, then listings will appear here."
+              body="The database isn't connected yet. Add DATABASE_URL to .env.local and run the migrations."
             />
           ) : rows.length === 0 ? (
             <EmptyState
-              title={active ? `Nothing live in ${categoryBySlug.get(active)!.label} yet` : "No live listings yet"}
-              body="WorthIt is in early access in Bengaluru. Be the first — list something and it will appear here as soon as it clears the automated checks."
+              title={query ? `Nothing matches “${query}”` : "No live listings yet"}
+              body="WorthIt is in early access in Bengaluru. Be the first — list something and it appears here as soon as it clears the automated checks."
               action={<Button href="/sell">Sell something</Button>}
             />
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {rows.map((l) => (
-                <Link key={l.id} href={`/listing/${l.publicId}`} className="tile flex flex-col p-7">
-                  <Badge tone="ok">Verified</Badge>
-                  <h2 className="mt-4 text-[19px] font-semibold leading-snug tracking-[-0.015em]">{l.title}</h2>
-                  <p className="t-caption mt-2 capitalize text-ink-3">
-                    {categoryBySlug.get(l.categorySlug)?.label ?? l.categorySlug} · {l.condition.replace(/_/g, " ")} · {l.city}
-                  </p>
-                  <p className="mt-auto pt-8 text-[24px] font-semibold tracking-[-0.02em] tabular">
-                    \u20b9{(l.pricePaise / 100).toLocaleString("en-IN")}
-                  </p>
-                  <span className="a-link mt-3 !text-[14px]">View</span>
-                </Link>
-              ))}
-            </div>
+            <>
+              <h2 className="t-title">
+                {query ? "Results" : "The latest."}{" "}
+                <span className="font-normal text-ink-2">
+                  {query ? `${rows.length} found` : "Just listed this week."}
+                </span>
+              </h2>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {rows.map((l) => <ListingCard key={l.id} item={l} />)}
+              </div>
+            </>
           )}
         </div>
       </div>
