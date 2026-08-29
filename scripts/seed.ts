@@ -2,6 +2,7 @@
  * Development seed. Creates the accounts you need to click through the app.
  * Idempotent — safe to run repeatedly. Refuses to run against production.
  */
+import "./load-env.mjs";
 import { eq } from "drizzle-orm";
 import { db } from "../src/db";
 import { users, organizations, organizationMembers } from "../src/db/schema";

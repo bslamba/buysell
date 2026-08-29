@@ -380,8 +380,45 @@ Also, in .env.local (untracked): OTP_PROVIDER was "msg91" with no MSG91_AUTH_KEY
 so sending would have failed even with a working database. Set to "console",
 which returns the code to the screen in development and needs no SMS vendor.
 
+## 2026-08-29 — `db:migrate` could never have worked
+
+`npm run db:migrate` failed with `Please provide required params for Postgres
+driver: [x] url: undefined`. `drizzle.config.ts` read `process.env.DATABASE_URL`,
+but nothing put it there: `next` loads `.env.local` automatically and
+`drizzle-kit` — an ordinary Node process — does not.
+
+- `scripts/load-env.mjs` loads `.env.local` then `.env`, imported first by
+  `drizzle.config.ts` and `scripts/seed.ts`. Dependency-free on purpose: adding
+  dotenv would mean an npm install, and installs on this project happen only on
+  the machine that owns node_modules. Precedence matches Next's — `.env.local`
+  beats `.env`, and a real environment variable beats both, so CI and Vercel are
+  untouched. Quoted values end at the closing quote (so a trailing `# comment`
+  is dropped) while unquoted ones keep everything, because `#` is legal in a
+  Postgres password.
+- `drizzle.config.ts` now fails with the line to add to `.env.local` instead of
+  passing `undefined` down to the driver.
+
+Found while verifying, and worth its own note: **the schema requires pgvector
+0.7.0+**. The image-fingerprint index is HNSW over `bit(64)` using
+`bit_hamming_ops`, which arrived in 0.7.0. On 0.6.0 — still what Ubuntu ships —
+the migration dies with `operator class "bit_hamming_ops" does not exist for
+access method "hnsw"` and leaves the schema half-applied.
+
+- `npm run db:check` (also run automatically before `db:migrate`) reports the
+  server and pgvector versions, and refuses with one actionable sentence on an
+  unreachable host, bad credentials, a missing database, a missing `vector`
+  extension, or a pgvector below the floor.
+- The version comparison is numeric, not textual, so 0.10 counts as newer than
+  0.9. Four tests, including that case.
+
+Verified end to end against a real PostgreSQL 16 with pgvector 0.8.0 built from
+source: migrations apply to a clean database (20 tables, `fp_phash_idx` HNSW
+index present), the seed runs, and a full browser sign-in completes — code shown
+on screen, dry-run verify, Auth.js sign-in, redirect, httpOnly
+`authjs.session-token` set, no page errors. Also confirmed the 0.6.0 failure
+first-hand, which is why the check exists.
+
 ### Next
-- Point DATABASE_URL at a Neon database and run `npm run db:migrate`
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
 - Run migrations against a real Neon database — not yet verified against live Postgres

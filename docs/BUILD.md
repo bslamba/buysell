@@ -69,14 +69,39 @@ number, and an admin can see an empty queue.
    npm ci        # or: npm install
    npm run dev
    ```
-2. **Database.** Create the Neon project, copy the pooled connection string into
-   `DATABASE_URL`, then:
-   ```sql
-   CREATE EXTENSION IF NOT EXISTS vector;   -- needed for bit_hamming_ops
+2. **Database.** Create the Neon project and copy the pooled connection string
+   into `DATABASE_URL` in **`.env.local`**, quoted:
    ```
+   DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
+   ```
+   Then:
    ```bash
-   npm run db:generate && npm run db:migrate
+   npm run db:migrate      # runs db:check first, then applies the migrations
+   npm run db:seed         # optional: the five accounts you need to click around
    ```
+   `npm run db:check` on its own reports the server version and pgvector
+   version without changing anything.
+
+   **pgvector 0.7.0 or newer is required.** The image-fingerprint index is an
+   HNSW index over `bit(64)` using `bit_hamming_ops`, which did not exist before
+   0.7.0. On an older pgvector the migration fails halfway with `operator class
+   "bit_hamming_ops" does not exist for access method "hnsw"` — a message that
+   mentions neither pgvector nor versions. `db:check` catches this up front.
+   Neon and Supabase both ship a new enough build; Ubuntu's
+   `postgresql-16-pgvector` package is still 0.6.0, and Homebrew's varies, so a
+   local Postgres needs checking. The `pgvector/pgvector:pg16` Docker image is
+   the reliable local option.
+
+   The migration creates the `vector` extension itself (`scripts/fix-migrations.mjs`
+   prepends `CREATE EXTENSION IF NOT EXISTS vector`), so there is nothing to run
+   by hand first.
+
+   **Why `.env.local` and not the shell:** `next` loads `.env.local`
+   automatically, but `drizzle-kit` and `tsx` are plain Node processes and do
+   not. `scripts/load-env.mjs` loads it for them — `drizzle.config.ts` and
+   `scripts/seed.ts` import it before anything else. Without that import,
+   `npm run db:migrate` fails with `url: undefined`, which looks like a drizzle
+   problem and is not.
 3. **Auth.** Auth.js v5 with two providers:
    - Google OAuth (fast path, desktop buyers)
    - Phone OTP as a Credentials provider: `POST /api/auth/otp/request` writes an
