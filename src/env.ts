@@ -25,7 +25,10 @@ const schema = z.object({
   MSG91_SENDER_ID: z.string().optional(),
   TWILIO_ACCOUNT_SID: z.string().optional(),
   TWILIO_AUTH_TOKEN: z.string().optional(),
-  TWILIO_VERIFY_SERVICE_SID: z.string().optional(),
+  // Verify is deliberately not used: it generates and holds the code itself,
+  // which would move the credential outside our hashing and attempt counting.
+  TWILIO_MESSAGING_SERVICE_SID: z.string().optional(),
+  TWILIO_FROM_NUMBER: z.string().optional(),
 
   UPSTASH_REDIS_REST_URL: z.string().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
@@ -56,12 +59,41 @@ export function env(): Env {
   return cached;
 }
 
+/**
+ * Which variables the selected SMS provider needs.
+ *
+ * Lives here rather than in lib/sms because lib/sms imports env, and the
+ * production assertion below needs the answer — putting it there and importing
+ * back would be a cycle. It is pure environment validation either way.
+ */
+export function missingSmsConfig(): string[] {
+  const e = env();
+  if (e.OTP_PROVIDER === "msg91") {
+    return [
+      !e.MSG91_AUTH_KEY && "MSG91_AUTH_KEY",
+      !e.MSG91_TEMPLATE_ID && "MSG91_TEMPLATE_ID (the DLT-approved template)",
+    ].filter((v): v is string => Boolean(v));
+  }
+  if (e.OTP_PROVIDER === "twilio") {
+    return [
+      !e.TWILIO_ACCOUNT_SID && "TWILIO_ACCOUNT_SID",
+      !e.TWILIO_AUTH_TOKEN && "TWILIO_AUTH_TOKEN",
+      !e.TWILIO_MESSAGING_SERVICE_SID && !e.TWILIO_FROM_NUMBER &&
+        "TWILIO_MESSAGING_SERVICE_SID or TWILIO_FROM_NUMBER",
+    ].filter((v): v is string => Boolean(v));
+  }
+  return [];
+}
+
 /** Things that are optional locally but must exist before real users arrive. */
 export function assertProductionEnv(): void {
   const e = env();
   if (e.NODE_ENV !== "production") return;
   const missing: string[] = [];
   if (e.OTP_PROVIDER === "console") missing.push("OTP_PROVIDER must not be 'console' in production");
+  for (const name of missingSmsConfig()) {
+    missing.push(`${name} (required by OTP_PROVIDER="${e.OTP_PROVIDER}")`);
+  }
   if (!e.UPSTASH_REDIS_REST_URL) missing.push("UPSTASH_REDIS_REST_URL (rate limiting is not optional in production)");
   if (!e.AUTH_GOOGLE_ID) missing.push("AUTH_GOOGLE_ID");
   if (missing.length) throw new Error(`Production environment is incomplete:\n  ${missing.join("\n  ")}`);

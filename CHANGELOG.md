@@ -418,6 +418,45 @@ on screen, dry-run verify, Auth.js sign-in, redirect, httpOnly
 `authjs.session-token` set, no page errors. Also confirmed the 0.6.0 failure
 first-hand, which is why the check exists.
 
+## 2026-08-30 — SMS providers: two real bugs, and the DLT reality
+
+No SMS arrived because OTP_PROVIDER was "console", which prints the code instead
+of sending it — working as designed, but not the real flow. Reviewing the
+providers before switching turned up two bugs that would have bitten on the
+first real send:
+
+- **Twilio's `From` was set to `MSG91_SENDER_ID`.** A copy-paste error: it would
+  have sent a DLT header string as a Twilio sender and failed with a Twilio
+  error about an invalid From. Now `TWILIO_MESSAGING_SERVICE_SID` (preferred —
+  it carries the sender pool and India routing) with `TWILIO_FROM_NUMBER` as the
+  single-number fallback.
+- **`TWILIO_VERIFY_SERVICE_SID` was declared in env and never used**, implying a
+  Verify integration that does not exist. Removed. Verify is the wrong fit on
+  purpose: it generates and holds the code itself, which would move the
+  credential outside the hashing and attempt-counting in lib/auth/otp.ts.
+
+Also hardened:
+
+- MSG91 answers **200 with `{"type":"error"}`** for application failures such as
+  an unapproved template or an exhausted balance. Checking only `res.ok`
+  reported those as sent while the user waited for a message that was never
+  coming. Both the status and the envelope are checked now.
+- A selected-but-unconfigured provider throws naming the missing variable,
+  before the network call, instead of sending a blank key.
+- 10s timeout on both vendor calls, so a stuck API cannot hold a request open.
+- `assertProductionEnv` now refuses to boot a production deploy whose provider
+  credentials are incomplete.
+- 13 tests pinning the wire format for both providers, mocked at fetch. The
+  failure they guard against is silent — a wrong field name means the vendor
+  answers 200 and nobody's phone rings.
+
+Worth recording for the roadmap: **domestic SMS in India needs DLT
+registration** — principal entity, six-character header, and every template,
+registered before carriers will deliver. Unregistered domestic traffic is
+dropped at the network level with a success response from the gateway. Twilio's
+international ILDO route reaches Indian numbers without it, from a numeric
+sender, at a higher per-message cost.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
