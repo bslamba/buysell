@@ -503,6 +503,40 @@ code is sent and leaves no email on the row; a direct INSERT of the alias is
 rejected by the unique constraint; and an under-18 date of birth posted straight
 to the API, bypassing the date input, is refused. 60 tests passing.
 
+## 2026-08-30 — The account page, sign out, and a way to delete an account
+
+The name in the top-right corner linked to /account, which did not exist — a
+404 for every signed-in user.
+
+- **/account** shows what WorthIt knows about you: name, mobile, email, date of
+  birth with the age it implies, verification badges, trust score, identity-check
+  status, listings and sales, and any business memberships. Read-only on
+  purpose: name, date of birth and email are what the one-account-per-person
+  rules are built on, so changing them needs its own verified flow rather than a
+  text box. The page says so and points at support.
+- **Sign out** clears the session and does a full page navigation rather than a
+  client route change — every page here is server-rendered against the session,
+  so a soft navigation would leave stale HTML showing the user still signed in.
+- An account whose row has been deleted but whose cookie is still live gets a
+  plain "this account no longer exists" with a sign-out button, instead of a
+  crash.
+- An unfinished account gets a banner back to /register.
+
+- **`npm run user:delete <phone-or-email>`** removes an account permanently.
+  Two rails, because this cannot be undone: it prints exactly what it found and
+  what cascades before doing anything and waits for you to type the identifier
+  back (no flag skips that), and it refuses under NODE_ENV=production without an
+  explicit override. Phone OTP challenges are keyed by phone rather than user id
+  so they are cleaned up separately; image fingerprints are deliberately left,
+  because they outlive listings by design so the same photos cannot be
+  re-uploaded by someone else later.
+
+Verified in a browser: the nav label now opens /account, the details match what
+was registered, sign out clears the session cookie, and /account afterwards
+redirects to /signin. The delete script was exercised on both paths — a wrong
+confirmation deletes nothing, the right one removed the account and its three
+phone challenges and freed the phone and email to register again.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
