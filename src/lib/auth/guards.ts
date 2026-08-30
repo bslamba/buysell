@@ -6,7 +6,7 @@ import { atLeast, orgAtLeast, type Role, type OrgRole } from "./roles";
 export { atLeast, orgAtLeast } from "./roles";
 export type { Role, OrgRole } from "./roles";
 import { db } from "@/db";
-import { organizationMembers, organizations } from "@/db/schema";
+import { organizationMembers, organizations, users } from "@/db/schema";
 
 export interface SessionUser {
   id: string;
@@ -47,6 +47,25 @@ export async function requireRole(minimum: Role, returnTo = "/"): Promise<Sessio
 export async function requireVerifiedPhone(returnTo = "/"): Promise<SessionUser> {
   const user = await requireUser(returnTo);
   if (!user.phoneVerified) redirect(`/verify-phone?next=${encodeURIComponent(returnTo)}`);
+  return user;
+}
+
+/**
+ * Registration gate.
+ *
+ * Reads the database rather than the session on purpose. The JWT carries a
+ * cached copy refreshed on a timer, so a user who has just finished registering
+ * would still look unregistered in their token — and a gate that trusted the
+ * token would bounce them back to /register, which reads the database, sees
+ * they are done, and sends them on again. That is an infinite redirect. One
+ * query on a page that is already hitting the database is the cheaper answer.
+ */
+export async function requireRegistered(returnTo = "/"): Promise<SessionUser> {
+  const user = await requireUser(returnTo);
+  const [row] = await db
+    .select({ registeredAt: users.registeredAt })
+    .from(users).where(eq(users.id, user.id)).limit(1);
+  if (!row?.registeredAt) redirect(`/register?next=${encodeURIComponent(returnTo)}`);
   return user;
 }
 

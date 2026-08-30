@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { env } from "@/env";
 import { verifyOtp } from "./otp";
+import { normaliseEmail } from "./email";
 
 import type { Role } from "./roles";
 export type { Role } from "./roles";
@@ -51,7 +52,14 @@ export const authConfig: NextAuthConfig = {
     async signIn({ user, account }) {
       // Google sign-in: upsert by email into our own users table.
       if (account?.provider === "google" && user.email) {
-        const [existing] = await db.select().from(users).where(eq(users.email, user.email)).limit(1);
+        // Match on the normalised form, not the raw address: otherwise the same
+        // Gmail inbox arriving as a dotted or +tagged variant would open a
+        // second account, which is exactly what emailNormalised exists to stop.
+        const normalised = normaliseEmail(user.email);
+        if (!normalised) return false;
+
+        const [existing] = await db.select().from(users)
+          .where(eq(users.emailNormalised, normalised)).limit(1);
         if (existing) {
           if (existing.bannedAt) return false;
           await db.update(users)
@@ -60,7 +68,10 @@ export const authConfig: NextAuthConfig = {
           user.id = existing.id;
         } else {
           const [created] = await db.insert(users)
-            .values({ email: user.email, emailVerifiedAt: new Date(), name: user.name, avatarUrl: user.image, role: "user" })
+            .values({
+              email: user.email, emailNormalised: normalised, emailVerifiedAt: new Date(),
+              name: user.name, avatarUrl: user.image, role: "user",
+            })
             .returning({ id: users.id });
           user.id = created.id;
         }

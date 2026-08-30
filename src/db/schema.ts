@@ -1,6 +1,6 @@
 import {
   pgTable, pgEnum, text, varchar, integer, bigint, boolean, timestamp, jsonb,
-  uuid, index, uniqueIndex, doublePrecision, primaryKey, customType,
+  uuid, index, uniqueIndex, doublePrecision, primaryKey, customType, date,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -61,9 +61,20 @@ export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   phone: varchar("phone", { length: 16 }).unique(),            // E.164, e.g. +919812345678
   phoneVerifiedAt: timestamp("phone_verified_at", { withTimezone: true }),
-  email: varchar("email", { length: 255 }).unique(),
+  email: varchar("email", { length: 255 }).unique(),        // as typed, for display and sending
+  /**
+   * The email folded to one identity per person: lower-cased, and for Gmail
+   * with dots and +tags removed. This is what carries the unique index, because
+   * `x@gmail.com`, `X+worthit@gmail.com` and `x.x@gmail.com` are one inbox, and
+   * without folding they are three accounts for one person — exactly the
+   * multi-account trick phone verification exists to stop.
+   */
+  emailNormalised: varchar("email_normalised", { length: 255 }).unique(),
   emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
   name: varchar("name", { length: 120 }),
+  dateOfBirth: date("date_of_birth"),
+  /** Set once name, date of birth and a verified email are all present. */
+  registeredAt: timestamp("registered_at", { withTimezone: true }),
   avatarUrl: text("avatar_url"),
   role: userRole("role").notNull().default("user"),
 
@@ -102,6 +113,25 @@ export const otpChallenges = pgTable("otp_challenges", {
   ip: varchar("ip", { length: 45 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("otp_phone_idx").on(t.phone, t.createdAt)]);
+
+/**
+ * Short-lived email verification challenges. Same shape and same rules as the
+ * phone table above — hashed codes, bounded attempts, single use — kept
+ * separate rather than generalised so neither channel's rate limiting or
+ * expiry can be changed by accident while editing the other.
+ */
+export const emailChallenges = pgTable("email_challenges", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  /** Normalised form, so an alias cannot be used to sidestep the attempt count. */
+  email: varchar("email", { length: 255 }).notNull(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  codeHash: varchar("code_hash", { length: 64 }).notNull(),
+  attempts: integer("attempts").notNull().default(0),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  consumedAt: timestamp("consumed_at", { withTimezone: true }),
+  ip: varchar("ip", { length: 45 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [index("email_challenge_idx").on(t.email, t.createdAt)]);
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Organisations — corporate sellers, dealers, ITAD firms

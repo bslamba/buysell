@@ -457,6 +457,52 @@ dropped at the network level with a success response from the gateway. Twilio's
 international ILDO route reaches Indian numbers without it, from a numeric
 sender, at a higher per-message cost.
 
+## 2026-08-30 — Registration, email verification, one account per person
+
+Phone OTP now gets you through the door; it no longer gets you an account. A
+verified phone lands on **/register**, which asks for name, date of birth and a
+mandatory email, then verifies that email with its own 6-digit code. Only when
+all four exist is `registered_at` set and the account usable.
+
+Email was the right channel to add first: unlike SMS in India it needs no DLT
+registration, so a fully verified sign-up works today with no vendor account at
+all — Resend when RESEND_API_KEY is set, the server log otherwise.
+
+**One person, one account.** Phone was already unique. Email is the easy one to
+multiply, so every address is stored twice: `email` as typed (for display and
+sending) and `email_normalised` — lower-cased, and for Gmail with dots and
++tags removed — which carries the unique constraint. `garry@gmail.com`,
+`Garry+worthit@gmail.com` and `g.a.r.r.y@googlemail.com` are one inbox and now
+one identity. Folding is applied only at providers where we are sure of the
+semantics: merging two real people would be far worse than allowing one extra
+account, so an unknown domain is left alone. Google sign-in matches on the
+normalised column too, or it would have been a way straight round the check.
+
+Notes on decisions that were not obvious:
+
+- **The email is not written to the user row until the code is confirmed.**
+  Writing it at step one would let anyone burn an address they do not own by
+  typing it into their own registration, permanently blocking the real owner.
+- **Uniqueness is checked before sending, again before writing, and enforced by
+  the database.** The window between send and confirm is small but real.
+- **Registration is gated in `requireRegistered`, not in middleware.** Middleware
+  only sees the JWT, which carries a copy of user state refreshed on a timer. A
+  user who had just registered would still look unregistered in their token, get
+  sent to /register, which reads the database, sees they are done, and sends
+  them back — an infinite redirect. The guard reads live state instead.
+- **18+, enforced server-side.** Not a product preference: under the Indian
+  Contract Act a contract with a minor is void ab initio, and every listing and
+  purchase here is a contract. The date input carries a `max` for convenience;
+  the server checks again, because an input attribute is not a rule.
+
+Verified end to end in a browser against real Postgres: phone verify lands on
+/register; completing it lands on the target and a later visit to /register
+redirects away rather than asking twice; a second account on a different phone
+using a Gmail **alias** of the first account's address is refused before any
+code is sent and leaves no email on the row; a direct INSERT of the alias is
+rejected by the unique constraint; and an under-18 date of birth posted straight
+to the API, bypassing the date input, is refused. 60 tests passing.
+
 ### Next
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)

@@ -21,6 +21,16 @@ import { atLeast, type Role } from "@/lib/auth/roles";
  * behind a redirect cannot be crawled or ranked. Only the listing form and the
  * seller's own dashboard require sign-in.
  */
+/**
+ * Registration is NOT gated here.
+ *
+ * Middleware only sees the JWT, which carries a cached copy of the user's state
+ * refreshed on a timer. A user who has just registered would still look
+ * unregistered in their token, get sent to /register, which reads the database,
+ * sees they are done, and sends them back — an infinite redirect. The gate is
+ * `requireRegistered` in lib/auth/guards, which reads live state. Every route
+ * added below should use it.
+ */
 const RULES: { prefix: string; minimum: Role }[] = [
   { prefix: "/admin", minimum: "moderator" },
   { prefix: "/corporate", minimum: "user" },

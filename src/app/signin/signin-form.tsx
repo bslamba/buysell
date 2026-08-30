@@ -14,7 +14,7 @@ type Step = "phone" | "code";
  * helpers keep the distinction: a body that will not parse is reported as a
  * server error, with its status, and the detail is in the server log.
  */
-async function readJson(res: Response): Promise<{ ok?: boolean; error?: string; devCode?: string } | null> {
+async function readJson(res: Response): Promise<{ ok?: boolean; error?: string; devCode?: string; needsRegistration?: boolean } | null> {
   try {
     return await res.json();
   } catch {
@@ -84,7 +84,11 @@ export function SignInForm({ next, googleEnabled }: { next: string; googleEnable
 
       const result = await signIn("phone-otp", { phone, code, redirect: false });
       if (result?.error) { setError("Sign-in failed. Request a new code and try again."); return; }
-      window.location.href = next;
+      // A phone-verified account still has to finish registration — name, date
+      // of birth and a verified email — before it can do anything here.
+      window.location.href = data.needsRegistration
+        ? `/register?next=${encodeURIComponent(next)}`
+        : next;
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally {

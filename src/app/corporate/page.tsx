@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireUser, getOrgMemberships } from "@/lib/auth/guards";
+import { requireRegistered, getOrgMemberships } from "@/lib/auth/guards";
 import { Card, Badge, Button, EmptyState, PageHeader } from "@/components/ui";
 
 export const metadata = { title: "Corporate", robots: { index: false, follow: false } };
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const STATUS_TONE = { approved: "ok", pending: "warn", suspended: "bad", rejected: "bad" } as const;
 
 export default async function CorporateHome() {
-  const user = await requireUser("/corporate");
+  const user = await requireRegistered("/corporate");
 
   let orgs;
   try {

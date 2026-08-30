@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import { verifyOtp } from "@/lib/auth/otp";
 import { dbErrorHint } from "@/db/errors";
 import { env } from "@/env";
@@ -27,11 +30,19 @@ export async function POST(req: Request) {
   try {
     // Dry run: never consumes the code, so the real sign-in below still works.
     const result = await verifyOtp(parsed.data.phone, parsed.data.code, { consume: false });
+    if (!result.ok) return NextResponse.json(result, { status: 400 });
+
+    // Where to send them after sign-in. A brand-new number always needs
+    // registration; an existing account needs it only if it never finished.
+    let needsRegistration = result.isNewUser;
+    if (!result.isNewUser && result.userId) {
+      const [row] = await db.select({ registeredAt: users.registeredAt })
+        .from(users).where(eq(users.id, result.userId)).limit(1);
+      needsRegistration = !row?.registeredAt;
+    }
+
     // Never return the userId from a dry run.
-    return NextResponse.json(
-      result.ok ? { ok: true, isNewUser: result.isNewUser } : result,
-      { status: result.ok ? 200 : 400 },
-    );
+    return NextResponse.json({ ok: true, isNewUser: result.isNewUser, needsRegistration });
   } catch (err) {
     console.error("[auth/otp/verify] failed:", err);
     const hint = env().NODE_ENV === "development" ? dbErrorHint(err) : null;
