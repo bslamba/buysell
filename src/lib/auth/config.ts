@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { env } from "@/env";
-import { verifyOtp } from "./otp";
+import { verifyEmailOtp } from "./email-otp";
 import { normaliseEmail } from "./email";
 
 import type { Role } from "./roles";
@@ -34,16 +34,26 @@ export const authConfig: NextAuthConfig = {
       ? [Google({ clientId: env().AUTH_GOOGLE_ID!, clientSecret: env().AUTH_GOOGLE_SECRET!, allowDangerousEmailAccountLinking: false })]
       : []),
 
+    /**
+     * Email code. The way in.
+     *
+     * Phone used to be this provider. It is not any more: an Indian phone
+     * number cannot be verified without an SMS vendor and DLT registration,
+     * which would put a regulator between a new user and the front door. Email
+     * needs nothing, so it opens the account; phone is then mandatory on the
+     * profile, where waiting on a vendor blocks completing an account rather
+     * than starting one.
+     */
     Credentials({
-      id: "phone-otp",
-      name: "Phone",
-      credentials: { phone: { label: "Phone" }, code: { label: "Code" } },
+      id: "email-otp",
+      name: "Email",
+      credentials: { email: { label: "Email" }, code: { label: "Code" } },
       async authorize(raw) {
-        const phone = typeof raw?.phone === "string" ? raw.phone : "";
+        const email = typeof raw?.email === "string" ? raw.email : "";
         const code = typeof raw?.code === "string" ? raw.code : "";
-        const result = await verifyOtp(phone, code);
+        const result = await verifyEmailOtp(email, code);
         if (!result.ok) return null;
-        return { id: result.userId, phone: result.phone } as { id: string; phone: string };
+        return { id: result.userId, email: result.email } as { id: string; email: string };
       },
     }),
   ],
@@ -86,7 +96,7 @@ export const authConfig: NextAuthConfig = {
       if (token.sub && (user || trigger === "update" || stale)) {
         const [row] = await db
           .select({
-            role: users.role, phone: users.phone, name: users.name,
+            role: users.role, phone: users.phone, name: users.name, email: users.email,
             kyc: users.kyc, trustScore: users.trustScore,
             phoneVerifiedAt: users.phoneVerifiedAt, bannedAt: users.bannedAt,
           })
@@ -95,6 +105,7 @@ export const authConfig: NextAuthConfig = {
         if (!row || row.bannedAt) return null; // invalidates the session
         token.role = row.role;
         token.phone = row.phone ?? undefined;
+        token.email = row.email ?? token.email;
         token.name = row.name ?? token.name;
         token.kyc = row.kyc;
         token.trustScore = row.trustScore;
@@ -108,6 +119,7 @@ export const authConfig: NextAuthConfig = {
       if (token.sub) session.user.id = token.sub;
       session.user.role = (token.role as Role) ?? "user";
       session.user.phone = token.phone as string | undefined;
+      session.user.email = (token.email as string | undefined) ?? session.user.email;
       session.user.kyc = token.kyc as string | undefined;
       session.user.trustScore = token.trustScore as number | undefined;
       session.user.phoneVerified = Boolean(token.phoneVerified);

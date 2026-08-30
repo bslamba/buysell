@@ -1,5 +1,5 @@
 import { createHash, randomInt, timingSafeEqual } from "node:crypto";
-import { and, eq, gt, isNull, desc, ne } from "drizzle-orm";
+import { and, eq, gt, isNull, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { emailChallenges, users } from "@/db/schema";
 import { env } from "@/env";
@@ -8,14 +8,18 @@ import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { normaliseEmail } from "./email";
 
 /**
- * Email verification codes.
+ * Email codes — the way in.
  *
- * Deliberately the same rules as the phone flow in ./otp.ts: codes are stored
- * only as a digest, attempts are counted per challenge, and a code works once.
- * The one addition is the uniqueness check — an address already verified by a
- * different account is refused before a code is ever sent, so someone probing
- * for "is this person on WorthIt" gets no more from us than the person who
- * simply typed their own address.
+ * Email is the sign-in identity because it is the one channel that works today
+ * without a regulator's permission. Sending SMS to an Indian number needs DLT
+ * registration of the entity, the header and every template before a carrier
+ * will deliver anything; email needs an API key, and works with none at all in
+ * development. Phone is still mandatory, but it is collected and verified after
+ * sign-in, on the profile, where waiting for an SMS provider blocks completing
+ * an account rather than blocking the front door.
+ *
+ * Rules are the same as the phone flow: codes stored only as a digest, attempts
+ * counted per challenge, a code works exactly once.
  */
 
 export const EMAIL_OTP_TTL_MINUTES = 10;
@@ -36,27 +40,17 @@ export type RequestEmailOtpResult =
   | { ok: true; expiresAt: Date; devCode?: string }
   | { ok: false; error: string; retryAfterSec?: number };
 
-/** True when this normalised address already belongs to a different account. */
-export async function emailTakenByAnother(normalised: string, userId: string): Promise<boolean> {
-  const [row] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(and(eq(users.emailNormalised, normalised), ne(users.id, userId)))
-    .limit(1);
-  return Boolean(row);
-}
-
-export async function requestEmailOtp(
-  rawEmail: string,
-  userId: string,
-  ip: string,
-): Promise<RequestEmailOtpResult> {
+/**
+ * Send a sign-in code.
+ *
+ * Deliberately says nothing about whether the address already has an account.
+ * The response is identical either way, so this endpoint cannot be used to ask
+ * "is this person on WorthIt" — which for a marketplace where the answer might
+ * be "yes, and here is their listing" is worth protecting.
+ */
+export async function requestEmailOtp(rawEmail: string, ip: string): Promise<RequestEmailOtpResult> {
   const normalised = normaliseEmail(rawEmail);
   if (!normalised) return { ok: false, error: "Enter a valid email address." };
-
-  if (await emailTakenByAnother(normalised, userId)) {
-    return { ok: false, error: "That email is already on another WorthIt account. One account per person." };
-  }
 
   const byEmail = await rateLimit("email-req", normalised, LIMITS.otpRequestPerPhone.limit, LIMITS.otpRequestPerPhone.windowSec);
   if (!byEmail.ok) {
@@ -70,9 +64,7 @@ export async function requestEmailOtp(
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
   const expiresAt = new Date(Date.now() + EMAIL_OTP_TTL_MINUTES * 60_000);
 
-  await db.insert(emailChallenges).values({
-    email: normalised, userId, codeHash: digest(normalised, code), expiresAt, ip,
-  });
+  await db.insert(emailChallenges).values({ email: normalised, codeHash: digest(normalised, code), expiresAt, ip });
 
   const { subject, text } = verificationEmail(code);
   try {
@@ -84,9 +76,24 @@ export async function requestEmailOtp(
   return { ok: true, expiresAt, devCode: env().NODE_ENV === "development" ? code : undefined };
 }
 
-export type VerifyEmailOtpResult = { ok: true } | { ok: false; error: string };
+export type VerifyEmailOtpResult =
+  | { ok: true; userId: string; email: string; isNewUser: boolean }
+  | { ok: false; error: string };
 
-export async function verifyEmailOtp(rawEmail: string, code: string, userId: string): Promise<VerifyEmailOtpResult> {
+/**
+ * Verify a sign-in code, creating the account on first use.
+ *
+ * `consume: false` is a dry run so the UI can say "2 attempts left" before
+ * handing off to Auth.js; only the real sign-in consumes the challenge, because
+ * a code must work exactly once. Failed attempts count either way, so the dry
+ * run is not a free brute-force oracle.
+ */
+export async function verifyEmailOtp(
+  rawEmail: string,
+  code: string,
+  opts: { consume?: boolean } = {},
+): Promise<VerifyEmailOtpResult> {
+  const consume = opts.consume ?? true;
   const normalised = normaliseEmail(rawEmail);
   if (!normalised) return { ok: false, error: "Enter a valid email address." };
   if (!/^\d{6}$/.test(code)) return { ok: false, error: "Enter the 6-digit code." };
@@ -99,7 +106,6 @@ export async function verifyEmailOtp(rawEmail: string, code: string, userId: str
     .from(emailChallenges)
     .where(and(
       eq(emailChallenges.email, normalised),
-      eq(emailChallenges.userId, userId),
       isNull(emailChallenges.consumedAt),
       gt(emailChallenges.expiresAt, new Date()),
     ))
@@ -117,12 +123,32 @@ export async function verifyEmailOtp(rawEmail: string, code: string, userId: str
     return { ok: false, error: left > 0 ? `Incorrect code. ${left} attempt${left === 1 ? "" : "s"} left.` : "Too many wrong attempts. Request a new code." };
   }
 
-  // Re-check at the moment of writing: someone else may have verified this
-  // address between the send and the confirm.
-  if (await emailTakenByAnother(normalised, userId)) {
-    return { ok: false, error: "That email was just claimed by another account." };
+  if (consume) {
+    await db.update(emailChallenges).set({ consumedAt: new Date() }).where(eq(emailChallenges.id, challenge.id));
   }
 
-  await db.update(emailChallenges).set({ consumedAt: new Date() }).where(eq(emailChallenges.id, challenge.id));
-  return { ok: true };
+  const [existing] = await db.select().from(users).where(eq(users.emailNormalised, normalised)).limit(1);
+  if (existing) {
+    if (existing.bannedAt) return { ok: false, error: "This account has been suspended. Contact support." };
+    if (!existing.emailVerifiedAt) {
+      await db.update(users).set({ emailVerifiedAt: new Date(), updatedAt: new Date() }).where(eq(users.id, existing.id));
+    }
+    return { ok: true, userId: existing.id, email: normalised, isNewUser: false };
+  }
+
+  if (!consume) {
+    // Valid code for an address we have never seen. Report success without
+    // creating the account; sign-in will create it a moment later.
+    return { ok: true, userId: "", email: normalised, isNewUser: true };
+  }
+
+  const [created] = await db
+    .insert(users)
+    .values({
+      email: rawEmail.trim(), emailNormalised: normalised,
+      emailVerifiedAt: new Date(), role: "user",
+    })
+    .returning({ id: users.id });
+
+  return { ok: true, userId: created.id, email: normalised, isNewUser: true };
 }

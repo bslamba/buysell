@@ -537,7 +537,43 @@ redirects to /signin. The delete script was exercised on both paths — a wrong
 confirmation deletes nothing, the right one removed the account and its three
 phone challenges and freed the phone and email to register again.
 
+## 2026-08-30 — Email is the way in; phone moves to the profile
+
+The front door is now **email + a 6-digit code**. Phone is still mandatory, but
+it is collected and verified on the profile, immediately after sign-in.
+
+The reason is regulatory, not aesthetic. An Indian phone number cannot be
+verified without an SMS vendor and DLT registration of the entity, the header
+and every template — that is a regulator standing between a new user and the
+front door, and until it clears nobody can even get in. Email needs an API key,
+and works with none at all in development. Putting phone second means waiting on
+a vendor blocks *finishing* an account rather than *starting* one, and the
+uniqueness guarantee is unchanged because an account cannot do anything until
+its number is verified.
+
+- `phone-otp` retired as an Auth.js provider; `email-otp` replaces it. Email
+  challenges no longer need an existing user — the account is created on first
+  successful verify, the way the phone flow used to work.
+- `verifyOtp` no longer creates accounts. An account always exists by the time a
+  number is claimed, so it only attaches a number to the signed-in user, having
+  checked no one else holds it — before sending, again before writing, with the
+  unique constraint underneath both.
+- `/signin` is an email field. `/register` asks name, date of birth and mobile,
+  then verifies the mobile.
+- `/verify-phone` became a redirect to `/register` rather than a 404: it reused
+  the sign-in form, which is now email, and there should be exactly one place a
+  number gets attached to an account. `requireVerifiedPhone` points there too —
+  an account without a verified number is one that never finished.
+
+Verified end to end in a browser: a new address signs in and lands on
+/register; completing it with a mobile lands home with both identifiers on the
+account page; a **different** email trying to claim an already-registered mobile
+is refused before any SMS is spent; and signing in with a Gmail **alias** of an
+existing account lands in that same account rather than making a second one —
+one row in the database, confirmed by query. 60 tests passing.
+
 ### Next
+- An SMS provider, so phone verification works outside development
 - Phase 2: listing creation, image upload to Vercel Blob, fingerprinting on ingest
 - Wire ModerationServices to real queries (pgvector Hamming, price percentiles, CEIR)
 - Run migrations against a real Neon database — not yet verified against live Postgres

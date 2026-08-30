@@ -25,7 +25,7 @@ export function RegisterForm({ next, initialName }: { next: string; initialName?
   const [step, setStep] = useState<Step>("details");
   const [name, setName] = useState(initialName ?? "");
   const [dob, setDob] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -47,14 +47,14 @@ export function RegisterForm({ next, initialName }: { next: string; initialName?
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, dateOfBirth: dob, email }),
+        body: JSON.stringify({ name, dateOfBirth: dob, phone }),
       });
       const data = await readJson(res);
       if (!data) { setError(serverFailure(res)); return; }
       if (!data.ok) { setError(data.error ?? "Could not send the code."); return; }
       setStep("code");
       setCooldown(30);
-      setNotice(data.devCode ? `Development mode — your code is ${data.devCode}` : `Code sent to ${email.trim()}.`);
+      setNotice(data.devCode ? `Development mode — your code is ${data.devCode}` : `Code sent to +91 ${phone.replace(/\D/g, "").slice(-10)}.`);
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally { setBusy(false); }
@@ -66,7 +66,7 @@ export function RegisterForm({ next, initialName }: { next: string; initialName?
       const res = await fetch("/api/register/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ phone, code }),
       });
       const data = await readJson(res);
       if (!data) { setError(serverFailure(res)); return; }
@@ -79,7 +79,7 @@ export function RegisterForm({ next, initialName }: { next: string; initialName?
     } finally { setBusy(false); }
   }
 
-  const detailsReady = name.trim().length >= 2 && dob.length === 10 && email.trim().length > 5;
+  const detailsReady = name.trim().length >= 2 && dob.length === 10 && phone.replace(/\D/g, "").length >= 10;
 
   return (
     <div className="space-y-5">
@@ -99,12 +99,15 @@ export function RegisterForm({ next, initialName }: { next: string; initialName?
             />
           </Field>
 
-          <Field label="Email address" hint="We'll send a 6-digit code to confirm it's yours.">
-            <input
-              type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email" placeholder="you@example.com" maxLength={254}
-              onKeyDown={(e) => { if (e.key === "Enter" && detailsReady && !busy) submitDetails(); }}
-            />
+          <Field label="Mobile number" hint="Indian mobile numbers only. This is what keeps one person to one account — buyers never see it.">
+            <div className="flex items-center gap-2">
+              <span className="rounded-xl border border-hairline bg-canvas px-3.5 py-3 text-sm text-ink-2">+91</span>
+              <input
+                className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)}
+                inputMode="numeric" autoComplete="tel" placeholder="98765 43210" maxLength={15}
+                onKeyDown={(e) => { if (e.key === "Enter" && detailsReady && !busy) submitDetails(); }}
+              />
+            </div>
           </Field>
 
           <Button className="w-full" onClick={submitDetails} disabled={busy || !detailsReady}>
@@ -113,7 +116,7 @@ export function RegisterForm({ next, initialName }: { next: string; initialName?
         </>
       ) : (
         <>
-          <Field label="Enter the 6-digit code" hint={`Sent to ${email.trim()}`}>
+          <Field label="Enter the 6-digit code" hint={`Sent to +91 ${phone.replace(/\D/g, "").slice(-10)}`}>
             <input
               ref={codeRef} className={`${inputClass} text-center tracking-[0.4em]`}
               inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="••••••"

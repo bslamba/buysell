@@ -32,8 +32,9 @@ export default async function SignInPage({
         <Eyebrow>Welcome</Eyebrow>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Sign in to {brand.name}</h1>
         <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-ink-2">
-          Your phone number is what keeps this marketplace honest — it&apos;s how we stop one person
-          running ten seller accounts. Buyers never see it.
+          No password. We send a 6-digit code to your email, and that&apos;s the whole sign-in.
+          You&apos;ll add a mobile number next — it&apos;s what keeps one person to one account,
+          and buyers never see it.
         </p>
       </div>
 

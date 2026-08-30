@@ -47,8 +47,9 @@ export default async function RegisterPage({
         <Eyebrow>One more step</Eyebrow>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Complete your account</h1>
         <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-ink-2">
-          Your phone is verified. We need a name and a working email so buyers and sellers
-          can be reached about an order — and so one person holds one account, not ten.
+          Your email is verified. We need a name, your date of birth, and a mobile number
+          we can verify — the number is what keeps one person to one account, not ten.
+          Buyers never see it.
         </p>
       </div>
 
@@ -57,8 +58,8 @@ export default async function RegisterPage({
       </Card>
 
       <p className="mt-8 text-center text-xs leading-relaxed text-ink-3">
-        {brand.name} uses your email for order updates and account recovery. It is never shown
-        on a listing.
+        {brand.name} uses your email for order updates and your mobile number only to verify
+        that you are one person. Neither is ever shown on a listing.
       </p>
     </div>
   );

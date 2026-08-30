@@ -1,29 +1,21 @@
-import { requireUser } from "@/lib/auth/guards";
-import { Card, Eyebrow } from "@/components/ui";
-import { SignInForm } from "../signin/signin-form";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Verify your phone", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
+/**
+ * Kept as a redirect, not deleted.
+ *
+ * Phone verification used to live here, reusing the sign-in form back when
+ * phone was the sign-in identity. It is now part of completing the profile, so
+ * there is exactly one place a number gets attached to an account. The route
+ * stays because /sell links to it and someone may have it bookmarked; sending
+ * them to the real page beats a 404.
+ */
 export default async function VerifyPhonePage({
   searchParams,
 }: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await searchParams;
-  await requireUser("/verify-phone");
   const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/sell";
-
-  return (
-    <div className="mx-auto max-w-md px-6 py-20">
-      <div className="text-center">
-        <Eyebrow>One more step</Eyebrow>
-        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Verify your phone to sell</h1>
-        <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-ink-2">
-          Selling needs a verified Indian mobile number. Buyers never see it.
-        </p>
-      </div>
-      <Card className="mt-10">
-        <SignInForm next={target} googleEnabled={false} />
-      </Card>
-    </div>
-  );
+  redirect(`/register?next=${encodeURIComponent(target)}`);
 }

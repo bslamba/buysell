@@ -1,5 +1,5 @@
 import { createHash, randomInt, timingSafeEqual } from "node:crypto";
-import { and, eq, gt, isNull, desc } from "drizzle-orm";
+import { and, eq, gt, isNull, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { otpChallenges, users } from "@/db/schema";
 import { env } from "@/env";
@@ -28,9 +28,31 @@ export type RequestOtpResult =
   | { ok: true; expiresAt: Date; devCode?: string }
   | { ok: false; error: string; retryAfterSec?: number };
 
-export async function requestOtp(rawPhone: string, ip: string): Promise<RequestOtpResult> {
+/** True when this number already belongs to a different account. */
+export async function phoneTakenByAnother(phone: string, userId: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.phone, phone), ne(users.id, userId)))
+    .limit(1);
+  return Boolean(row);
+}
+
+/**
+ * Send a code to a phone number, for the signed-in account claiming it.
+ *
+ * Phone is no longer the way in — email is — so this always runs on behalf of a
+ * known user. That is what lets it refuse a number already held by someone
+ * else before spending a message, and it is the check that keeps one person to
+ * one account now that the front door is an address anyone can create.
+ */
+export async function requestOtp(rawPhone: string, userId: string, ip: string): Promise<RequestOtpResult> {
   const phone = normalisePhone(rawPhone);
   if (!phone) return { ok: false, error: "Enter a valid 10-digit Indian mobile number." };
+
+  if (await phoneTakenByAnother(phone, userId)) {
+    return { ok: false, error: "That mobile number is already on another WorthIt account. One account per person." };
+  }
 
   const byPhone = await rateLimit("otp-req-phone", phone, LIMITS.otpRequestPerPhone.limit, LIMITS.otpRequestPerPhone.windowSec);
   if (!byPhone.ok) {
@@ -57,25 +79,19 @@ export async function requestOtp(rawPhone: string, ip: string): Promise<RequestO
   return { ok: true, expiresAt, devCode: env().NODE_ENV === "development" ? code : undefined };
 }
 
-export type VerifyOtpResult =
-  | { ok: true; userId: string; phone: string; isNewUser: boolean }
-  | { ok: false; error: string };
+export type VerifyOtpResult = { ok: true; phone: string } | { ok: false; error: string };
 
 /**
- * Verify a code.
+ * Verify a code and attach the number to the signed-in account.
  *
- * `consume: false` is a dry run used by the UI to produce a precise error
- * message ("2 attempts left") before handing off to Auth.js. Only the real
- * sign-in path consumes the challenge, because a code must work exactly once.
- * Failed attempts increment the counter either way, so the dry run cannot be
- * used to brute-force for free.
+ * This used to create accounts, because phone was the sign-in identity. It no
+ * longer is: an account already exists by the time anyone gets here, so this
+ * only ever claims a number for it. The uniqueness check runs again at the
+ * moment of writing — someone else may have claimed the number between the send
+ * and the confirm — and the unique constraint on users.phone is the backstop
+ * under both.
  */
-export async function verifyOtp(
-  rawPhone: string,
-  code: string,
-  opts: { consume?: boolean } = {},
-): Promise<VerifyOtpResult> {
-  const consume = opts.consume ?? true;
+export async function verifyOtp(rawPhone: string, code: string, userId: string): Promise<VerifyOtpResult> {
   const phone = normalisePhone(rawPhone);
   if (!phone) return { ok: false, error: "Enter a valid 10-digit Indian mobile number." };
   if (!/^\d{6}$/.test(code)) return { ok: false, error: "Enter the 6-digit code." };
@@ -101,29 +117,14 @@ export async function verifyOtp(
     return { ok: false, error: left > 0 ? `Incorrect code. ${left} attempt${left === 1 ? "" : "s"} left.` : "Too many wrong attempts. Request a new code." };
   }
 
-  if (consume) {
-    await db.update(otpChallenges).set({ consumedAt: new Date() }).where(eq(otpChallenges.id, challenge.id));
+  if (await phoneTakenByAnother(phone, userId)) {
+    return { ok: false, error: "That mobile number was just claimed by another account." };
   }
 
-  const [existing] = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
-  if (existing) {
-    if (existing.bannedAt) return { ok: false, error: "This account has been suspended. Contact support." };
-    if (!existing.phoneVerifiedAt) {
-      await db.update(users).set({ phoneVerifiedAt: new Date(), updatedAt: new Date() }).where(eq(users.id, existing.id));
-    }
-    return { ok: true, userId: existing.id, phone, isNewUser: false };
-  }
+  await db.update(otpChallenges).set({ consumedAt: new Date() }).where(eq(otpChallenges.id, challenge.id));
+  await db.update(users)
+    .set({ phone, phoneVerifiedAt: new Date(), updatedAt: new Date() })
+    .where(eq(users.id, userId));
 
-  if (!consume) {
-    // Valid code for a number we have never seen. Report success without
-    // creating the account; sign-in will create it a moment later.
-    return { ok: true, userId: "", phone, isNewUser: true };
-  }
-
-  const [created] = await db
-    .insert(users)
-    .values({ phone, phoneVerifiedAt: new Date(), role: "user" })
-    .returning({ id: users.id });
-
-  return { ok: true, userId: created.id, phone, isNewUser: true };
+  return { ok: true, phone };
 }

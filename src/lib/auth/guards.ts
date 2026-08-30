@@ -43,10 +43,16 @@ export async function requireRole(minimum: Role, returnTo = "/"): Promise<Sessio
   return user;
 }
 
-/** Selling requires a verified phone in every category. */
+/**
+ * Selling requires a verified phone in every category.
+ *
+ * Sends people to /register rather than a standalone verify page: a phone is
+ * now attached during registration, so an account without a verified number is
+ * an account that never finished, and finishing it is the thing to ask for.
+ */
 export async function requireVerifiedPhone(returnTo = "/"): Promise<SessionUser> {
   const user = await requireUser(returnTo);
-  if (!user.phoneVerified) redirect(`/verify-phone?next=${encodeURIComponent(returnTo)}`);
+  if (!user.phoneVerified) redirect(`/register?next=${encodeURIComponent(returnTo)}`);
   return user;
 }
 

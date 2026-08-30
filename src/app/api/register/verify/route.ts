@@ -5,22 +5,21 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { env } from "@/env";
 import { currentUser } from "@/lib/auth/guards";
-import { normaliseEmail } from "@/lib/auth/email";
-import { verifyEmailOtp } from "@/lib/auth/email-otp";
+import { verifyOtp } from "@/lib/auth/otp";
 import { dbErrorHint } from "@/db/errors";
 
 export const runtime = "nodejs";
 
-const Body = z.object({ email: z.string().trim().min(6).max(254), code: z.string().trim().length(6) });
+const Body = z.object({ phone: z.string().trim().min(6).max(20), code: z.string().trim().length(6) });
 
-/** Postgres unique_violation — the last line of defence on one-account-per-email. */
+/** Postgres unique_violation — the last line of defence on one account per phone. */
 function isUniqueViolation(err: unknown): boolean {
   return typeof err === "object" && err !== null && (err as { code?: string }).code === "23505";
 }
 
 /**
- * Step two: confirm the code, then write the address and mark registration
- * complete. Only now does the account own the email.
+ * Step two: confirm the code, which attaches the number to this account, then
+ * mark registration complete. Only now does the account own the number.
  */
 export async function POST(req: Request) {
   const me = await currentUser();
@@ -34,33 +33,22 @@ export async function POST(req: Request) {
   }
   if (!parsed.success) return NextResponse.json({ ok: false, error: "Enter the 6-digit code." }, { status: 400 });
 
-  const normalised = normaliseEmail(parsed.data.email);
-  if (!normalised) return NextResponse.json({ ok: false, error: "Enter a valid email address." }, { status: 400 });
-
   try {
-    const result = await verifyEmailOtp(parsed.data.email, parsed.data.code, me.id);
+    const result = await verifyOtp(parsed.data.phone, parsed.data.code, me.id);
     if (!result.ok) return NextResponse.json(result, { status: 400 });
 
-    const now = new Date();
-    const [row] = await db.select({ name: users.name, dateOfBirth: users.dateOfBirth })
+    const [row] = await db.select({ name: users.name, dateOfBirth: users.dateOfBirth, emailVerifiedAt: users.emailVerifiedAt })
       .from(users).where(eq(users.id, me.id)).limit(1);
-    if (!row?.name || !row?.dateOfBirth) {
+    if (!row?.name || !row?.dateOfBirth || !row?.emailVerifiedAt) {
       return NextResponse.json({ ok: false, error: "Your details are missing. Start again." }, { status: 400 });
     }
 
-    await db.update(users).set({
-      email: parsed.data.email.trim(),
-      emailNormalised: normalised,
-      emailVerifiedAt: now,
-      registeredAt: now,
-      updatedAt: now,
-    }).where(eq(users.id, me.id));
-
+    await db.update(users).set({ registeredAt: new Date(), updatedAt: new Date() }).where(eq(users.id, me.id));
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (isUniqueViolation(err)) {
       return NextResponse.json(
-        { ok: false, error: "That email is already on another WorthIt account. One account per person." },
+        { ok: false, error: "That mobile number is already on another WorthIt account. One account per person." },
         { status: 409 },
       );
     }

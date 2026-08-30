@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { Button, Field, inputClass } from "@/components/ui";
 
-type Step = "phone" | "code";
+type Step = "email" | "code";
 
 /**
  * The catch block below means "the request never completed" — a dropped
@@ -29,8 +29,8 @@ function serverFailure(res: Response): string {
 }
 
 export function SignInForm({ next, googleEnabled }: { next: string; googleEnabled: boolean }) {
-  const [step, setStep] = useState<Step>("phone");
-  const [phone, setPhone] = useState("");
+  const [step, setStep] = useState<Step>("email");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -51,17 +51,17 @@ export function SignInForm({ next, googleEnabled }: { next: string; googleEnable
   async function sendCode() {
     setError(null); setNotice(null); setBusy(true);
     try {
-      const res = await fetch("/api/auth/otp/request", {
+      const res = await fetch("/api/auth/email/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ email }),
       });
       const data = await readJson(res);
       if (!data) { setError(serverFailure(res)); return; }
       if (!data.ok) { setError(data.error ?? "Could not send the code."); return; }
       setStep("code");
       setCooldown(30);
-      setNotice(data.devCode ? `Development mode — your code is ${data.devCode}` : `Code sent to +91 ${phone.replace(/\D/g, "").slice(-10)}.`);
+      setNotice(data.devCode ? `Development mode — your code is ${data.devCode}` : `Code sent to ${email.trim()}.`);
     } catch {
       setError("Network error. Check your connection and try again.");
     } finally {
@@ -73,16 +73,16 @@ export function SignInForm({ next, googleEnabled }: { next: string; googleEnable
     setError(null); setBusy(true);
     try {
       // Pre-flight for a precise error message. This does not consume the code.
-      const pre = await fetch("/api/auth/otp/verify", {
+      const pre = await fetch("/api/auth/email/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code }),
+        body: JSON.stringify({ email, code }),
       });
       const data = await readJson(pre);
       if (!data) { setError(serverFailure(pre)); return; }
       if (!data.ok) { setError(data.error ?? "That code is not right."); return; }
 
-      const result = await signIn("phone-otp", { phone, code, redirect: false });
+      const result = await signIn("email-otp", { email, code, redirect: false });
       if (result?.error) { setError("Sign-in failed. Request a new code and try again."); return; }
       // A phone-verified account still has to finish registration — name, date
       // of birth and a verified email — before it can do anything here.
@@ -105,31 +105,28 @@ export function SignInForm({ next, googleEnabled }: { next: string; googleEnable
           </Button>
           <div className="flex items-center gap-3 text-xs text-ink-3">
             <span className="h-px flex-1 bg-hairline" />
-            or use your phone
+            or use your email
             <span className="h-px flex-1 bg-hairline" />
           </div>
         </>
       )}
 
-      {step === "phone" ? (
+      {step === "email" ? (
         <form onSubmit={(e) => { e.preventDefault(); void sendCode(); }} className="space-y-5">
-          <Field label="Mobile number" hint="Indian mobile numbers only. We'll send a 6-digit code.">
-            <div className="flex items-center gap-2">
-              <span className="border border-hairline bg-canvas rounded-xl px-3.5 py-3 text-sm text-ink-2">+91</span>
-              <input
-                className={inputClass}
-                inputMode="numeric" autoComplete="tel" placeholder="98765 43210"
-                value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={15} required
-              />
-            </div>
+          <Field label="Email address" hint="We'll send a 6-digit code. No password to remember.">
+            <input
+              type="email" className={inputClass}
+              autoComplete="email" placeholder="you@example.com"
+              value={email} onChange={(e) => setEmail(e.target.value)} maxLength={254} required
+            />
           </Field>
-          <Button type="submit" className="w-full" disabled={busy || phone.replace(/\D/g, "").length < 10}>
+          <Button type="submit" className="w-full" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())}>
             {busy ? "Sending…" : "Send code"}
           </Button>
         </form>
       ) : (
         <form onSubmit={(e) => { e.preventDefault(); void submitCode(); }} className="space-y-5">
-          <Field label="Enter the 6-digit code" hint={`Sent to +91 ${phone.replace(/\D/g, "").slice(-10)}`}>
+          <Field label="Enter the 6-digit code" hint={`Sent to ${email.trim()}`}>
             <input
               ref={codeRef} className={`${inputClass} text-center text-2xl font-semibold tracking-[0.45em]`}
               inputMode="numeric" autoComplete="one-time-code" placeholder="······"
@@ -142,8 +139,8 @@ export function SignInForm({ next, googleEnabled }: { next: string; googleEnable
           </Button>
           <div className="flex items-center justify-between text-xs">
             <button type="button" className="text-ink-2 hover:text-ink"
-              onClick={() => { setStep("phone"); setCode(""); setError(null); setNotice(null); }}>
-              Change number
+              onClick={() => { setStep("email"); setCode(""); setError(null); setNotice(null); }}>
+              Change email
             </button>
             <button type="button" className="font-semibold text-brand hover:text-brand-600 disabled:text-ink-3"
               disabled={cooldown > 0 || busy} onClick={() => void sendCode()}>
